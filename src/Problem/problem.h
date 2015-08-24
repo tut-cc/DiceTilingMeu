@@ -10,7 +10,7 @@ template <class F, class S>
 class Problem {
   public:
     virtual ~Problem() {};
-    virtual std::unique_ptr<Field> get_field();
-    virtual std::vector<std::weak_ptr<Stone>> get_stones();
+    virtual std::unique_ptr<Field> get_field() = 0;
+    virtual std::vector<std::weak_ptr<Stone>> get_stones() = 0;
 };
 
