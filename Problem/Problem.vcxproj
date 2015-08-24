@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F80BD449-F3EB-4867-AEE8-464D8D4695A1}</ProjectGuid>
-    <RootNamespace>DTM_Main</RootNamespace>
+    <ProjectGuid>{3393CBF7-A300-4489-B1C9-60FC05A15A88}</ProjectGuid>
+    <RootNamespace>Problem</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -64,7 +64,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\SimpleProblem.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\problem.h" />
+    <ClInclude Include="src\SimpleProblem.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

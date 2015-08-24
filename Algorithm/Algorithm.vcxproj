@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F80BD449-F3EB-4867-AEE8-464D8D4695A1}</ProjectGuid>
-    <RootNamespace>DTM_Main</RootNamespace>
+    <ProjectGuid>{26023DDE-351B-4767-B201-BD264D6174FE}</ProjectGuid>
+    <RootNamespace>Algorithm</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -64,7 +64,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Ritalgo.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\algorithm.h" />
+    <ClInclude Include="include\Beamalgo.h" />
+    <ClInclude Include="include\meu.h" />
+    <ClInclude Include="include\Ritalgo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

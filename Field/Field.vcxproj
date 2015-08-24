@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F80BD449-F3EB-4867-AEE8-464D8D4695A1}</ProjectGuid>
-    <RootNamespace>DTM_Main</RootNamespace>
+    <ProjectGuid>{35B6A037-9BB1-4D6B-ABEC-D79906B07AA8}</ProjectGuid>
+    <RootNamespace>Field</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -64,7 +64,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
+    <ClInclude Include="include\field.h" />
+    <ClInclude Include="src\field.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
