@@ -1,21 +1,23 @@
-//Î‚ğ’u‚­”Õ–Ê‚ÌƒNƒ‰ƒX
+//çŸ³ã‚’ç½®ãç›¤é¢ã®ã‚¯ãƒ©ã‚¹
+#pragma once
 #include "../Stone/stone.h"
+#include <memory>
 
-#define ST 1
-#define NO 0
 class Field {
 private:
-	int[][] field;
 	
 public:
-	//–â‘è‚Æ“¯—l‚ÌŒ`®‚Ì•¶š—ñ‚ª“n‚³‚ê‚é
+	static const int NO = 0;
+	static const int ST = 1;
+	//å•é¡Œã¨åŒæ§˜ã®å½¢å¼ã®æ–‡å­—åˆ—ãŒæ¸¡ã•ã‚Œã‚‹
 	Field(string str){
 	}
 	
-	//•W€“ü—Í‚©‚çField‚ğì¬‚·‚é
+	//æ¨™æº–å…¥åŠ›ã‹ã‚‰Fieldã‚’ä½œæˆã™ã‚‹
 	Field(){
 	}
 	virtual bool at(int x, int y) = 0;
 	virtual bool apply(Stone s, int x, int y) = 0;
+	std::unique_ptr<Field> clone() = 0;
 };
 
