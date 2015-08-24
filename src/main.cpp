@@ -1,5 +1,4 @@
-#include "algorithm.h"
-#include "Ritalgo.h"
+#include "Algorithm/Ritalgo.h"
 #include <iostream>
 
 int main()
