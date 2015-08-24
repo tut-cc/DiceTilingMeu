@@ -1,7 +1,12 @@
+#include "algorithm.h"
+#include "Ritalgo.h"
 #include <iostream>
 
 int main()
 {
-  std::cout << "hello wor;d" << std::endl;
+  auto solver = new Ritalgo();
+  solver -> solve();
+  delete solver;
   return 0;
 }
+
