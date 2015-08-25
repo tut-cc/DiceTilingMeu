@@ -20,11 +20,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\SimpleProblem.hpp">
-      <Filter>ソース ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="include\problem.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SimpleProblem.hpp">
+      <Filter>ソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

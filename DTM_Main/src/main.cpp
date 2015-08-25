@@ -1,4 +1,4 @@
-#include "../include/Ritalgo.h"
+#include "../../Algorithm/include/Ritalgo.h"
 #include <iostream>
 
 int main()
