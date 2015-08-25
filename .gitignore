@@ -30,3 +30,6 @@
 # Excutable dir
 bin/
 
+# dependence file
+*.d
+
