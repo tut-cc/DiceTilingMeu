@@ -1,6 +1,6 @@
 //石を置く盤面のクラス
 #pragma once
-#include "stone.h"
+#include "../../Stone/include/stone.h"
 #include <memory>
 
 class Field {
