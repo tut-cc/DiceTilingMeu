@@ -1,4 +1,4 @@
-#include "SimpleProblem.h"
+#include "SimpleProblem.hpp"
 #include <iostream>
 
 template <class F, class S>
