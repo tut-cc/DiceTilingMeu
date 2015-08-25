@@ -1,4 +1,4 @@
-#include "Ritalgo.h"
+#include "../include/Ritalgo.h"
 #include <iostream>
 
 void Ritalgo::solve() {
