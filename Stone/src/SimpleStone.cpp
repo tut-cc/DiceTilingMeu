@@ -2,37 +2,24 @@
 #include <string>
 #include <iostream>
 
-SimpleStone::SimpleStone()
+SimpleStone::SimpleStone(std::vector<std::string> strs)
 {
   for (int i = 0; i < 8; ++i) {
-    std::string str;
-    std::cin >> str;
     for (int j = 0; j < 8; ++j) {
-      mat[i][j] = str.at(j);
+      mat[0][i][j] = strs[i][j] == '1';
     }
   }
-  angle = 0;
-}
-
-void SimpleStone::rotate()
-{
-  angle = (angle + 1) % 4;
-  bool nxt[32][32];
-  for (int i = 0; i < 8; ++i) {
-    for (int j = 0; j < 8; ++j) {
-      nxt[i][j] = this -> mat[7 - j][i];
-    }
-  }
-  for (int i = 0; i < 8; ++i) {
-    for (int j = 0; j < 8; ++j) {
-      this -> mat[i][j] = nxt[i][j];
+  for (int a = 1; a < 4; ++a) {
+    for (int i = 0; i < 8; ++i) {
+      for (int j = 0; j < 8; ++j) {
+        mat[a][i][j] = mat[a - 1][7 - j][i];
+      }
     }
   }
 }
 
-bool SimpleStone::at(int x, int y, int angle)
+bool SimpleStone::at(int x, int y, int angle) const
 {
-  for( int i = this->angle; i != angle; this -> rotate() );
-  return mat[y][x];
+  return mat[angle][y][x];
 }
 
