@@ -121,6 +121,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Beamalgo.cpp" />
     <ClCompile Include="src\Ritalgo.cpp" />
   </ItemGroup>
   <ItemGroup>

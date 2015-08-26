@@ -23,8 +23,8 @@
     <ClInclude Include="include\problem.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\SimpleProblem.hpp">
-      <Filter>ソース ファイル</Filter>
+    <ClInclude Include="include\SimpleProblem.hpp">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

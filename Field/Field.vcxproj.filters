@@ -18,8 +18,5 @@
     <ClInclude Include="include\field.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\field.h">
-      <Filter>ソース ファイル</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
