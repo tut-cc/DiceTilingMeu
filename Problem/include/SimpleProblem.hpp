@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Problem.h"
+#include "problem.hpp"
 
 class SimpleProblem : public Problem {
   private:

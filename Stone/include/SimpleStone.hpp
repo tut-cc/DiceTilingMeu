@@ -1,5 +1,5 @@
 #pragma once
-#include "stone.h"
+#include "stone.hpp"
 #include <vector>
 #include <string>
 

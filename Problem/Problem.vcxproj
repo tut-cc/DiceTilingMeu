@@ -124,7 +124,7 @@
     <ClCompile Include="src\SimpleProblem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\problem.h" />
+    <ClInclude Include="include\problem.hpp" />
     <ClInclude Include="include\SimpleProblem.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

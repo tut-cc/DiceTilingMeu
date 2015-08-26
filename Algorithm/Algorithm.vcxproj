@@ -121,13 +121,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Beamalgo.cpp" />
-    <ClCompile Include="src\Ritalgo.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\algorithm.h" />
-    <ClInclude Include="include\Beamalgo.h" />
-    <ClInclude Include="include\meu.h" />
+    <ClInclude Include="include\algorithm.hpp" />
+    <ClInclude Include="include\Beamalgo.hpp" />
+    <ClInclude Include="include\detail\Ritalgo.hpp" />
+    <ClInclude Include="include\meu.hpp" />
     <ClInclude Include="include\Ritalgo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

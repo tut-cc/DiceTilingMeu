@@ -11,7 +11,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)Algorithm\include\;$(SolutionDir)DTM_Main\include\;$(SolutionDir)Stone\include\;$(SolutionDir)Problem\include\;$(SolutionDir)Field\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Algorithm.lib;Problem.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Field.lib;Stone.lib;Problem.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

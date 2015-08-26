@@ -1,5 +1,5 @@
 #pragma once
-#include "Ritalgo.h"
+#include "Ritalgo.hpp"
 #include <iostream>
 
 template <class F, class S>

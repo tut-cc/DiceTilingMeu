@@ -1,9 +1,9 @@
 #pragma once
 
-#include "algorithm.h"
-#include "field.h"
-#include "stone.h"
-#include "problem.h"
+#include "algorithm.hpp"
+#include "field.hpp"
+#include "stone.hpp"
+#include "problem.hpp"
 #include <memory>
 #include <vector>
 

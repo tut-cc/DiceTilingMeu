@@ -1,4 +1,4 @@
-#include "Ritalgo.h"
+#include "Ritalgo.hpp"
 #include "SimpleField.hpp"
 #include "SimpleStone.hpp"
 #include "SimpleProblem.hpp"
