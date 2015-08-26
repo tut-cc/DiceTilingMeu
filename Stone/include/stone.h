@@ -3,6 +3,6 @@
 class Stone {
   public:
     virtual ~Stone();
-    virtual bool at(int x, int y, int angle) = 0;
+    virtual bool at(int x, int y, int angle) const = 0;
 };
 
