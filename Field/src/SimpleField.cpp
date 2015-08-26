@@ -3,13 +3,11 @@
 #include <iostream>
 #include <string>
 
-SimpleField::SimpleField()
+SimpleField::SimpleField(std::vector<std::string> strs)
 {
   for (int i = 0; i < 32; ++i) {
-    std::string str;
-    std::cin >> str;
     for(int j = 0; j < 32; ++j) {
-      mat[i][j] = str.at( j ) == '1';
+      mat[i][j] = strs[i][j] == '1';
     }
   }
 }
