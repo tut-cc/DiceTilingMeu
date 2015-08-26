@@ -1,11 +1,15 @@
 #include "Ritalgo.h"
-#include <iostream>
+#include "SimpleField.hpp"
+#include "SimpleStone.hpp"
+#include "SimpleProblem.hpp"
+#include <memory>
 
 int main()
 {
-  auto solver = new Ritalgo();
+  std::shared_ptr<Problem> prob(new SimpleProblem());
+  std::unique_ptr<Ritalgo> solver(new Ritalgo(prob));
   solver -> solve();
-  delete solver;
+
   return 0;
 }
 
