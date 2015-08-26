@@ -119,11 +119,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\field.hpp" />
-    <ClInclude Include="include\SimpleField.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\SimpleField.cpp" />
+    <ClInclude Include="include\field.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
