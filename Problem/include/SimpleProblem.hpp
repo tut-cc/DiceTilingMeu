@@ -2,16 +2,18 @@
 
 #include "Problem.h"
 
-template <class F, class S>
-class SimpleProblem : public Problem<F, S> {
+class SimpleProblem : public Problem {
   private:
-    std::unique_ptr<Field> field;
-    std::vector<std::shared_ptr<Stone>> stones;
+    std::vector<std::string> field;
+    int num;
+    std::vector<std::vector<std::string>> stones;
 
   public:
     SimpleProblem();
-    virtual ~SimpleProblem() {};
-    virtual std::unique_ptr<Field> get_field();
-    virtual std::vector<std::weak_ptr<Stone>> get_stones();
+    virtual ~SimpleProblem();
+    virtual std::vector<std::string> get_field_str() const;
+    virtual std::vector<std::vector<std::string>> get_stones_str() const;
+    virtual std::vector<std::string> get_stone_str(int idx) const;
+    virtual int num_of_stones() const;
 };
 
