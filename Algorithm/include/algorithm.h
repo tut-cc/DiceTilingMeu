@@ -2,7 +2,7 @@
 
 class Algorithm {
 	public:
-    virtual ~Algorithm() {};
+    virtual ~Algorithm() = default;
     virtual void solve() = 0;
 };
 
