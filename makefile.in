@@ -4,8 +4,10 @@ AR ?= ar
 buildtype ?= debug
 ifeq ($(buildtype),release)
 	CXXFLAGS += -O3
+	LIBS += -ldtma  -ldtmp  -ldtmf  -ldtms
 else ifeq ($(buildtype),debug)
 	CXXFLAGS += -O0 -g -D_DEBUG
+	LIBS += -ldtmad -ldtmpd -ldtmfd -ldtmsd
 else
 	$(error buildtype must be release, debug, profile or coverage)
 endif

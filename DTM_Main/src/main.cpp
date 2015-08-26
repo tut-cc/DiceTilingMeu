@@ -7,7 +7,7 @@
 int main()
 {
   std::shared_ptr<Problem> prob(new SimpleProblem());
-  std::unique_ptr<Ritalgo> solver(new Ritalgo(prob));
+  std::unique_ptr<Algorithm> solver(new Ritalgo<SimpleField, SimpleStone>(prob));
   solver -> solve();
 
   return 0;
