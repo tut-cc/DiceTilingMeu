@@ -1,18 +1,14 @@
 #pragma once
 
 #include <vector>
-#include <memory>
-#include <type_traits>
-#include "field.h"
-#include "stone.h"
+#include <string>
 
-template <class F, class S>
 class Problem {
-  static_assert(std::is_base_of<Field, F>::value, "class F maybe not base of Field");
-  static_assert(std::is_base_of<Stone, S>::value, "class S maybe not base of Stone");
   public:
     virtual ~Problem() {};
-    virtual std::unique_ptr<Field> get_field() = 0;
-    virtual std::vector<std::weak_ptr<Stone>> get_stones() = 0;
+    virtual std::vector<std::string> get_field_str() const = 0;
+    virtual std::vector<std::vector<std::string>> get_stones_str() const = 0;
+    virtual std::vector<std::string> get_stone_str(int idx) const = 0;
+    virtual int num_of_stones() const = 0;
 };
 
