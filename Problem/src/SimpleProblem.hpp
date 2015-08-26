@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../include/Problem.h"
+#include "problem.h"
 
 template <class F, class S>
 class SimpleProblem : public Problem<F, S> {

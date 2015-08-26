@@ -3,8 +3,8 @@
 #include <vector>
 #include <memory>
 #include <type_traits>
-#include "../../Field/include/field.h"
-#include "../../Stone/include/stone.h"
+#include "field.h"
+#include "stone.h"
 
 template <class F, class S>
 class Problem {

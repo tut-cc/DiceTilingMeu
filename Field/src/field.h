@@ -1,5 +1,5 @@
 
-#include "../../Stone/include/stone.h"
+#include "stone.h"
 #include <string>
 #define ST 1
 #define NO 0
