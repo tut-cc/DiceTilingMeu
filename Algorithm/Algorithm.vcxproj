@@ -123,9 +123,11 @@
   <ItemGroup>
     <ClInclude Include="include\algorithm.hpp" />
     <ClInclude Include="include\Beamalgo.hpp" />
+    <ClInclude Include="include\detail\Beamalgo.hpp" />
     <ClInclude Include="include\detail\Ritalgo.hpp" />
     <ClInclude Include="include\meu.hpp" />
     <ClInclude Include="include\Ritalgo.h" />
+    <ClInclude Include="include\Ritalgo.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

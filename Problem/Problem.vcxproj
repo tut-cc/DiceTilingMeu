@@ -121,11 +121,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\SampleProblem.cpp" />
     <ClCompile Include="src\SimpleProblem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\problem.hpp" />
     <ClInclude Include="include\SimpleProblem.hpp" />
+    <ClInclude Include="include\SampleProblem.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
