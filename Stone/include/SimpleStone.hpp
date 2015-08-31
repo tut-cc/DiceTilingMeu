@@ -9,6 +9,6 @@ class SimpleStone : public Stone {
   public:
     SimpleStone(std::vector<std::string>);
     virtual ~SimpleStone() = default;
-    virtual bool at(int x, int y, int reverse, int angle) const;
+    virtual bool at(int x, int y, int reverse, int angle) const override;
 };
 
