@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 
-SimpleStone::SimpleStone(std::vector<std::string> strs)
+SimpleStone::SimpleStone(std::vector<std::string> strs, int index)
 {
   for (int i = 0; i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
@@ -19,6 +19,8 @@ SimpleStone::SimpleStone(std::vector<std::string> strs)
       }
     }
   }
+
+  ID = index;
 }
 
 bool SimpleStone::at(int x, int y, int reverse, int angle) const
