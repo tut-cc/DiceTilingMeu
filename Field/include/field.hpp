@@ -1,6 +1,6 @@
 //石を置く盤面のクラス
 #pragma once
-#include "stone.h"
+#include "stone.hpp"
 #include <memory>
 #include <tuple>
 #include <iostream>

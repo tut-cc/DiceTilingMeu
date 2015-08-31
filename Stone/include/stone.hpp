@@ -6,6 +6,6 @@ class Stone {
   public:
     virtual ~Stone() = default;
     virtual bool at(int x, int y, int reverse, int angle) const = 0;
-    virtual int indentify() const final;
+    virtual int identify() const final;
 };
 
