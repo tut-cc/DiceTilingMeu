@@ -1,4 +1,4 @@
-#include "field.h"
+#include "field.hpp"
 
 void Field::apply(std::weak_ptr<Stone> s, int x, int y, int reverse, int angle)
 {
