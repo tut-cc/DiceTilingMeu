@@ -1,6 +1,7 @@
 #pragma once
 #include "Beamalgo.hpp"
 #include <iostream>
+#include <queue>
 
 template <class F, class S>
 Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
@@ -10,14 +11,10 @@ Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
 		stones.push_back(std::shared_ptr<Stone>(new S(s)));
 	}
 }
-template <class F, class S>
-static int Beamalgo<F, S>::h(std::shared_ptr<Stone> stone){
-	return 0;
-}
 
 
 template <class F, class S>
-void Beamalgo<F, S>::solve()
+virtual void Beamalgo<F, S>::solve()
 {
 	/*
 	for (int i = 0; i < 32; i++){
@@ -38,6 +35,22 @@ void Beamalgo<F, S>::solve()
 		std::cout << std::endl;
 	}
 	*/
+	std::priority_queue<std::shared_ptr<Field>> s_list;
+	std::shared_ptr<Field> s_0 = field;
+	s_list.push_back(s_0);
 
+	for (auto& st : stones){
+		for (auto& s : s_list){
+			for (int i = -7; i <= 7; i++){
+				for (int j = -7; j <= 7; j++){
+					for (int a = 0; a < 4; a++){
+						if (s.appliable(st, i, j, a)){
+							s.apply(st, i, j, a);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
