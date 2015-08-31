@@ -7,7 +7,7 @@ Ritalgo<F, S>::Ritalgo(std::shared_ptr<Problem> p)
 {
   field = std::move(std::unique_ptr<Field>(new F(p -> get_field_str())));
   for( auto&& s : p -> get_stones_str() ) {
-    stones.push_back(std::shared_ptr<Stone>(new S(s)));
+    stones.push_back(std::shared_ptr<Stone>(new S(s, stones.size())));
   }
 }
 
