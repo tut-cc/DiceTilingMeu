@@ -80,6 +80,8 @@ void SimpleField::apply(std::weak_ptr<Stone> s, int x, int y, int reverse, int a
       }
     }
   }
+
+  value = -1;
 }
 
 std::unique_ptr<Field> SimpleField::clone() const
@@ -87,3 +89,39 @@ std::unique_ptr<Field> SimpleField::clone() const
   return std::move(std::unique_ptr<Field>(new SimpleField(mat)));
 }
 
+const int SimpleField::tx[] = { 1, 0, -1, 0 };
+const int SimpleField::ty[] = { 0, -1, 0, 1 };
+
+int SimpleField::h(){
+	if (value == -1){
+		int count = 0;
+		for (int i = 0; i < 8; i++){
+			for (int j = 0; j < 8; j++){
+				if (mat[i][j] == 0)continue;
+				bool f = false;
+				for (int t = 0; t < 4; t++){
+					int nx = j + tx[t];
+					int ny = i + ty[t];
+					if (nx < 0 || 32 <= nx || ny < 0 || 32 <= ny) {
+						continue;
+					}
+					if (mat[nx][ny] == 0){
+						f = true;
+					}
+				}
+				if (f)count++;
+			}
+		}
+		value = count;
+	}
+	return value;
+}
+
+void SimpleField::print(){
+	for (int i = 0; i < 32; i++){
+		for (int j = 0; j < 32; j++){
+			std::cout << mat[i][j];
+		}
+		std::cout << std::endl;
+	}
+}

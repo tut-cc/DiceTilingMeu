@@ -14,7 +14,7 @@ Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
 
 
 template <class F, class S>
-virtual void Beamalgo<F, S>::solve()
+void Beamalgo<F, S>::solve()
 {
 	/*
 	for (int i = 0; i < 32; i++){
@@ -35,22 +35,40 @@ virtual void Beamalgo<F, S>::solve()
 		std::cout << std::endl;
 	}
 	*/
-	std::priority_queue<std::shared_ptr<Field>> s_list;
-	std::shared_ptr<Field> s_0 = field;
-	s_list.push_back(s_0);
+	
+	std::vector<std::unique_ptr<Field>> s_list;
+	s_list.push_back(field->clone());
 
 	for (auto& st : stones){
-		for (auto& s : s_list){
+		std::vector<std::shared_ptr<Field>> tmp_list;
+
+		for (int si = 0; si < (int)(s_list.size());si++){
+			std::unique_ptr<Field> s = s_list[si];
 			for (int i = -7; i <= 7; i++){
 				for (int j = -7; j <= 7; j++){
 					for (int a = 0; a < 4; a++){
-						if (s.appliable(st, i, j, a)){
-							s.apply(st, i, j, a);
+						for (int r = 0; r < 2; r++){
+							if (s->appliable(st, i, j, r, a)){
+								std::shared_ptr<Field> tmp = s->clone();
+								tmp->apply(st, i, j, r, a);
+								if (tmp_list.size() >= BEAM_WIDTH){
+									tmp_list.pop_back();
+								}
+								tmp_list.push_back(tmp);
+							}
 						}
 					}
 				}
 			}
 		}
+		
+		s_list = tmp_list;
 	}
+	int size = (int)(s_list.size());
+	for (int i = size - 1; i >= 0; i--){
+		std::unique_ptr<Field> tmp = s_list[i];
+		tmp->print();
+		std::cout << std::endl;
+	}
+	
 }
-
