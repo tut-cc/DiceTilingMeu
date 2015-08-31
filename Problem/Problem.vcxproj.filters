@@ -26,10 +26,10 @@
     <ClInclude Include="include\SimpleProblem.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="include\SampleProblem.hpp">
+    <ClInclude Include="include\problem.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="include\problem.hpp">
+    <ClInclude Include="include\SampleProblem.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
