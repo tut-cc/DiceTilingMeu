@@ -22,4 +22,7 @@
   <ItemGroup>
     <Text Include="quest11.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="IncludeDirPropertySheet.props" />
+  </ItemGroup>
 </Project>
