@@ -23,15 +23,15 @@ int Field::score() const
   return cnt;
 }
 
-std::ostream& Field::operator<<(std::ostream& os) const
+std::ostream& operator<<(std::ostream& os, const Field& f)
 {
   int index = 0;
-  for ( unsigned int i = 0; i < history.size(); ++i ) {
-    for ( ; index < std::get<0>(history[i]).lock() -> identify(); ++index ) {
+  for ( unsigned int i = 0; i < f.history.size(); ++i ) {
+    for ( ; index < std::get<0>(f.history[i]).lock() -> identify(); ++index ) {
       os << std::endl;
     }
     int x, y, rev, ang;
-    std::tie(std::ignore, x, y, rev, ang) = history[i];
+    std::tie(std::ignore, x, y, rev, ang) = f.history[i];
     os << x << " " << y << " " << (rev ? "T" : "H") << " " << (ang * 90) << std::endl;
     ++index;
   }
