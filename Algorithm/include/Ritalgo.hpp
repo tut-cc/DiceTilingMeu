@@ -8,6 +8,7 @@
 #include <vector>
 #include <type_traits>
 #include <iostream>
+#include <random>
 
 template <class F, class S>
 class Ritalgo : public Algorithm {
@@ -62,11 +63,16 @@ class Ritalgo : public Algorithm {
         static constexpr double BETA = 0.5;
         std::unique_ptr<Field> field;
         std::vector<std::shared_ptr<Stone>> stones;
+        std::shared_ptr<Env> env;
+        std::mt19937 mt;
+        std::uniform_real_distribution<double> dist;
+        double h(const std::shared_ptr<Stone> s, const int x, const int y, const int rev, const int ang) const;
+        double v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const;
       public:
-        Ant(const std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones);
+        Ant(const std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, std::shared_ptr<Env> env);
         ~Ant() = default;
         void run();
-        void renew(std::shared_ptr<Env> env);
+        void renew();
     };
   public:
     Ritalgo(const std::shared_ptr<Problem> p);
