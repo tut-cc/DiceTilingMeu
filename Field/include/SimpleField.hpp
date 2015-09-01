@@ -12,7 +12,6 @@ class SimpleField : public Field {
 	static const int tx[];
 	static const int ty[];
 
-	int value = -1;
   public:
     SimpleField(std::vector<std::string>);
     SimpleField(const bool mat[32][32]);
@@ -24,7 +23,6 @@ class SimpleField : public Field {
 
 	//“K“–‚Éì‚Á‚½•]‰¿ŠÖ”
 	virtual int h();
-
-	virtual void print();
+	int value = -1;
 };
 

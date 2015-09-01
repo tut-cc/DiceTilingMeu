@@ -12,7 +12,7 @@ class Beamalgo : public Algorithm {
 	std::unique_ptr<Field> field;
 	std::vector<std::shared_ptr<Stone>> stones;
 
-	const int BEAM_WIDTH = 100;
+	const int BEAM_WIDTH = 10;
 public:
 	Beamalgo(std::shared_ptr<Problem> p);
 

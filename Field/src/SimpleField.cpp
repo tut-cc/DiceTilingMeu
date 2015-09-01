@@ -116,12 +116,3 @@ int SimpleField::h(){
 	}
 	return value;
 }
-
-void SimpleField::print(){
-	for (int i = 0; i < 32; i++){
-		for (int j = 0; j < 32; j++){
-			std::cout << mat[i][j];
-		}
-		std::cout << std::endl;
-	}
-}
