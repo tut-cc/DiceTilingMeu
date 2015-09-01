@@ -58,7 +58,7 @@ class Ritalgo : public Algorithm {
     };
     class Ant {
       private:
-        static constexpr double PHEROMONE_VOLUME = 1.0;
+        static constexpr double PHEROMONE = 10.0;
         static constexpr double ALPHA = 1.0;
         static constexpr double BETA = 0.5;
         std::unique_ptr<Field> field;

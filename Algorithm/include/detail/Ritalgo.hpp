@@ -252,9 +252,15 @@ template <class F, class S>
 void Ritalgo<F, S>::Ant::renew()
 {
   int index = 0;
+  int fir = 1;
+  const double l = field -> score() + 1.0;
   for ( auto e : field -> get_history() ) {
-    // TODO:
-    // WANTED: Field -> score
+    for(; index < std::get<0>(e).lock() -> identify(); ++index) {
+      env -> put(index, 0, fir, 0, 0, 0, 0, PHEROMONE / l);
+    }
+    int x, y, rev, ang;
+    std::tie(std::ignore, x, y, rev, ang) = e;
+    env -> put(index++, 1, fir, x, y, rev, ang, PHEROMONE / l);
   }
 }
 
