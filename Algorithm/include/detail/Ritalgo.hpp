@@ -29,6 +29,7 @@ void Ritalgo<F, S>::solve()
     }
     for (auto ant : ants) {
       ant -> renew();
+      ant -> reset(field -> clone());
     }
     env -> eva();
   }
@@ -252,3 +253,7 @@ void Ritalgo<F, S>::Ant::renew()
   }
 }
 
+template <class F, class S>
+void Ritalgo<F, S>::Ant::reset(const std::unique_ptr<Field> field)
+{
+}

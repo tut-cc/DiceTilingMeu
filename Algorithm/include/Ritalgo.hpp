@@ -69,10 +69,11 @@ class Ritalgo : public Algorithm {
         double h(const std::shared_ptr<Stone> s, const int x, const int y, const int rev, const int ang) const;
         double v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const;
       public:
-        Ant(const std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, std::shared_ptr<Env> env);
+        Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, std::shared_ptr<Env> env);
         ~Ant() = default;
         void run();
         void renew();
+        void reset(const std::unique_ptr<Field> field);
     };
   public:
     Ritalgo(const std::shared_ptr<Problem> p);
