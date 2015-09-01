@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\SimpleStone.cpp" />
+    <ClCompile Include="src\stone.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0EF11A25-EE07-439C-A9C4-3F3B91DB9CC6}</ProjectGuid>
