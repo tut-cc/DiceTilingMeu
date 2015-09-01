@@ -15,6 +15,7 @@ class Field {
     virtual bool appliable(std::weak_ptr<Stone> s, int x, int y, int reverse, int angle) const = 0;
     virtual void apply(std::weak_ptr<Stone> s, int x, int y, int reverse, int angle) = 0;
     virtual std::unique_ptr<Field> clone() const = 0;
+    virtual int score() const;
     virtual decltype(history) get_history() const final;
     virtual std::ostream& operator<<(std::ostream& os) const final;
 };
