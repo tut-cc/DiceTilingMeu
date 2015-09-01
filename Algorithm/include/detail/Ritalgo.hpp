@@ -23,9 +23,14 @@ void Ritalgo<F, S>::solve()
     ants.push_back(ptr);
   }
   std::cerr << "チェストー" << std::endl;
+  int best_score = 1 << 28;
   for (;;) {
     for (auto ant : ants) {
       ant -> run();
+      if ( ant -> score() < best_score ) {
+        best_score = ant -> score();
+        std::cout << *(ant -> loot()) << std::endl;
+      }
     }
     for (auto ant : ants) {
       ant -> renew();
@@ -254,6 +259,20 @@ void Ritalgo<F, S>::Ant::renew()
 }
 
 template <class F, class S>
-void Ritalgo<F, S>::Ant::reset(const std::unique_ptr<Field> field)
+void Ritalgo<F, S>::Ant::reset(std::unique_ptr<Field> field)
 {
+  this -> field = std::move(field);
 }
+
+template <class F, class S>
+int Ritalgo<F, S>::Ant::score() const
+{
+  return field -> score();
+}
+
+template <class F, class S>
+std::unique_ptr<Field> Ritalgo<F, S>::Ant::loot() const
+{
+  return field -> clone();
+}
+

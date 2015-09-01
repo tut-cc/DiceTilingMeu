@@ -73,7 +73,9 @@ class Ritalgo : public Algorithm {
         ~Ant() = default;
         void run();
         void renew();
-        void reset(const std::unique_ptr<Field> field);
+        void reset(std::unique_ptr<Field> field);
+        int score() const;
+        std::unique_ptr<Field> loot() const;
     };
   public:
     Ritalgo(const std::shared_ptr<Problem> p);
