@@ -33,3 +33,7 @@ bin/
 # dependence file
 *.d
 
+# AHHHHHHHHH
+*.swp
+*.stackdump
+
