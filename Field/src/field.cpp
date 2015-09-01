@@ -10,6 +10,19 @@ decltype(((Field *)nullptr)->get_history()) Field::get_history() const
   return history;
 }
 
+int Field::score() const
+{
+  int cnt = 0;
+
+  for (int i = 0; i < 32; ++i) {
+    for (int j = 0; j < 32; ++j) {
+      cnt += !at(j, i);
+    }
+  }
+
+  return cnt;
+}
+
 std::ostream& Field::operator<<(std::ostream& os) const
 {
   int index = 0;
