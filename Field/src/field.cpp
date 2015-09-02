@@ -1,6 +1,11 @@
 #include "field.hpp"
 
-void Field::apply(std::weak_ptr<Stone> s, int x, int y, int reverse, int angle)
+Field::Field(const decltype(((Field *)nullptr)->get_history()) & src)
+{
+  std::copy( src.begin(), src.end(), std::back_inserter(this -> history) );
+}
+
+void Field::apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle)
 {
   history.push_back(std::make_tuple(s, x, y, reverse, angle));
 }
@@ -27,7 +32,7 @@ std::ostream& operator<<(std::ostream& os, const Field& f)
 {
   int index = 0;
   for ( unsigned int i = 0; i < f.history.size(); ++i ) {
-    for ( ; index < std::get<0>(f.history[i]).lock() -> identify(); ++index ) {
+    for ( ; index < std::get<0>(f.history[i]) -> identify(); ++index ) {
       os << std::endl;
     }
     int x, y, rev, ang;
@@ -37,4 +42,5 @@ std::ostream& operator<<(std::ostream& os, const Field& f)
   }
   return os;
 }
+
 

@@ -13,7 +13,7 @@ SimpleField::SimpleField(std::vector<std::string> strs)
   }
 }
 
-SimpleField::SimpleField(const bool mat[32][32])
+SimpleField::SimpleField(const bool mat[32][32]) : Field()
 {
   for (int i = 0; i < 32; ++i) {
     for (int j = 0; j < 32; ++j) {
@@ -28,18 +28,18 @@ bool SimpleField::at(int x, int y) const
   return mat[y][x];
 }
 
-bool SimpleField::appliable(std::weak_ptr<Stone> s, int x, int y, int reverse, int angle) const
+bool SimpleField::appliable(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) const
 {
   bool adjf = false;
   for (int i = 0; i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
-      if (y + i < 0 || 32 <= y + 1 || x + j < 0 || 32 <= x + j) {
-        if( s.lock() -> at(j, i, reverse, angle) ) {
+      if (y + i < 0 || 32 <= y + i || x + j < 0 || 32 <= x + j) {
+        if( s -> at(j, i, reverse, angle) ) {
           return false;
         }
         continue;
       }
-      if ( mat[y + i][x + j] && s.lock() -> at(j, i, reverse, angle) ) {
+      if ( mat[y + i][x + j] && s -> at(j, i, reverse, angle) ) {
         return false;
       }
       adjf |= ok[y + i][x + j];
@@ -48,7 +48,7 @@ bool SimpleField::appliable(std::weak_ptr<Stone> s, int x, int y, int reverse, i
   return adjf;
 }
 
-void SimpleField::apply(std::weak_ptr<Stone> s, int x, int y, int reverse, int angle)
+void SimpleField::apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle)
 {
   Field::apply(s, x, y, reverse, angle);
 #ifdef _DEBUG
@@ -63,7 +63,8 @@ void SimpleField::apply(std::weak_ptr<Stone> s, int x, int y, int reverse, int a
   }
   for (int i = 0; i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
-      mat[y + i][x + j] |= s.lock() -> at(j, i, reverse, angle);
+      if ( x + j < 0 && 32 <= x + j && y + i < 0 && 32 <= y + i) continue;
+      mat[y + i][x + j] |= s -> at(j, i, reverse, angle);
       for (int k = 0; k < 4; ++k) {
         static const int ofs[4][2] = {
           {0, 1},
@@ -86,9 +87,8 @@ void SimpleField::apply(std::weak_ptr<Stone> s, int x, int y, int reverse, int a
 
 std::unique_ptr<Field> SimpleField::clone() const
 {
-  auto ptr = std::unique_ptr<Field>(new SimpleField(mat))
-  std::copy( this -> history.begin(), this -> history.end(), std::back_inserter(ptr -> history) );
-  return std::move();
+  auto ptr = std::unique_ptr<Field>(new SimpleField(mat));
+  return std::move(ptr);
 }
 
 const int SimpleField::tx[] = { 1, 0, -1, 0 };

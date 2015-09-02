@@ -24,12 +24,14 @@ void Ritalgo<F, S>::solve()
   }
   std::cerr << "チェストー" << std::endl;
   int best_score = 1 << 28;
-  for (;;) {
+  for (int ite = 0; ; ++ite) {
+    std::cerr << "iteration : " << ite << std::endl;
     for (auto ant : ants) {
       ant -> run();
       if ( ant -> score() < best_score ) {
         best_score = ant -> score();
-        std::cout << *(ant -> loot()) << std::endl;
+        //std::cout << *(ant -> loot()) << std::endl;
+        std::cerr << ant->score() << " ... " << ant -> loot() -> get_history().size() << std::endl;
       }
     }
     for (auto ant : ants) {
@@ -100,13 +102,19 @@ Ritalgo<F, S>::Env::~Env()
 template <class F, class S>
 void Ritalgo<F, S>::Env::put(int idx, int is, int fir, int x, int y, int rev, int ang, double phe)
 {
-  env[idx][is][fir][x][y][rev][ang] += phe;
+  if (!( 0 <= x + GETA && x + GETA < 64 && 0 <= y + GETA && y + GETA < 64 ) ) {
+    std::cerr << "AHHHHHHHHHH" << std::endl;
+  }
+  env[idx][is][fir][x + GETA][y + GETA][rev][ang] += phe;
 }
 
 template <class F, class S>
 double Ritalgo<F, S>::Env::get(int idx, int is, int fir, int x, int y, int rev, int ang) const
 {
-  return env[idx][is][fir][x][y][rev][ang];
+  if (!( 0 <= x + GETA && x + GETA < 64 && 0 <= y + GETA && y + GETA < 64 ) ) {
+    std::cerr << "AHHHHHHHHHH" << std::endl;
+  }
+  return env[idx][is][fir][x + GETA][y + GETA][rev][ang];
 }
 
 template <class F, class S>
@@ -165,13 +173,14 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
             {0, -1}
           };
           auto e = queue.front();
+          queue.pop();
           for (int k = 0; k < 4; ++k) {
             int dx = e.first  + ofs[k][0];
             int dy = e.second + ofs[k][1];
             if ( dx < 0 || 8 <= dx || dy < 0 || 8 <= dy ) {
               continue;
             }
-            if ( done[dy][dx] && s -> at( dx, dy, rev, ang ) ) {
+            if ( !done[dy][dx] && s -> at( dx, dy, rev, ang ) ) {
               queue.push({dx, dy});
               done[dy][dx] |= true;
               continue;
@@ -179,11 +188,14 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
 
             int nx = x + dx;
             int ny = y + dy;
+            if ( ny < 0 || 32 <= ny || nx < 0 || 32 <= nx ) {
+              ++sum;
+              continue;
+            }
             if ( field -> at( nx, ny ) ) {
               ++sum;
             }
           }
-          queue.pop();
         }
         flag &= false;
         break;
@@ -205,33 +217,35 @@ template <class F, class S>
 void Ritalgo<F, S>::Ant::run()
 {
   int fir = 1;
-  for (int idx = 0; idx < 256; ++idx) {
+  std::pair<int, int> prev = {0, 0};
+  for (unsigned int idx = 0; idx < stones.size(); ++idx) {
     std::vector<std::tuple<int, int, int, int, int, int>> list;
     std::vector<double> roulette;
     double accum = 0.0;
     list.push_back(std::make_tuple(0, fir, 0, 0, 0, 0));
     accum += v(idx, 0, fir, 0, 0, 0, 0, {0, 0});
     roulette.push_back(accum);
-    static constexpr int GETA = 7;
     const std::pair<int, int> zr = {
-      -7,
-      fir ? 31 : 7
+      -8,
+      fir ? 31 : 8
     };
+    /*
     const std::pair<int, int> prev = [&](){
       if (fir) {
         return std::make_pair(0, 0);
       }
       int gx, gy;
-      std::tie(std::ignore, gx, gy, std::ignore, std::ignore) = *(field -> get_history() .rend());
+      std::tie(std::ignore, gx, gy, std::ignore, std::ignore) = *(field -> get_history() .rbegin());
       return std::make_pair(gx, gy);
     }();
+    */
     for (int x = zr.first; x <= zr.second; ++x) {
       for (int y = zr.first; y <= zr.second; ++y) {
         for (int rev = 0; rev < 2; ++rev) {
           for (int ang = 0; ang < 4; ++ang) {
             if ( field -> appliable(stones[idx], prev.first + x, prev.second + y, rev, ang) ) {
               list.push_back(std::make_tuple(1, fir, x, y, rev, ang));
-              accum += v(idx, 1, fir, x + GETA, y + GETA, rev, ang, prev);
+              accum += v(idx, 1, fir, x, y, rev, ang, prev);
               roulette.push_back(accum);
             }
           }
@@ -244,7 +258,10 @@ void Ritalgo<F, S>::Ant::run()
     int is, x, y, rev, ang;
     std::tie(is, std::ignore, x, y, rev, ang) = list[action_id];
     if (!is) continue;
-    field -> apply( stones[idx], x, y, rev, ang );
+    field -> apply( stones[idx], prev.first + x, prev.second + y, rev, ang );
+    fir &= 0;
+    prev.first  += x;
+    prev.second += y;
   }
 }
 
@@ -255,7 +272,7 @@ void Ritalgo<F, S>::Ant::renew()
   int fir = 1;
   const double l = field -> score() + 1.0;
   for ( auto e : field -> get_history() ) {
-    for(; index < std::get<0>(e).lock() -> identify(); ++index) {
+    for(; index < std::get<0>(e) -> identify(); ++index) {
       env -> put(index, 0, fir, 0, 0, 0, 0, PHEROMONE / l);
     }
     int x, y, rev, ang;
@@ -279,6 +296,7 @@ int Ritalgo<F, S>::Ant::score() const
 template <class F, class S>
 std::unique_ptr<Field> Ritalgo<F, S>::Ant::loot() const
 {
-  return field -> clone();
+  std::cerr << field->get_history().size() << std::endl;
+  return std::move(field -> clone());
 }
 

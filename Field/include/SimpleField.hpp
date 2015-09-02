@@ -17,8 +17,8 @@ class SimpleField : public Field {
     SimpleField(const bool mat[32][32]);
     virtual ~SimpleField() = default;
     virtual bool at(int x, int y) const override;
-    virtual bool appliable(std::weak_ptr<Stone> s, int x, int y, int reverse, int angle) const override;
-    virtual void apply(std::weak_ptr<Stone> s, int x, int y, int reverse, int angle) override;
+    virtual bool appliable(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) const override;
+    virtual void apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) override;
     virtual std::unique_ptr<Field> clone() const override;
 
 	//“K“–‚Éì‚Á‚½•]‰¿ŠÖ”

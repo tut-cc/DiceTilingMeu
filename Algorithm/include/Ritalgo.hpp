@@ -18,6 +18,7 @@ class Ritalgo : public Algorithm {
     class Env {
       private:
         static constexpr double EVAPORATE_RATE = 0.98;
+        static constexpr int    GETA           = 8;
         union {
           double env[256][2][2][64][64][2][4];
           double raw[256 *2 *2 *64 *64 *2 *4];
@@ -59,8 +60,8 @@ class Ritalgo : public Algorithm {
     class Ant {
       private:
         static constexpr double PHEROMONE = 10.0;
-        static constexpr double ALPHA = 1.0;
-        static constexpr double BETA = 0.5;
+        static constexpr double ALPHA     = 1.0;
+        static constexpr double BETA      = 0.5;
         std::unique_ptr<Field> field;
         std::vector<std::shared_ptr<Stone>> stones;
         std::shared_ptr<Env> env;
