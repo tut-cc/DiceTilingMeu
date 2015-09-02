@@ -36,4 +36,4 @@ bin/
 # AHHHHHHHHH
 *.swp
 *.stackdump
-
+*.core
