@@ -86,7 +86,9 @@ void SimpleField::apply(std::weak_ptr<Stone> s, int x, int y, int reverse, int a
 
 std::unique_ptr<Field> SimpleField::clone() const
 {
-  return std::move(std::unique_ptr<Field>(new SimpleField(mat)));
+  auto ptr = std::unique_ptr<Field>(new SimpleField(mat))
+  std::copy( this -> history.begin(), this -> history.end(), std::back_inserter(ptr -> history) );
+  return std::move();
 }
 
 const int SimpleField::tx[] = { 1, 0, -1, 0 };

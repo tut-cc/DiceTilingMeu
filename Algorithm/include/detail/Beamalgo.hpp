@@ -20,7 +20,7 @@ void Beamalgo<F, S>::solve()
 	/*
 	for (int i = 0; i < 32; i++){
 		for (int j = 0; j < 32; j++){
-			
+
 			std::cout << field->at(i, j);
 		}
 		std::cout << std::endl;
@@ -36,11 +36,32 @@ void Beamalgo<F, S>::solve()
 		std::cout << std::endl;
 	}
 	*/
-	
+
 	std::priority_queue<std::unique_ptr<Field>> result_list;
 
 	std::priority_queue<std::unique_ptr<Field>> s_list;
 	s_list.push(field->clone());
+
+	std::vector<std::array<std::array<std::vector<std::pair<int, int>>, 2>, 4>> appliable_list;
+	int len = (int)(stones.size());
+	for (int i = 0; i < len; i++) {
+		std::shared_ptr<Stone> s = stones[i];
+		std::array<std::array<std::vector<std::pair<int, int>>, 2>, 4> tmp_vec1;
+		for (int r = 0; r < 4; r++) {
+			for (int a = 0; a < 2; a++) {
+				std::vector<std::pair<int, int>> tmp_vec2;
+				for (int y = -7; y < 32; y++) {
+					for (int x = -7; x < 32; x++) {
+						if (field->appliable(s, x, y, r, a)) {
+							tmp_vec2.emplace_back(std::pair<int, int>(x, y));
+						}
+					}
+				}
+				tmp_vec1[r][a] = tmp_vec2;
+			}
+		}
+		appliable_list.push_back(tmp_vec1);
+	}
 	
 	
 	for (auto& st : stones){
@@ -50,31 +71,31 @@ void Beamalgo<F, S>::solve()
 //			std::unique_ptr<Field> s = std::move(s_list.top());
 			std::unique_ptr<Field> s = s_list.top()->clone();
 			s_list.pop();
-			
-			for (int i = -7; i < 32; i++){
-				for (int j = -7; j < 32; j++){
-					for (int a = 0; a < 4; a++){
-						for (int r = 0; r < 2; r++){
-							
-							if (s->appliable(st, i, j, r, a)){
-								
-								std::unique_ptr<Field> tmp = s->clone();
-								tmp->apply(st, i, j, r, a);
-								
-								if (tmp_list.size() >= BEAM_WIDTH){
-									tmp_list.pop();
-								}
-								tmp_list.push(std::move(tmp));
+
+			for (int a = 0; a < 4; a++){
+				for (int r = 0; r < 2; r++) {
+					for (auto& loc_list : appliable_list.at(si)[a][r]) {
+						int i = loc_list.first;
+						int j = loc_list.second;
+						if (s->appliable(st, i, j, r, a)) {
+
+							std::unique_ptr<Field> tmp = s->clone();
+							tmp->apply(st, i, j, r, a);
+
+							if (tmp_list.size() >= BEAM_WIDTH) {
+								tmp_list.pop();
 							}
-							else{
-								if (result_list.size() >= 10){
-									result_list.pop();
-								}
-								result_list.push(s->clone());
+							tmp_list.push(std::move(tmp));
+						}
+						else {
+							if (result_list.size() >= 10) {
+								result_list.pop();
 							}
+							result_list.push(s->clone());
 						}
 					}
 				}
+
 			}
 			
 		}

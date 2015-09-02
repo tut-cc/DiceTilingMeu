@@ -7,7 +7,7 @@
 #include <vector>
 
 class Field {
-  private:
+  protected:
     std::vector<std::tuple<std::weak_ptr<Stone>, int, int, int, int>> history;
   public:
     virtual ~Field() = default;
