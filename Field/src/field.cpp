@@ -1,4 +1,6 @@
 #include "field.hpp"
+#include <algorithm>
+#include <iterator>
 
 Field::Field(const decltype(((Field *)nullptr)->get_history()) & src)
 {
