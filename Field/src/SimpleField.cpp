@@ -13,7 +13,7 @@ SimpleField::SimpleField(std::vector<std::string> strs)
   }
 }
 
-SimpleField::SimpleField(const bool mat[32][32]) : Field()
+SimpleField::SimpleField(const bool mat[32][32], const decltype(((Field *)nullptr)->get_history()) & src = {}) : Field(src)
 {
   for (int i = 0; i < 32; ++i) {
     for (int j = 0; j < 32; ++j) {
@@ -87,7 +87,7 @@ void SimpleField::apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int
 
 std::unique_ptr<Field> SimpleField::clone() const
 {
-  auto ptr = std::unique_ptr<Field>(new SimpleField(mat));
+  auto ptr = std::unique_ptr<Field>(new SimpleField(mat, history));
   return std::move(ptr);
 }
 

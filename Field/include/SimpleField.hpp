@@ -14,7 +14,7 @@ class SimpleField : public Field {
 
   public:
     SimpleField(std::vector<std::string>);
-    SimpleField(const bool mat[32][32]);
+    SimpleField(const bool mat[32][32], const decltype(history) &);
     virtual ~SimpleField() = default;
     virtual bool at(int x, int y) const override;
     virtual bool appliable(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) const override;
