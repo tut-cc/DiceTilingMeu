@@ -162,7 +162,6 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
   for (int i = 0; flag && i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
       if (s -> at(j, i, rev, ang)) {
-        // 幅優先
         std::queue<std::pair<int,int>> queue;
         queue.push({j, i});
         while (queue.size()) {
@@ -296,7 +295,6 @@ int Ritalgo<F, S>::Ant::score() const
 template <class F, class S>
 std::unique_ptr<Field> Ritalgo<F, S>::Ant::loot() const
 {
-  std::cerr << field->get_history().size() << std::endl;
   return std::move(field -> clone());
 }
 
