@@ -59,9 +59,9 @@ class Ritalgo : public Algorithm {
     };
     class Ant {
       private:
-        static constexpr double PHEROMONE = 10.0;
-        static constexpr double ALPHA     = 1.0;
-        static constexpr double BETA      = 0.5;
+        static constexpr double PHEROMONE = 500.0;
+        static constexpr double ALPHA     = 10.0;
+        static constexpr double BETA      = 3.0;
         std::unique_ptr<Field> field;
         std::vector<std::shared_ptr<Stone>> stones;
         std::shared_ptr<Env> env;

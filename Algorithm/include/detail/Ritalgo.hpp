@@ -24,22 +24,30 @@ void Ritalgo<F, S>::solve()
   }
   std::cerr << "チェストー" << std::endl;
   int best_score = 1 << 28;
-  for (int ite = 0; ; ++ite) {
+  std::unique_ptr<Field> best_field;
+  for (int ite = 0; ite < 32; ++ite) {
     std::cerr << "iteration : " << ite << std::endl;
+    double ave_score = 0.0;
+    env->eva();
     for (auto ant : ants) {
       ant -> run();
+      ave_score += (double)ant->score() / 100;
       if ( ant -> score() < best_score ) {
         best_score = ant -> score();
         //std::cout << *(ant -> loot()) << std::endl;
+        best_field = std::move(ant->loot());
         std::cerr << ant->score() << " ... " << ant -> loot() -> get_history().size() << std::endl;
       }
     }
+    std::cerr << "AVERAGE SCORE : " << ave_score << std::endl;
     for (auto ant : ants) {
       ant -> renew();
       ant -> reset(field -> clone());
     }
-    env -> eva();
   }
+  std::cout << *best_field;
+  for (int i = std::get<0>(*(best_field->get_history().rbegin()))->identify(); i < stones.size(); ++i)
+    std::cout << std::endl;
 }
 
 /*
