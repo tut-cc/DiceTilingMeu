@@ -19,12 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\BitStone.hpp" />
     <ClInclude Include="include\SimpleStone.hpp" />
     <ClInclude Include="include\stone.hpp" />
+    <ClInclude Include="src\ExtendedStone.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\BitStone.cpp" />
+    <ClCompile Include="include\ExtendedStone.hpp" />
     <ClCompile Include="src\SimpleStone.cpp" />
     <ClCompile Include="src\stone.cpp" />
   </ItemGroup>
