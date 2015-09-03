@@ -42,7 +42,7 @@ bool SimpleField::appliable(std::shared_ptr<Stone> s, int x, int y, int reverse,
       if ( mat[y + i][x + j] && s -> at(j, i, reverse, angle) ) {
         return false;
       }
-      adjf |= ok[y + i][x + j];
+      adjf |= s -> at(j, i, reverse, angle) & ok[y + i][x + j];
     }
   }
   return adjf;
@@ -65,6 +65,7 @@ void SimpleField::apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int
     for (int j = 0; j < 8; ++j) {
       if ( x + j < 0 && 32 <= x + j && y + i < 0 && 32 <= y + i) continue;
       mat[y + i][x + j] |= s -> at(j, i, reverse, angle);
+      if (!s->at(j, i, reverse, angle)) continue;
       for (int k = 0; k < 4; ++k) {
         static const int ofs[4][2] = {
           {0, 1},
