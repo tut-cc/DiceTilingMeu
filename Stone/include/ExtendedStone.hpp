@@ -12,6 +12,8 @@ private:
 
 	int id;
 	int zk;
+
+	void array_to_bit(int rev, int rot);
 public:
 	ExtendedStone(std::vector<std::string>, int ID);
 	virtual ~ExtendedStone() = default;
@@ -21,6 +23,7 @@ public:
 	//— •Ô‚µA‰ñ“]Œã‚Ì‚È‚ñ‚©‚ğ•Ô‚·
 	virtual __int32* get_bit(int rev, int rot);
 	virtual __int32* get_neighbor(int rev, int rot);
+	virtual void set_bit(int rev, int rot, int x, int y);
 
 	//zk”‚ğ•Ô‚·
 	virtual int getZK();

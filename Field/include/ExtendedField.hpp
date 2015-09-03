@@ -34,6 +34,7 @@ public:
 
 	int eval_final_score();
 	int eval_select_score();
-};
 
-#pragma once
+	friend std::ostream& operator << (std::ostream& os, const ExtendedField& p);
+	friend std::ostream& operator << (std::ostream& os, const std::shared_ptr<ExtendedField>& p);
+};

@@ -38,3 +38,20 @@ int ExtendedField::eval_final_score() {
 int ExtendedField::eval_select_score() {
 	return 0;
 }
+
+std::ostream& operator << (std::ostream& os, const ExtendedField& p) {
+	for (int i = 0; i < 32; i++) {
+		for (int j = 0; j < 32; j++) {
+			os << p.at(i, j);
+		}
+		os << std::endl;
+	}
+}
+std::ostream& operator << (std::ostream& os, const std::shared_ptr<ExtendedField>& p) {
+	for (int i = 0; i < 32; i++) {
+		for (int j = 0; j < 32; j++) {
+			os << p->at(i, j);
+		}
+		os << std::endl;
+	}
+}

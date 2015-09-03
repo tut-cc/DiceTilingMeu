@@ -20,6 +20,7 @@ public:
 
 	virtual ~Beamalgo() = default;
 	virtual void solve();
+
 };
 
 #include "detail/Beamalgo.hpp"
