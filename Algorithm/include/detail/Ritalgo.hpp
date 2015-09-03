@@ -46,7 +46,7 @@ void Ritalgo<F, S>::solve()
     }
   }
   std::cout << *best_field;
-  for (int i = std::get<0>(*(best_field->get_history().rbegin()))->identify(); i < stones.size(); ++i)
+  for (int i = std::get<0>(*(best_field->get_history().rbegin()))->identify() + 1; i < stones.size(); ++i)
     std::cout << std::endl;
 }
 
