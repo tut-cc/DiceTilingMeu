@@ -11,7 +11,7 @@ private:
 	int margin[2][4][4];
 
 	int id;
-	int zk;
+	int zk = 0;
 
 public:
 	ExtendedStone(std::vector<std::string> strs, int index);

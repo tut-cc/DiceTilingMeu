@@ -13,6 +13,8 @@ ExtendedField::ExtendedField(std::vector<std::string> strs) {
 			ok[i][j] = true;
 		}
 	}
+	block_count = 0;
+	value = -1;
 }
 ExtendedField::ExtendedField(const bool mat[32][32], const decltype(((Field *)nullptr)->get_history()) & src = {}) : Field(src)
 {
@@ -22,17 +24,32 @@ ExtendedField::ExtendedField(const bool mat[32][32], const decltype(((Field *)nu
 			ok[i][j] = true;
 		}
 	}
+	block_count = 0;
+	value = -1;
 }
-
-//FieldをExtendedFieldに変換するコンストラクタ
-ExtendedField::ExtendedField(Field &f) {
+ExtendedField::ExtendedField(const ExtendedField &f, const decltype(((Field *)nullptr)->get_history()) & src = {}) : Field(src)
+{
 	for (int i = 0; i < 32; ++i) {
 		for (int j = 0; j < 32; ++j) {
-			mat[i][j] = f.at(j, i);
+			this->mat[i][j] = f.at(j, i);
 			ok[i][j] = true;
 		}
 	}
+	block_count = f.block_count;
+	value = -1;
 }
+
+//ExtendedField::ExtendedField(const ExtendedField & f)
+//{
+//	for (int i = 0; i < 32; ++i) {
+//		for (int j = 0; j < 32; ++j) {
+//			mat[i][j] = f.at(j, i);
+//			ok[i][j] = true;
+//		}
+//	}
+//	block_count = f.block_count;
+//	value = -1;
+//}
 
 
 bool ExtendedField::at(int x, int y) const{
@@ -59,10 +76,12 @@ bool ExtendedField::appliable_ex(std::shared_ptr<ExtendedStone> s, int x, int y,
 	}
 	return adjf;
 }
+
 void ExtendedField::apply_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) {
+
 	Field::apply(s, x, y, reverse, angle);
 #ifdef _DEBUG
-	if (!appliable(s, x, y, reverse, angle)) {
+	if (!appliable_ex(s, x, y, reverse, angle)) {
 		throw std::runtime_error("cannot apply");
 	}
 #endif
@@ -102,7 +121,7 @@ std::unique_ptr<Field> ExtendedField::clone() const {
 	return std::move(ptr);
 }
 std::shared_ptr<ExtendedField> ExtendedField::clone_ex() const {
-	auto ptr = std::shared_ptr<ExtendedField>(new ExtendedField(mat, history));
+	auto ptr = std::shared_ptr<ExtendedField>(new ExtendedField(*this, history));
 	return std::move(ptr);
 }
 
@@ -134,15 +153,6 @@ int ExtendedField::eval_select_score() {
 	return value;
 }
 
-std::ostream& operator << (std::ostream& os, const ExtendedField& p) {
-	for (int i = 0; i < 32; i++) {
-		for (int j = 0; j < 32; j++) {
-			os << p.at(i, j);
-		}
-		os << std::endl;
-	}
-	return os;
-}
 std::ostream& operator << (std::ostream& os, const std::shared_ptr<ExtendedField>& p) {
 	for (int i = 0; i < 32; i++) {
 		for (int j = 0; j < 32; j++) {

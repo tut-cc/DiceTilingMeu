@@ -14,8 +14,7 @@ int main()
 //  std::unique_ptr<Algorithm> rita(new Ritalgo<SimpleField, SimpleStone>(prob));
   solver -> solve();
 //  rita -> solve();
-  int a;
-  std::cin >> a;
+
   return 0;
 }
 

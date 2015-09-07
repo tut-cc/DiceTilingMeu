@@ -119,7 +119,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -132,7 +132,9 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="quest11.txt" />
+    <Text Include="problem\36.txt" />
+    <Text Include="problem\37.txt" />
+    <Text Include="problem\quest11.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BuildPropertySheet.props" />

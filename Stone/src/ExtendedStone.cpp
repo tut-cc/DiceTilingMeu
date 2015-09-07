@@ -5,6 +5,7 @@ ExtendedStone::ExtendedStone(std::vector<std::string> strs, int index) {
 		for (int j = 0; j < 8; ++j) {
 			mat[0][0][i][j] = strs[i][j] == '1';
 			mat[0][1][i][7 - j] = mat[0][0][i][j];
+			if (strs[i][j] == '1')zk++;
 		}
 	}
 	for (int a = 1; a < 4; ++a) {

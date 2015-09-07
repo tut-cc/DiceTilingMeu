@@ -32,7 +32,8 @@ private:
 public:
 	ExtendedField(std::vector<std::string>);
 	ExtendedField(const bool mat[32][32], const decltype(history) &);
-	ExtendedField(Field &f);
+	ExtendedField(const ExtendedField &f, const decltype(history) &);
+	ExtendedField(const ExtendedField &f);
 
 	virtual ~ExtendedField() = default;
 	virtual bool at(int x, int y) const override;
@@ -46,6 +47,5 @@ public:
 	int eval_final_score();
 	int eval_select_score();
 
-	friend std::ostream& operator << (std::ostream& os, const ExtendedField& p);
 	friend std::ostream& operator << (std::ostream& os, const std::shared_ptr<ExtendedField>& p);
 };
