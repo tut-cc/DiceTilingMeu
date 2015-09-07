@@ -41,7 +41,8 @@ void Ritalgo<F, S>::solve()
     }
     std::cerr << "AVERAGE SCORE : " << ave_score << std::endl;
     for (auto ant : ants) {
-      ant -> renew();
+      //ant->renew();
+      ant->renew(ave_score);
       ant -> reset(field -> clone());
     }
   }
@@ -110,18 +111,22 @@ Ritalgo<F, S>::Env::~Env()
 template <class F, class S>
 void Ritalgo<F, S>::Env::put(int idx, int is, int fir, int x, int y, int rev, int ang, double phe)
 {
+#ifdef _DEBUG
   if (!( 0 <= x + GETA && x + GETA < 64 && 0 <= y + GETA && y + GETA < 64 ) ) {
     std::cerr << "AHHHHHHHHHH" << std::endl;
   }
+#endif
   env[idx][is][fir][x + GETA][y + GETA][rev][ang] += phe;
 }
 
 template <class F, class S>
 double Ritalgo<F, S>::Env::get(int idx, int is, int fir, int x, int y, int rev, int ang) const
 {
+#ifdef _DEBUG
   if (!( 0 <= x + GETA && x + GETA < 64 && 0 <= y + GETA && y + GETA < 64 ) ) {
     std::cerr << "AHHHHHHHHHH" << std::endl;
   }
+#endif
   return env[idx][is][fir][x + GETA][y + GETA][rev][ang];
 }
 
@@ -212,13 +217,23 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
   return sum;
 }
 
+// フェロモン情報が正のみ
 template <class F, class S>
 double Ritalgo<F, S>::Ant::v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const
 {
-  const double hv = is ? h(stones[idx], prev.first + x, prev.second + y, rev, ang) : 0.0;
+  const double hv = (is ? h(stones[idx], prev.first + x, prev.second + y, rev, ang) : fir ? 5.0 : 2.0) * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size());
   const double ph = env -> get(idx, is, fir, x, y, rev, ang);
   return std::pow(hv + 1, BETA) * std::pow(ph + 1, ALPHA);
 }
+
+template <class F, class S>
+double Ritalgo<F, S>::Ant::v2(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const
+{
+  const double hv = (is ? h(stones[idx], prev.first + x, prev.second + y, rev, ang) : fir ? 5.0 : 2.0) * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size());
+  const double ph = env->get(idx, is, fir, x, y, rev, ang);
+  return std::exp(hv * BETA) * std::exp(ph * ALPHA);
+}
+
 
 template <class F, class S>
 void Ritalgo<F, S>::Ant::run()
@@ -285,6 +300,23 @@ void Ritalgo<F, S>::Ant::renew()
     int x, y, rev, ang;
     std::tie(std::ignore, x, y, rev, ang) = e;
     env -> put(index++, 1, fir, x, y, rev, ang, PHEROMONE / l);
+  }
+}
+
+template <class F, class S>
+void Ritalgo<F, S>::Ant::renew(double anchor)
+{
+  int index = 0;
+  int fir = 1;
+  const double l = field->score() + 1.0;
+  for (auto e : field->get_history()) {
+    // TODO : mugic number : 100 to function
+    for (; index < std::get<0>(e)->identify(); ++index) {
+      env->put(index, 0, fir, 0, 0, 0, 0, (score() - anchor) / 100);
+    }
+    int x, y, rev, ang;
+    std::tie(std::ignore, x, y, rev, ang) = e;
+    env->put(index++, 1, fir, x, y, rev, ang, (score() - anchor) / 100);
   }
 }
 

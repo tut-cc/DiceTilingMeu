@@ -17,7 +17,7 @@ class Ritalgo : public Algorithm {
     std::vector<std::shared_ptr<Stone>> stones;
     class Env {
       private:
-        static constexpr double EVAPORATE_RATE = 0.98;
+        static constexpr double EVAPORATE_RATE = 0.9998;
         static constexpr int    GETA           = 8;
         union {
           double env[256][2][2][64][64][2][4];
@@ -59,9 +59,12 @@ class Ritalgo : public Algorithm {
     };
     class Ant {
       private:
-        static constexpr double PHEROMONE = 500.0;
-        static constexpr double ALPHA     = 10.0;
-        static constexpr double BETA      = 3.0;
+        // TODO: PHEROMONE to constexpr value to function made from average score
+        static constexpr double PHEROMONE = 800.0;
+        //static constexpr double ALPHA = 2.0;
+        //static constexpr double BETA = 5.0;
+        static constexpr double ALPHA = 8.0;
+        static constexpr double BETA = 5.0;
         std::unique_ptr<Field> field;
         std::vector<std::shared_ptr<Stone>> stones;
         std::shared_ptr<Env> env;
@@ -69,11 +72,13 @@ class Ritalgo : public Algorithm {
         std::uniform_real_distribution<double> dist;
         double h(const std::shared_ptr<Stone> s, const int x, const int y, const int rev, const int ang) const;
         double v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const;
+        double v2(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const;
       public:
         Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, std::shared_ptr<Env> env);
         ~Ant() = default;
         void run();
         void renew();
+        void renew(double anchor);
         void reset(std::unique_ptr<Field> field);
         int score() const;
         std::unique_ptr<Field> loot() const;
