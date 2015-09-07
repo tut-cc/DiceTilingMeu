@@ -1,6 +1,6 @@
 #include "ExtendedStone.hpp"
 
-ExtendedStone::ExtendedStone(std::vector<std::string> strs, int ID) {
+ExtendedStone::ExtendedStone(std::vector<std::string> strs, int index) {
 	for (int i = 0; i < 8; ++i) {
 		for (int j = 0; j < 8; ++j) {
 			mat[0][0][i][j] = strs[i][j] == '1';
@@ -16,10 +16,9 @@ ExtendedStone::ExtendedStone(std::vector<std::string> strs, int ID) {
 			}
 		}
 	}
-	id = ID;
+	id = index;
 }
 void ExtendedStone::array_to_bit(int rev, int rot) {
-
 }
 
 bool ExtendedStone::at(int x, int y, int reverse, int angle) const {
@@ -34,7 +33,6 @@ __int32* ExtendedStone::get_neighbor(int rev, int rot) {
 }
 
 void ExtendedStone::set_bit(int rev, int rot, int x, int y) {
-
 }
 
 int ExtendedStone::getZK()

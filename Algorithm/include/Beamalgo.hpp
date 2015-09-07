@@ -9,7 +9,7 @@
 
 template <class F, class S>
 class Beamalgo : public Algorithm {
-	std::unique_ptr<ExtendedField> field;
+	std::shared_ptr<ExtendedField> field;
 	std::vector<std::shared_ptr<ExtendedStone>> stones;
 
 	int stones_num;

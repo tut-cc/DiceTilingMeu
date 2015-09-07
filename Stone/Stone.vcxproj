@@ -19,12 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\SimpleStone.hpp" />
+    <ClInclude Include="include\ExtendedStone.hpp" />
+    <ClInclude Include="include\SimpleStone.hpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="include\stone.hpp" />
-    <ClInclude Include="src\ExtendedStone.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\ExtendedStone.hpp" />
+    <ClCompile Include="src\ExtendedStone.cpp" />
     <ClCompile Include="src\SimpleStone.cpp" />
     <ClCompile Include="src\stone.cpp" />
   </ItemGroup>

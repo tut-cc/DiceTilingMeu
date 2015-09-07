@@ -13,9 +13,8 @@ private:
 	int id;
 	int zk;
 
-	void array_to_bit(int rev, int rot);
 public:
-	ExtendedStone(std::vector<std::string> strs, int ID);
+	ExtendedStone(std::vector<std::string> strs, int index);
 	virtual ~ExtendedStone() = default;
 	virtual bool at(int x, int y, int reverse, int angle) const override;
 	virtual int getID();
@@ -27,5 +26,6 @@ public:
 
 	//zk”‚ğ•Ô‚·
 	virtual int getZK();
+	void array_to_bit(int rev, int rot);
 };
 

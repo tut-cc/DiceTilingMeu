@@ -14,7 +14,15 @@ ExtendedField::ExtendedField(std::vector<std::string> strs) {
 		}
 	}
 }
-ExtendedField::ExtendedField(const bool mat[32][32], const decltype(history) &) {}
+ExtendedField::ExtendedField(const bool mat[32][32], const decltype(((Field *)nullptr)->get_history()) & src = {}) : Field(src)
+{
+	for (int i = 0; i < 32; ++i) {
+		for (int j = 0; j < 32; ++j) {
+			this->mat[i][j] = mat[i][j];
+			ok[i][j] = true;
+		}
+	}
+}
 
 //FieldをExtendedFieldに変換するコンストラクタ
 ExtendedField::ExtendedField(Field &f) {
@@ -33,7 +41,7 @@ bool ExtendedField::at(int x, int y) const{
 bool ExtendedField::appliable(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) const { return false; }
 void ExtendedField::apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) {}
 
-bool ExtendedField::appliable(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const {
+bool ExtendedField::appliable_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const {
 	bool adjf = false;
 	for (int i = 0; i < 8; ++i) {
 		for (int j = 0; j < 8; ++j) {
@@ -51,7 +59,7 @@ bool ExtendedField::appliable(std::shared_ptr<ExtendedStone> s, int x, int y, in
 	}
 	return adjf;
 }
-void ExtendedField::apply(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) {
+void ExtendedField::apply_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) {
 	Field::apply(s, x, y, reverse, angle);
 #ifdef _DEBUG
 	if (!appliable(s, x, y, reverse, angle)) {
@@ -93,8 +101,8 @@ std::unique_ptr<Field> ExtendedField::clone() const {
 	auto ptr = std::unique_ptr<Field>(new ExtendedField(mat, history));
 	return std::move(ptr);
 }
-std::unique_ptr<ExtendedField> ExtendedField::clone_ex() const {
-	auto ptr = std::unique_ptr<ExtendedField>(new ExtendedField(mat, history));
+std::shared_ptr<ExtendedField> ExtendedField::clone_ex() const {
+	auto ptr = std::shared_ptr<ExtendedField>(new ExtendedField(mat, history));
 	return std::move(ptr);
 }
 

@@ -37,11 +37,11 @@ public:
 	virtual ~ExtendedField() = default;
 	virtual bool at(int x, int y) const override;
 
-	virtual bool appliable(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const;
-	virtual void apply(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle);
+	virtual bool appliable_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const;
+	virtual void apply_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle);
 
 	virtual std::unique_ptr<Field> clone() const;
-	virtual std::unique_ptr<ExtendedField> clone_ex() const;
+	virtual std::shared_ptr<ExtendedField> clone_ex() const;
 
 	int eval_final_score();
 	int eval_select_score();
