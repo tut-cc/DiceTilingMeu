@@ -15,7 +15,7 @@ private:
 
 	void array_to_bit(int rev, int rot);
 public:
-	ExtendedStone(std::vector<std::string>, int ID);
+	ExtendedStone(std::vector<std::string> strs, int ID);
 	virtual ~ExtendedStone() = default;
 	virtual bool at(int x, int y, int reverse, int angle) const override;
 	virtual int getID();

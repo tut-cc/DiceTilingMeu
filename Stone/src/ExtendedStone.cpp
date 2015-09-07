@@ -23,7 +23,7 @@ void ExtendedStone::array_to_bit(int rev, int rot) {
 }
 
 bool ExtendedStone::at(int x, int y, int reverse, int angle) const {
-	return mat[reverse][angle][y][x];
+	return mat[angle][reverse][y][x];
 }
 
 __int32* ExtendedStone::get_bit(int rev, int rot) {

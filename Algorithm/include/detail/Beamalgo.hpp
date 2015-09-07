@@ -35,7 +35,7 @@ void Beamalgo<F, S>::solve()
 	//	return f1->eval_final_score() > f2->eval_final_score();
 	//});
 
-	auto result = field->clone();
+	std::shared_ptr<ExtendedField> result = std::shared_ptr<ExtendedField>(new ExtendedField(*(field.get())));
 
 	typedef std::vector<std::pair<int, int>> PairList;
 	std::vector<std::array<std::array<PairList, 4>, 2>> appliable_list;
@@ -60,7 +60,7 @@ void Beamalgo<F, S>::solve()
 	states_list.push(field->clone_ex());
 	//全ての石を置く
 	for (int st_idx = 0; st_idx < stones_num; st_idx++) {
-		auto stone = stones[st_ids];
+		std::shared_ptr<ExtendedStone> stone = stones[st_idx];
 
 		std::priority_queue <
 			std::shared_ptr<ExtendedField>,
@@ -72,7 +72,7 @@ void Beamalgo<F, S>::solve()
 
 		//全ての状態に対して石を置く
 		while (!states_list.empty()) {
-			auto state = states_list.top();
+			std::shared_ptr<ExtendedField> state = states_list.top();
 			states_list.pop();
 
 			if (tmp_list.size() >= BEAM_WIDTH) {
@@ -86,7 +86,7 @@ void Beamalgo<F, S>::solve()
 
 					for (auto& pos : appliable_list[st_idx][r][a]) {
 						if (state->appliable(stone, pos.first, pos.second, r, a)) {
-							auto tmp = state->clone_ex();
+							std::shared_ptr<ExtendedField> tmp = state->clone_ex();
 							tmp->apply(stone, pos.first, pos.second, r, a);
 
 							//キューのサイズをビーム幅に制限する
