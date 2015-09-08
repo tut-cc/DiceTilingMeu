@@ -135,6 +135,7 @@
     <Text Include="problem\36.txt" />
     <Text Include="problem\37.txt" />
     <Text Include="problem\quest11.txt" />
+    <Text Include="problem\test.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BuildPropertySheet.props" />

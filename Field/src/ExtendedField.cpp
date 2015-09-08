@@ -32,7 +32,7 @@ ExtendedField::ExtendedField(const ExtendedField &f, const decltype(((Field *)nu
 	for (int i = 0; i < 32; ++i) {
 		for (int j = 0; j < 32; ++j) {
 			this->mat[i][j] = f.at(j, i);
-			ok[i][j] = true;
+			ok[i][j] = f.at_ok(j, i);
 		}
 	}
 	block_count = f.block_count;
@@ -55,6 +55,10 @@ ExtendedField::ExtendedField(const ExtendedField &f, const decltype(((Field *)nu
 bool ExtendedField::at(int x, int y) const{
 	return mat[y][x];
 }
+bool ExtendedField::at_ok(int x, int y) const {
+	return ok[y][x];
+}
+
 bool ExtendedField::appliable(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) const { return false; }
 void ExtendedField::apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) {}
 
@@ -76,7 +80,6 @@ bool ExtendedField::appliable_ex(std::shared_ptr<ExtendedStone> s, int x, int y,
 	}
 	return adjf;
 }
-
 void ExtendedField::apply_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) {
 
 	Field::apply(s, x, y, reverse, angle);
@@ -92,7 +95,7 @@ void ExtendedField::apply_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int
 	}
 	for (int i = 0; i < 8; ++i) {
 		for (int j = 0; j < 8; ++j) {
-			if (x + j < 0 && 32 <= x + j && y + i < 0 && 32 <= y + i) continue;
+			if (x + j < 0 || 32 <= x + j || y + i < 0 || 32 <= y + i) continue;
 			mat[y + i][x + j] |= s->at(j, i, reverse, angle);
 			if (!s->at(j, i, reverse, angle)) continue;
 			for (int k = 0; k < 4; ++k) {
@@ -115,6 +118,39 @@ void ExtendedField::apply_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int
 	value = -1;
 	block_count += s->getZK();
 }
+
+void ExtendedField::apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) {
+#ifdef _DEBUG
+	if (appliable_bit(s, x, y, reverse, angle)) {
+
+		throw std::runtime_error("cannot apply!!! ");
+	}
+#endif
+	for (int i = y; i < 32; i++) {
+		bitmat[i] &= s->get_bit_row(reverse, angle, x, i);
+	}
+	for (int i = y; i < 32; i++) {
+		bitmat[i] &= s->get_bit_row(reverse, angle, x, i);
+		next_block[i] = (next_block[i] | s->get_neighbor_row(reverse, angle, x, i)) & (~bitmat[i]);
+	}
+}
+bool ExtendedField::appliable_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const {
+	if (!s->movable(reverse, angle, x, y))return false;
+	//’u‚¯‚é‚©‚Ç‚¤‚©
+	for (int i = y; i < 32; i++) {
+		if ((bitmat[i] & s->get_bit_row(reverse, angle, x, i)) != 0)return false;
+	}
+	//‚·‚Å‚É”z’u‚µ‚½Î‚Æ—×‚è‡‚Á‚Ä‚¢‚é‚©‚Ç‚¤‚©
+	bool n_flag = false;
+	for (int i = 0; i < 32; i++) {
+		if ((next_block[i] & s->get_neighbor_row(reverse, angle, x, i)) != 0)return true;
+	}
+
+	if (!n_flag)return false;
+
+	return true;
+}
+
 
 std::unique_ptr<Field> ExtendedField::clone() const {
 	auto ptr = std::unique_ptr<Field>(new ExtendedField(mat, history));
@@ -156,7 +192,7 @@ int ExtendedField::eval_select_score() {
 std::ostream& operator << (std::ostream& os, const std::shared_ptr<ExtendedField>& p) {
 	for (int i = 0; i < 32; i++) {
 		for (int j = 0; j < 32; j++) {
-			os << p->at(i, j);
+			os << p->at(j, i);
 		}
 		os << std::endl;
 	}

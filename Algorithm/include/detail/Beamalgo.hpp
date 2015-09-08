@@ -15,6 +15,8 @@ Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
 		stones.push_back(std::shared_ptr<ExtendedStone>(new S(s, (int)(stones.size()))));
 	}
 	stones_num = (int)(stones.size());
+
+	//debug
 }
 
 
@@ -37,6 +39,7 @@ void Beamalgo<F, S>::solve()
 	//	return f1->eval_final_score() > f2->eval_final_score();
 	//});
 
+	std::cout << field << std::endl;
 	std::shared_ptr<ExtendedField> result = std::move(field->clone_ex());
 
 	typedef std::vector<std::pair<int, int>> PairList;
@@ -82,13 +85,15 @@ void Beamalgo<F, S>::solve()
 			}
 			tmp_list.push(state->clone_ex());
 
+
+//			std::cout << state << std::endl;
+
 			//— •\A‰ñ“]‚·‚×‚Ä‚Ì’u‚«•û‚ðŽŽ‚·
 			for (int a = 0; a < 4; a++) {
 				for (int r = 0; r < 1; r++) {
 
 					for (auto& pos : appliable_list[st_idx][r][a]) {
-						bool res;
-						if (res = (state->appliable_ex(stone, pos.first, pos.second, r, a))) {
+						if (state->appliable_ex(stone, pos.first, pos.second, r, a)) {
 							std::shared_ptr<ExtendedField> tmp = state->clone_ex();
 							tmp->apply_ex(stone, pos.first, pos.second, r, a);
 
@@ -110,7 +115,6 @@ void Beamalgo<F, S>::solve()
 		}
 		states_list = tmp_list;
 	}
-
 	std::ofstream cv("cv.txt");
 	cv << result << std::endl;
 	std::ofstream ofs("answer.txt");

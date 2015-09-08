@@ -8,14 +8,10 @@
 class ExtendedField : public Field {
 private:
 	//フィールドをビット列で表す
-	__int32 bitmat[32];
+	RowBit bitmat[32];
 
 	//次にブロックが置かれなければならない位置を表す
-	__int32 next_block[32];
-
-	//4方向を見るための配列
-	static const int tx[];
-	static const int ty[];
+	RowBit next_block[32];
 
 	//フィールドに存在するブロック数
 	int block_count = 0;
@@ -30,6 +26,10 @@ private:
 	virtual void apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) override;
 
 public:
+	//4方向を見るための配列
+	static const int tx[];
+	static const int ty[];
+
 	ExtendedField(std::vector<std::string>);
 	ExtendedField(const bool mat[32][32], const decltype(history) &);
 	ExtendedField(const ExtendedField &f, const decltype(history) &);
@@ -37,9 +37,13 @@ public:
 
 	virtual ~ExtendedField() = default;
 	virtual bool at(int x, int y) const override;
+	virtual bool at_ok(int x, int y) const;
 
 	virtual bool appliable_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const;
 	virtual void apply_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle);
+
+	virtual bool appliable_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const ;
+	virtual void apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle);
 
 	virtual std::unique_ptr<Field> clone() const;
 	virtual std::shared_ptr<ExtendedField> clone_ex() const;
