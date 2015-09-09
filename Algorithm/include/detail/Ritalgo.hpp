@@ -40,8 +40,8 @@ void Ritalgo<F, S>::solve()
     }
     std::cerr << "AVERAGE SCORE : " << ave_score << std::endl;
     for (auto ant : ants) {
-      ant->renew();
-      //ant->renew(ave_score);
+      //ant->renew();
+      ant->renew(ave_score);
       ant -> reset(field -> clone());
     }
   }
@@ -155,7 +155,7 @@ void Ritalgo<F, S>::Env::eva()
 
 
 template <class F, class S>
-Ritalgo<F, S>::Ant::Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, std::shared_ptr<Env> env) : dist(0.0, 1.0)
+Ritalgo<F, S>::Ant::Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, std::shared_ptr<Env> env) : dist(0.0, 1.0), skipper(0, stones.size()-1)
 {
   this -> field = std::move(field);
   std::copy(stones.begin(), stones.end(), std::back_inserter(this -> stones));
@@ -243,8 +243,42 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
       }
     }
   }
-  if (sum == num) return 0;
-  return (double)sum /**/ + wall /* + 32.0/(cntc + 1.0) + 32.0/(cntr + 1.0) /**/;
+  // from http://judge.u-aizu.ac.jp/onlinejudge/review.jsp?rid=1303101
+  /*
+  int rect = [&dup](){
+    int m[33][32];
+    long long st[32];
+    int i, j, r, ptr, h;
+    for (j = 0; j<32; j++)for (r = i = 0; i<32; m[j][i] = r, i++) {
+      int t = dup->at(j, i);
+      r = t == 0 ? r + 1 : 0;
+    }
+    for (r = i = 0; i<32; i++)for (ptr = j = 0; j <= 32; j++) {
+      int left = j;
+      for (; ptr && (h = st[ptr - 1] >> 32)>m[j][i];) {
+        int l = st[--ptr] & 0xffffffff;
+        if (r<(j - l)*h)r = (j - l)*h;
+        left = l;
+      }
+      st[ptr++] = ((long long)m[j][i] << 32) | left;
+    }
+    return r;
+  }();
+  */
+  double diff = [&]() {
+    if (field->get_history().size() == 0) {
+      return 0.0;
+    }
+    auto pe = *(field->get_history().rbegin());
+    int px, py, prev, pang;
+    std::shared_ptr<Stone> ps;
+    std::tie(ps, px, py, prev, pang) = pe;
+    auto pp = ps->center(prev, pang);
+    auto np = s->center(rev, ang);
+    return std::min(std::abs(pp.first + px - (np.first + x)), std::abs(pp.second + py - (np.second + y)));
+  }();
+  if (sum == num) return -0.5;
+  return (double)sum*3.0 /**/ + wall*10.0 + 5.0 / std::pow(diff + 1.0, 2.0) /**/ +200.0 / (cntc + 1.0) + 200.0 / (cntr + 1.0) /**/;
   //return 1.0 / (sum + 1.0);
 }
 
@@ -252,7 +286,7 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
 template <class F, class S>
 double Ritalgo<F, S>::Ant::v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const
 {
-  const double hv = (is ? h(stones[idx], prev.first + x, prev.second + y, rev, ang) : fir ? 0.0 : 1.0) /**/ * (/* 1.0 - /**/ std::exp(-4.0 * std::log(2.0) * std::pow((double)idx / stones.size(), 2.0) )) /**/;
+  const double hv = (is ? h(stones[idx], prev.first + x, prev.second + y, rev, ang) : fir ? 0.0 : 1.0) /* * ( std::exp(-4.0 * std::log(2.0) * std::pow((double)idx / stones.size(), 2.0) )) /**/;
   const double ph = env -> get(idx, is, fir, x, y, rev, ang);
   return std::pow(hv + 1, BETA) * std::pow(ph + 1, ALPHA);
 }
@@ -271,14 +305,17 @@ template <class F, class S>
 void Ritalgo<F, S>::Ant::run()
 {
   int fir = 1;
+  // for diversity
+  int who = skipper(mt);
   std::pair<int, int> prev = {0, 0};
   for (unsigned int idx = 0; idx < stones.size(); ++idx) {
+    if (idx == who)continue;
     std::vector<std::tuple<int, int, int, int, int, int>> list;
     std::vector<double> roulette;
     double accum = 0.0;
     list.push_back(std::make_tuple(0, fir, 0, 0, 0, 0));
-    //accum += v2(idx, 0, fir, 0, 0, 0, 0, { 0, 0 });
-    accum += v(idx, 0, fir, 0, 0, 0, 0, { 0, 0 });
+    accum += v2(idx, 0, fir, 0, 0, 0, 0, { 0, 0 });
+    //accum += v(idx, 0, fir, 0, 0, 0, 0, { 0, 0 });
     roulette.push_back(accum);
     const std::pair<int, int> zr = {
       -8,
@@ -301,8 +338,8 @@ void Ritalgo<F, S>::Ant::run()
           for (int ang = 0; ang < 4; ++ang) {
             if ( field -> appliable(stones[idx], prev.first + x, prev.second + y, rev, ang) ) {
               list.push_back(std::make_tuple(1, fir, x, y, rev, ang));
-              //accum += v2(idx, 1, fir, x, y, rev, ang, prev);
-              accum += v(idx, 1, fir, x, y, rev, ang, prev);
+              accum += v2(idx, 1, fir, x, y, rev, ang, prev);
+              //accum += v(idx, 1, fir, x, y, rev, ang, prev);
               roulette.push_back(accum);
             }
           }
@@ -333,11 +370,15 @@ void Ritalgo<F, S>::Ant::renew()
   const double l = field -> score() + 1.0;
   for ( auto e : field -> get_history() ) {
     for(; index < std::get<0>(e) -> identify(); ++index) {
-      env -> put(index, 0, fir, 0, 0, 0, 0, PHEROMONE / l);
+      env -> put(index, 0, fir, 0, 0, 0, 0, (PHEROMONE / l)
+        /* * (1.0 - std::exp(-100.0*std::pow((double)index, 2.0))) /**/
+        );
     }
     int x, y, rev, ang;
     std::tie(std::ignore, x, y, rev, ang) = e;
-    env -> put(index++, 1, fir, x, y, rev, ang, PHEROMONE / l);
+    env -> put(index++, 1, fir, x, y, rev, ang, (PHEROMONE / l)
+      /* * (1.0 - std::exp(-100.0*std::pow((double)index, 2.0))) /**/
+      );
   }
 }
 
@@ -350,11 +391,15 @@ void Ritalgo<F, S>::Ant::renew(double anchor)
   for (auto e : field->get_history()) {
     // TODO : mugic number : 100 to function
     for (; index < std::get<0>(e)->identify(); ++index) {
-      env->put(index, 0, fir, 0, 0, 0, 0, (std::pow(anchor, 3) - std::pow(score(), 3.0)) / std::pow(anchor, 3));
+      env->put(index, 0, fir, 0, 0, 0, 0, (std::pow(anchor, 3) - std::pow(score(), 3.0)) / std::pow(anchor, 3)
+        /* * (1.0 - std::exp(-10.0*std::pow((double)index, 2.0))) /**/
+        );
     }
     int x, y, rev, ang;
     std::tie(std::ignore, x, y, rev, ang) = e;
-    env->put(index++, 1, fir, x, y, rev, ang, (std::pow(anchor, 3) - std::pow(score(), 3.0)) / std::pow(anchor, 3));
+    env->put(index++, 1, fir, x, y, rev, ang, (std::pow(anchor, 3) - std::pow(score(), 3.0)) / std::pow(anchor, 3)
+      /* * ( 1.0 - std::exp(-10.0*std::pow((double)index, 2.0))) /**/
+      );
   }
 }
 
