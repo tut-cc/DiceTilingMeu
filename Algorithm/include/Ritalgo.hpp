@@ -61,10 +61,10 @@ class Ritalgo : public Algorithm {
       private:
         // TODO: PHEROMONE to constexpr value to function made from average score
         static constexpr double PHEROMONE = 800.0;
-        //static constexpr double ALPHA = 2.0;
-        //static constexpr double BETA = 5.0;
-        static constexpr double ALPHA = 8.0;
+        static constexpr double ALPHA = 3.0;
         static constexpr double BETA = 5.0;
+        //static constexpr double ALPHA = 10;
+        //static constexpr double BETA = 5.0;
         std::unique_ptr<Field> field;
         std::vector<std::shared_ptr<Stone>> stones;
         std::shared_ptr<Env> env;
