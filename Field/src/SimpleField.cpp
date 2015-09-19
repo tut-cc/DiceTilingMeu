@@ -63,7 +63,7 @@ void SimpleField::apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int
   }
   for (int i = 0; i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
-      if ( x + j < 0 && 32 <= x + j && y + i < 0 && 32 <= y + i) continue;
+      if ( x + j < 0 || 32 <= x + j || y + i < 0 || 32 <= y + i) continue;
       mat[y + i][x + j] |= s -> at(j, i, reverse, angle);
       if (!s->at(j, i, reverse, angle)) continue;
       for (int k = 0; k < 4; ++k) {
