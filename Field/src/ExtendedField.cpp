@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <string>
+#include <bitset>
 
 const int ExtendedField::tx[] = { 1, 0, -1, 0 };
 const int ExtendedField::ty[] = { 0, -1, 0, 1 };
@@ -9,8 +10,9 @@ const int ExtendedField::ty[] = { 0, -1, 0, 1 };
 ExtendedField::ExtendedField(std::vector<std::string> strs) {
 	for (int i = 0; i < 32; ++i) {
 		for (int j = 0; j < 32; ++j) {
-			mat[i][j] = strs[i][j] == '1';
-			ok[i][j] = true;
+			if (strs[i][j] == '1') {
+				set_bit(j, i);
+			}
 		}
 	}
 	block_count = 0;
@@ -29,11 +31,15 @@ ExtendedField::ExtendedField(const bool mat[32][32], const decltype(((Field *)nu
 }
 ExtendedField::ExtendedField(const ExtendedField &f, const decltype(((Field *)nullptr)->get_history()) & src = {}) : Field(src)
 {
-	for (int i = 0; i < 32; ++i) {
-		for (int j = 0; j < 32; ++j) {
-			this->mat[i][j] = f.at(j, i);
-			ok[i][j] = f.at_ok(j, i);
-		}
+	//for (int i = 0; i < 32; ++i) {
+	//	for (int j = 0; j < 32; ++j) {
+	//		this->mat[i][j] = f.at(j, i);
+	//		ok[i][j] = f.at_ok(j, i);
+	//	}
+	//}
+	for (int i = 0; i < 32; i++) {
+		bitmat[i] = f.bitmat[i];
+		next_block[i] = f.next_block[i];
 	}
 	block_count = f.block_count;
 	value = -1;
@@ -121,34 +127,43 @@ void ExtendedField::apply_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int
 
 void ExtendedField::apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) {
 #ifdef _DEBUG
-	if (appliable_bit(s, x, y, reverse, angle)) {
+	if (!appliable_bit(s, x, y, reverse, angle)) {
 
 		throw std::runtime_error("cannot apply!!! ");
 	}
 #endif
-	for (int i = y; i < 32; i++) {
-		bitmat[i] &= s->get_bit_row(reverse, angle, x, i);
+	int y_margin = s->get_y_margin(reverse, angle);
+	for (int i = 0; i < 8; i++) {
+		if ((i + y - y_margin) < 0 || (i + y - y_margin) > 31)continue;
+		bitmat[i + y - y_margin] |= s->get_bit_row(reverse, angle, x, i);
 	}
+
 	for (int i = y; i < 32; i++) {
-		bitmat[i] &= s->get_bit_row(reverse, angle, x, i);
-		next_block[i] = (next_block[i] | s->get_neighbor_row(reverse, angle, x, i)) & (~bitmat[i]);
+		int ym = i + y - y_margin;
+		if (ym < 0 || ym > 31)continue;
+		next_block[ym] = (next_block[ym] | s->get_neighbor_row(reverse, angle, x, i)) & (~bitmat[ym]);
 	}
+	block_count += s->getZK();
 }
 bool ExtendedField::appliable_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const {
 	if (!s->movable(reverse, angle, x, y))return false;
+	int y_margin;
+	y_margin = s->get_y_margin(reverse, angle);
 	//’u‚¯‚é‚©‚Ç‚¤‚©
-	for (int i = y; i < 32; i++) {
-		if ((bitmat[i] & s->get_bit_row(reverse, angle, x, i)) != 0)return false;
+	for (int i = 0; i < 8; i++) {
+		if ((i + y - y_margin) < 0 || (i + y - y_margin) > 31)continue;
+		if ((bitmat[i + y - y_margin] & s->get_bit_row(reverse, angle, x, i)) != 0)return false;
 	}
 	//‚·‚Å‚É”z’u‚µ‚½Î‚Æ—×‚è‡‚Á‚Ä‚¢‚é‚©‚Ç‚¤‚©
-	bool n_flag = false;
+	bool n_flag = block_count == 0;
 	for (int i = 0; i < 32; i++) {
-		if ((next_block[i] & s->get_neighbor_row(reverse, angle, x, i)) != 0)return true;
+		if ((i + y - y_margin) < 0 || (i + y - y_margin) > 31)continue;
+		if ((next_block[i + y - y_margin] & s->get_neighbor_row(reverse, angle, x, i)) != 0)return true;
 	}
 
-	if (!n_flag)return false;
+	if (n_flag)return true;
 
-	return true;
+	return false;
 }
 
 
@@ -197,4 +212,29 @@ std::ostream& operator << (std::ostream& os, const std::shared_ptr<ExtendedField
 		os << std::endl;
 	}
 	return os;
+}
+
+std::string ExtendedField::get_bit_str() {
+	std::string str = "";
+	for (int i = 0; i < 10; i++) {
+		std::bitset<32> bits(bitmat[i]);
+		str += bits.to_string();
+		if (i < 31)str += "\n";
+	}
+	return str;
+}
+std::string ExtendedField::get_neighbor_str() {
+	std::string str = "";
+	for (int i = 0; i < 32; i++) {
+		std::bitset<32> bits(next_block[i]);
+		str += bits.to_string();
+		if (i < 31)str += "\n";
+	}
+	return str;
+}
+
+void ExtendedField::set_bit(int x, int y) {
+	RowBit tmp = 1 << 31;
+	tmp >>= x;
+	bitmat[y] |= tmp;
 }

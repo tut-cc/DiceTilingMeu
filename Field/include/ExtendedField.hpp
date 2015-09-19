@@ -42,7 +42,7 @@ public:
 	virtual bool appliable_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const;
 	virtual void apply_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle);
 
-	virtual bool appliable_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const ;
+	virtual bool appliable_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const;
 	virtual void apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle);
 
 	virtual std::unique_ptr<Field> clone() const;
@@ -52,4 +52,9 @@ public:
 	int eval_select_score();
 
 	friend std::ostream& operator << (std::ostream& os, const std::shared_ptr<ExtendedField>& p);
+
+	std::string get_bit_str();
+	std::string get_neighbor_str();
+
+	void set_bit(int x, int y);
 };

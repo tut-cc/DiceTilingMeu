@@ -10,13 +10,46 @@
 template <class F, class S>
 Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
 {
-	field = std::move(std::unique_ptr<ExtendedField>(new F(p->get_field_str())));
+	field = std::move(std::shared_ptr<ExtendedField>(new F(p->get_field_str())));
 	for (auto&& s : p->get_stones_str()) {
 		stones.push_back(std::shared_ptr<ExtendedStone>(new S(s, (int)(stones.size()))));
 	}
 	stones_num = (int)(stones.size());
 
 	//debug
+	std::ofstream ofs("test_result.txt");
+
+	//for (int r = 0; r < 2; r++) {
+	//	for (int a = 0; a < 4; a++) {
+	//		ofs << stones[0]->get_bit_str(r, a) << "\n" << std::endl;
+	//		for (int y = -7; y < 32; y++) {
+	//			for (int x = -7; x < 32; x++) {
+	//				if (field->appliable_bit(stones[0], x, y, r, a)) {
+	//					auto tmp = field->clone_ex();
+	//					tmp->apply_bit(stones[0], x, y, r, a);
+	//					ofs << x << " " << y << " " << r << " " << a << std::endl;
+	//					ofs << tmp->get_bit_str() << std::endl;
+	//					ofs << "\n";
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+	//std::cout << stones[0]->get_bit_str(0, 0) << "\n" << std::endl;
+	//std::cout << stones[0]->get_neighbor_str(0, 0) << "\n" << std::endl;
+	//std::cout << stones[1]->get_bit_str(0, 0) << "\n" << std::endl;
+	//std::cout << stones[1]->get_neighbor_str(0, 0) << "\n" << std::endl;
+
+	std::cout << field->appliable_bit(stones[0], 0, 0, 0, 0) << std::endl;
+	field->apply_bit(stones[0], 0, 0, 0, 0);
+	std::cout << field->get_bit_str() << std::endl;
+	std::cout << "\n" << field->get_neighbor_str() << std::endl;
+
+	std::cout << field->appliable_bit(stones[1], 1, 0, 0, 0) << std::endl;
+	field->apply_bit(stones[1], 1, 0, 0, 0);
+	std::cout << field->get_bit_str() << std::endl;
+	std::cout << "\n" << field->get_neighbor_str() << std::endl;
+
 }
 
 

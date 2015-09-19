@@ -35,8 +35,8 @@ public:
 	std::string get_bit_str(int r, int a);
 	std::string get_neighbor_str(int r, int a);
 
-	inline RowBit get_bit_row(int r, int a, int x, int y);
-	inline RowBit get_neighbor_row(int r, int a, int x, int y);
+	RowBit get_bit_row(int r, int a, int x, int y);
+	RowBit get_neighbor_row(int r, int a, int x, int y);
 
 	//そこのビットが立っているか確かめる
 	bool is_set_bit(int r, int a, int x, int y);
@@ -46,6 +46,7 @@ public:
 	bool movable(int r, int a, int x, int y);
 	//zk数を返す
 	virtual int getZK();
-//	void array_to_bit(int rev, int rot);
+
+	int get_y_margin(int r, int a);
 };
 
