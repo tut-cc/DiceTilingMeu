@@ -1,5 +1,6 @@
 #include "Beamalgo.hpp"
 #include "Ritalgo.hpp"
+#include "meu.hpp"
 #include "SimpleField.hpp"
 #include "SimpleStone.hpp"
 #include "SimpleProblem.hpp"
@@ -12,9 +13,11 @@ int main()
 
 	std::shared_ptr<Problem> prob(new SimpleProblem());
 	// std::unique_ptr<Algorithm> solver(new Beamalgo<ExtendedField, ExtendedStone>(prob));
-	std::unique_ptr<Algorithm> rita(new Ritalgo<SimpleField, SimpleStone>(prob));
+	// std::unique_ptr<Algorithm> rita(new Ritalgo<SimpleField, SimpleStone>(prob));
 	// solver -> solve();
-	rita -> solve();
+	// rita -> solve();
+	std::unique_ptr<Algorithm> meu(new Meu<SimpleField, SimpleStone>(prob));
+	meu->solve();
 
 	return 0;
 }
