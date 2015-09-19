@@ -138,7 +138,7 @@ void ExtendedField::apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, in
 		bitmat[i + y - y_margin] |= s->get_bit_row(reverse, angle, x, i);
 	}
 
-	for (int i = y; i < 32; i++) {
+	for (int i = -1; i < 9; i++) {
 		int ym = i + y - y_margin;
 		if (ym < 0 || ym > 31)continue;
 		next_block[ym] = (next_block[ym] | s->get_neighbor_row(reverse, angle, x, i)) & (~bitmat[ym]);
@@ -158,7 +158,7 @@ bool ExtendedField::appliable_bit(std::shared_ptr<ExtendedStone> s, int x, int y
 	bool n_flag = block_count == 0;
 	for (int i = 0; i < 32; i++) {
 		if ((i + y - y_margin) < 0 || (i + y - y_margin) > 31)continue;
-		if ((next_block[i + y - y_margin] & s->get_neighbor_row(reverse, angle, x, i)) != 0)return true;
+		if ((next_block[i + y - y_margin] & s->get_bit_row(reverse, angle, x, i)) != 0)return true;
 	}
 
 	if (n_flag)return true;
@@ -216,7 +216,7 @@ std::ostream& operator << (std::ostream& os, const std::shared_ptr<ExtendedField
 
 std::string ExtendedField::get_bit_str() {
 	std::string str = "";
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 32; i++) {
 		std::bitset<32> bits(bitmat[i]);
 		str += bits.to_string();
 		if (i < 31)str += "\n";

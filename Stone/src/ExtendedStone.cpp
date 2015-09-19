@@ -52,10 +52,10 @@ ExtendedStone::ExtendedStone(std::vector<std::string> strs, int index) {
 					}
 				}
 			}
-			margin[r][a][LEFT]    = -x_min;
-			margin[r][a][RIGHT]  = 31 - x_max;
-			margin[r][a][UP]  = -y_min;
-			margin[r][a][DOWN] = 31 - y_max;
+			margin[r][a][LEFT]  = - x_min;
+			margin[r][a][RIGHT] = 31 - x_max;
+			margin[r][a][UP]    = - y_min;
+			margin[r][a][DOWN]  = 31 - y_max;
 
 			//x_min, y_minほどずらした位置からビットを立てる
 			for (int y = y_min; y < 8; y++) {
@@ -156,7 +156,9 @@ RowBit ExtendedStone::get_bit_row(int r, int a, int x, int y) {
 	return bitmat[r][a][y] >> (x - margin[r][a][LEFT]);
 }
 RowBit ExtendedStone::get_neighbor_row(int r, int a, int x, int y) {
-	return around_bit[r][a][y + 1] >> (x - margin[r][a][LEFT] + 1);
+	int xm = x - margin[r][a][LEFT] - 1;
+	if (xm < 0) return around_bit[r][a][y + 1] << (-xm);
+	else return around_bit[r][a][y + 1] >> xm;
 }
 int ExtendedStone::get_y_margin(int r, int a)
 {

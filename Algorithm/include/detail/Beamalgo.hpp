@@ -40,15 +40,15 @@ Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
 	//std::cout << stones[1]->get_bit_str(0, 0) << "\n" << std::endl;
 	//std::cout << stones[1]->get_neighbor_str(0, 0) << "\n" << std::endl;
 
-	std::cout << field->appliable_bit(stones[0], 0, 0, 0, 0) << std::endl;
-	field->apply_bit(stones[0], 0, 0, 0, 0);
-	std::cout << field->get_bit_str() << std::endl;
-	std::cout << "\n" << field->get_neighbor_str() << std::endl;
+	//std::cout << field->appliable_bit(stones[0], -1, 0, 0, 0) << std::endl;
+	//field->apply_bit(stones[0], -1, 0, 0, 0);
+	//std::cout << field->get_bit_str() << std::endl;
+	//std::cout << "\n" << field->get_neighbor_str() << std::endl;
 
-	std::cout << field->appliable_bit(stones[1], 1, 0, 0, 0) << std::endl;
-	field->apply_bit(stones[1], 1, 0, 0, 0);
-	std::cout << field->get_bit_str() << std::endl;
-	std::cout << "\n" << field->get_neighbor_str() << std::endl;
+	//std::cout << field->appliable_bit(stones[1], 1, 0, 0, 0) << std::endl;
+	//field->apply_bit(stones[1], 1, 0, 0, 0);
+	//std::cout << field->get_bit_str() << std::endl;
+	//std::cout << "\n" << field->get_neighbor_str() << std::endl;
 
 }
 
