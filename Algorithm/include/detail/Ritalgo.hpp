@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <iterator>
+#include <valarray>
 
 template <class F, class S>
 Ritalgo<F, S>::Ritalgo(std::shared_ptr<Problem> p)
@@ -243,14 +244,15 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
       }
     }
   }
+
+
   // from http://judge.u-aizu.ac.jp/onlinejudge/review.jsp?rid=1303101
-  /*
-  int rect = [&dup](){
+  auto rect = [](const std::unique_ptr<Field>& src){
     int m[33][32];
     long long st[32];
     int i, j, r, ptr, h;
     for (j = 0; j<32; j++)for (r = i = 0; i<32; m[j][i] = r, i++) {
-      int t = dup->at(j, i);
+      int t = !src->at(j, i);
       r = t == 0 ? r + 1 : 0;
     }
     for (r = i = 0; i<32; i++)for (ptr = j = 0; j <= 32; j++) {
@@ -263,8 +265,10 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
       st[ptr++] = ((long long)m[j][i] << 32) | left;
     }
     return r;
-  }();
-  */
+  };
+  double plus = rect(dup) - rect(field);
+  double matter = noise(dup) - noise(field);
+
   double diff = [&]() {
     if (field->get_history().size() == 0) {
       return 0.0;
@@ -276,10 +280,47 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
     auto pp = ps->center(prev, pang);
     auto np = s->center(rev, ang);
     return std::min(std::abs(pp.first + px - (np.first + x)), std::abs(pp.second + py - (np.second + y)));
+    //return std::pow(pp.first + px - (np.first + x), 2.0) + std::pow(pp.second + py - (np.second + y), 2.0);
+  }();
+  auto arg = [&]() {
+    const auto l = field->get_history().size();
+    if (l < 2) {
+      return 0.0;
+    }
+    auto pv = [&]() {
+      auto ppe = field->get_history()[l - 2];
+      int ppx, ppy, pprev, ppang;
+      std::shared_ptr<Stone> pps;
+      std::tie(pps, ppx, ppy, pprev, ppang) = ppe;
+      auto ppp = pps->center(pprev, ppang);
+
+      auto pe = field->get_history()[l - 1];
+      int px, py, prev, pang;
+      std::shared_ptr<Stone> ps;
+      std::tie(ps, px, py, prev, pang) = pe;
+      auto pp = ps->center(prev, pang);
+
+      std::valarray<double> vec = { ppp.first + ppx - (pp.first + px), ppp.second + ppy - (pp.second + py) };
+      auto d = std::sqrt(std::pow(vec, 2.0).sum());
+      return vec / d;
+    }();
+    auto nv = [&]() {
+      auto pe = field->get_history()[l - 1];
+      int px, py, prev, pang;
+      std::shared_ptr<Stone> ps;
+      std::tie(ps, px, py, prev, pang) = pe;
+      auto pp = ps->center(prev, pang);
+
+      auto np = s->center(rev, ang);
+
+      std::valarray<double> vec = { pp.first + px - (np.first + x), pp.second + py - (np.second + y) };
+      auto d = std::sqrt(std::pow(vec, 2.0).sum());
+      return vec / d;
+    }();
+    return std::acos((pv * nv).sum()) * (180 / std::acos(0.0));
   }();
   if (sum == num) return -0.5;
-  return (double)sum*3.0 /**/ + wall*10.0 + 5.0 / std::pow(diff + 1.0, 2.0) /**/ +200.0 / (cntc + 1.0) + 200.0 / (cntr + 1.0) /**/;
-  //return 1.0 / (sum + 1.0);
+  return (double)sum*5.0 + wall*10.0 + 5.0 / std::pow(diff + 1.0, 2.0) + (matter < 0 ? 5.0 : 0.0) + 200.0 / (cntc + 1.0) + 200.0 / (cntr + 1.0);
 }
 
 // 

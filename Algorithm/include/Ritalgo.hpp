@@ -64,7 +64,23 @@ class Ritalgo : public Algorithm {
         //static constexpr double ALPHA = 3.0;
         //static constexpr double BETA = 5.0;
         static constexpr double ALPHA = 10;
-        static constexpr double BETA = 5.0;
+        static constexpr double BETA = 6.0;
+
+        static double noise(const std::unique_ptr<Field>& src) {
+          double sum = 0.0;
+          for (int i = 1; i < 31; ++i) {
+            for (int j = 1; j < 31; ++j) {
+              double ave = 0.0;
+              for (int k = -1; k <= 1; ++k) {
+                for (int l = -1; l <= 1; ++l) {
+                  ave += (1.0 / 9.0) * src->at(j + l, i + k);
+                }
+              }
+              sum += std::pow(src->at(j, i) - ave, 2.0);
+            }
+          }
+          return sum;
+        }
         std::unique_ptr<Field> field;
         std::vector<std::shared_ptr<Stone>> stones;
         std::shared_ptr<Env> env;
