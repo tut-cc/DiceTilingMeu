@@ -32,8 +32,8 @@ SampleProblem::SampleProblem(){
 //			std::cout << str << std::endl;
 		}
 		stones.push_back(tmp_stone);
-		if (i < (num - 1))
-			ifs >> str;
+
+//		std::cout << std::endl;
 	}
 	/*
 	std::cout << "test" << std::endl;

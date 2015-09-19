@@ -52,10 +52,10 @@ ExtendedStone::ExtendedStone(std::vector<std::string> strs, int index) {
 					}
 				}
 			}
-			margin[r][a][UP]    = x_min;
-			margin[r][a][DOWN]  = x_max;
-			margin[r][a][LEFT]  = y_min;
-			margin[r][a][RIGHT] = y_max;
+			margin[r][a][LEFT]    = -x_min;
+			margin[r][a][RIGHT]  = 31 - x_max;
+			margin[r][a][UP]  = -y_min;
+			margin[r][a][DOWN] = 31 - y_max;
 
 			//x_min, y_minほどずらした位置からビットを立てる
 			for (int y = y_min; y < 8; y++) {
@@ -149,12 +149,16 @@ bool ExtendedStone::is_set_neighbor(int r, int a, int x, int y) {
 }
 //x, y:-7..31
 bool ExtendedStone::movable(int r, int a, int x, int y) {
-	return (0 - margin[r][a][LEFT]) <= x && (31 - margin[r][a][RIGHT]) >= x
-		&& (0 - margin[r][a][UP]) <= y && (31 - margin[r][a][DOWN]) >= y;
+	return margin[r][a][LEFT] <= x && margin[r][a][RIGHT] >= x
+		&& margin[r][a][UP] <= y && margin[r][a][DOWN] >= y;
 }
 RowBit ExtendedStone::get_bit_row(int r, int a, int x, int y) {
-	return bitmat[r][a][y + margin[r][a][UP]] >> (x + margin[r][a][LEFT]);
+	return bitmat[r][a][y] >> (x - margin[r][a][LEFT]);
 }
 RowBit ExtendedStone::get_neighbor_row(int r, int a, int x, int y) {
-	return bitmat[r][a][y + margin[r][a][UP] + 1] >> (x + margin[r][a][LEFT] + 1);
+	return around_bit[r][a][y + 1] >> (x - margin[r][a][LEFT] + 1);
+}
+int ExtendedStone::get_y_margin(int r, int a)
+{
+	return margin[r][a][UP];
 }
