@@ -20,9 +20,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="quest11.txt" />
+    <None Include="BuildPropertySheet.props" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="BuildPropertySheet.props" />
+    <Text Include="problem\quest11.txt" />
+    <Text Include="problem\36.txt" />
+    <Text Include="problem\37.txt" />
+    <Text Include="problem\test.txt" />
   </ItemGroup>
 </Project>

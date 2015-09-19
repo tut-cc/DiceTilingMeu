@@ -6,7 +6,7 @@
 
 SampleProblem::SampleProblem(){
 
-	std::ifstream ifs("quest11.txt");
+	std::ifstream ifs("problem/test.txt");
 	if (ifs.fail()){
 		std::cout << "failed" << std::endl;
 	}
