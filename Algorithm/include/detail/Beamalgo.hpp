@@ -82,7 +82,7 @@ void Beamalgo<F, S>::solve()
 	for (int i = 0; i < stones_num; i++) {
 		std::array<std::array<PairList, 4>, 2> tmp_st_list;
 		for (int a = 0; a < 4; a++) {
-			for (int r = 0; r < 1; r++) {
+			for (int r = 0; r < 2; r++) {
 				PairList tmp_pl;
 				for (int y = -7; y < 32; y++) {
 					for (int x = -7; x < 32; x++) {
@@ -116,10 +116,10 @@ void Beamalgo<F, S>::solve()
 			std::shared_ptr<ExtendedField> state = states_list.top();
 			states_list.pop();
 
+			tmp_list.push(state->clone_ex());
 			if (tmp_list.size() >= BEAM_WIDTH) {
 				tmp_list.pop();
 			}
-			tmp_list.push(state->clone_ex());
 
 
 //			std::cout << state << std::endl;
@@ -134,10 +134,10 @@ void Beamalgo<F, S>::solve()
 							tmp->apply_bit(stone, pos.first, pos.second, r, a);
 							//std::cout << tmp->get_bit_str() << std::endl;
 							//キューのサイズをビーム幅に制限する
+							tmp_list.push(tmp);
 							if (tmp_list.size() >= BEAM_WIDTH) {
 								tmp_list.pop();
 							}
-							tmp_list.push(tmp);
 						}
 						else {
 							
