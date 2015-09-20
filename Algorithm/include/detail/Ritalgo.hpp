@@ -44,7 +44,10 @@ void Ritalgo<F, S>::solve()
     std::cerr << "iteration : " << ite << std::endl;
     double ave_score = 0.0;
     env->eva();
-    for (auto ant : ants) {
+    // for (auto ant : ants) {
+#pragma omp parallel for reduction(+:ave_score)
+    for (int i = 0; i < ants.size(); ++i) {
+      const auto &ant = ants[i];
       ant -> run();
       ave_score += (double)ant->score() / 100;
       if ( ant -> score() < best_score ) {
