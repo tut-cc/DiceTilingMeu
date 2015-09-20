@@ -9,9 +9,10 @@ SimpleField::SimpleField(std::vector<std::string> strs)
     for(int j = 0; j < 32; ++j) {
       mat[i][j] = strs[i][j] == '1';
       ok[i][j] = false;
-      is_first = true;
     }
   }
+
+  is_first = true;
 }
 
 SimpleField::SimpleField(const bool mat[32][32], const bool ok[32][32] = {}, const decltype(((Field *)nullptr)->get_history()) & src = {}) : Field(src)
@@ -22,6 +23,8 @@ SimpleField::SimpleField(const bool mat[32][32], const bool ok[32][32] = {}, con
       this -> ok[i][j] = ok[i][j];
     }
   }
+
+  is_first = src.size() == 0;
 }
 
 bool SimpleField::at(int x, int y) const
@@ -80,7 +83,7 @@ void SimpleField::apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int
   }
 
   value = -1;
-  is_first |= true;
+  is_first &= false;
 }
 
 std::unique_ptr<Field> SimpleField::clone() const
