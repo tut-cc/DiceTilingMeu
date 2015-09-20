@@ -11,14 +11,16 @@
 int main()
 {
 
-	std::shared_ptr<Problem> prob(new SimpleProblem());
-	// std::unique_ptr<Algorithm> solver(new Beamalgo<ExtendedField, ExtendedStone>(prob));
-	// std::unique_ptr<Algorithm> rita(new Ritalgo<SimpleField, SimpleStone>(prob));
-	// solver -> solve();
-	// rita -> solve();
-	std::unique_ptr<Algorithm> meu(new Meu<SimpleField, SimpleStone>(prob));
-	meu->solve();
+  std::shared_ptr<Problem> prob(new SimpleProblem());
 
-	return 0;
+  // std::unique_ptr<Algorithm> solver(new Beamalgo<ExtendedField, ExtendedStone>(prob));
+  std::unique_ptr<Algorithm> rita(new Ritalgo<SimpleField, SimpleStone>(prob));
+  // std::unique_ptr<Algorithm> meu(new Meu<SimpleField, SimpleStone>(prob));
+
+  // solver -> solve();
+  rita -> solve();
+  // meu->solve();
+
+  return 0;
 }
 

@@ -15,6 +15,7 @@ class Ritalgo : public Algorithm {
   private:
     std::unique_ptr<Field> field;
     std::vector<std::shared_ptr<Stone>> stones;
+    std::vector <std::vector < std::tuple < int, int, int, int >>> ok_list;
     class Env {
       private:
         static constexpr double EVAPORATE_RATE = 0.95;
@@ -83,15 +84,16 @@ class Ritalgo : public Algorithm {
         }
         std::unique_ptr<Field> field;
         std::vector<std::shared_ptr<Stone>> stones;
+        const std::vector<std::vector<std::tuple<int, int, int, int>>> &ok_list;
         std::shared_ptr<Env> env;
         std::mt19937 mt;
         std::uniform_real_distribution<double> dist;
         std::uniform_int_distribution<int> skipper;
         double h(const std::shared_ptr<Stone> s, const int x, const int y, const int rev, const int ang) const;
-        double v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const;
-        double v2(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const;
+        double v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang) const;
+        double v2(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang) const;
       public:
-        Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, std::shared_ptr<Env> env);
+        Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, const std::vector<std::vector<std::tuple<int, int, int, int>>> & ok_list, std::shared_ptr<Env> env);
         ~Ant() = default;
         void run();
         void renew();

@@ -8,9 +8,24 @@
 template <class F, class S>
 Ritalgo<F, S>::Ritalgo(std::shared_ptr<Problem> p)
 {
-  field = std::move(std::unique_ptr<Field>(new F(p -> get_field_str())));
-  for( auto&& s : p -> get_stones_str() ) {
+  field = std::move(std::unique_ptr<Field>(new F(p->get_field_str())));
+  for (auto&& s : p->get_stones_str()) {
     stones.push_back(std::shared_ptr<Stone>(new S(s, stones.size())));
+  }
+  for (auto && s : stones) {
+    std::vector < std::tuple < int, int, int, int >> sub;
+    for (int x = -8; x <= 32; ++x) {
+      for (int y = -8; y <= 32; ++y) {
+        for (int r = 0; r < 2; ++r) {
+          for (int a = 0; a < 4; ++a) {
+            if (field->appliable(s, x, y, r, a)) {
+              sub.push_back(std::make_tuple(x, y, r, a));
+            }
+          }
+        }
+      }
+    }
+    ok_list.push_back(sub);
   }
 }
 
@@ -20,7 +35,7 @@ void Ritalgo<F, S>::solve()
   std::shared_ptr<Env> env(new Env());
   std::vector<std::shared_ptr<Ant>> ants;
   for (int i = 0; i < 100; ++i) {
-    std::shared_ptr<Ant> ptr(new Ant(field -> clone(), stones, env));
+    std::shared_ptr<Ant> ptr(new Ant(field -> clone(), stones, ok_list, env));
     ants.push_back(ptr);
   }
   int best_score = 1 << 28;
@@ -156,7 +171,7 @@ void Ritalgo<F, S>::Env::eva()
 
 
 template <class F, class S>
-Ritalgo<F, S>::Ant::Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, std::shared_ptr<Env> env) : dist(0.0, 1.0), skipper(0, stones.size()-1)
+Ritalgo<F, S>::Ant::Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, const std::vector<std::vector<std::tuple<int, int, int, int>>> & ok_list, std::shared_ptr<Env> env) : dist(0.0, 1.0), skipper(0, stones.size()-1), ok_list(ok_list)
 {
   this -> field = std::move(field);
   std::copy(stones.begin(), stones.end(), std::back_inserter(this -> stones));
@@ -169,7 +184,6 @@ Ritalgo<F, S>::Ant::Ant(std::unique_ptr<Field> field, const std::vector<std::sha
 template <class F, class S>
 double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, int ang) const
 {
-  int num = 0;
   int sum = 0;
   int wall = 0;
   bool done[8][8] = {};
@@ -210,8 +224,6 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
               ++wall;
               continue;
             }
-            // HAMIDE
-            ++num;
             if ( field -> at( nx, ny ) ) {
               ++sum;
             }
@@ -267,7 +279,7 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
     return r;
   };
   double plus = rect(dup) - rect(field);
-  double matter = noise(dup) - noise(field);
+  double matter = 1/*noise(dup) - noise(field)*/;
 
   double diff = [&]() {
     if (field->get_history().size() == 0) {
@@ -282,6 +294,7 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
     return std::min(std::abs(pp.first + px - (np.first + x)), std::abs(pp.second + py - (np.second + y)));
     //return std::pow(pp.first + px - (np.first + x), 2.0) + std::pow(pp.second + py - (np.second + y), 2.0);
   }();
+  /**
   auto arg = [&]() {
     const auto l = field->get_history().size();
     if (l < 2) {
@@ -319,23 +332,24 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
     }();
     return std::acos((pv * nv).sum()) * (180 / std::acos(0.0));
   }();
-  if (sum == num) return -0.5;
+  /**/
+
   return (double)sum*5.0 + wall*10.0 + 5.0 / std::pow(diff + 1.0, 2.0) + (matter < 0 ? 5.0 : 0.0) + 200.0 / (cntc + 1.0) + 200.0 / (cntr + 1.0);
 }
 
 // 
 template <class F, class S>
-double Ritalgo<F, S>::Ant::v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const
+double Ritalgo<F, S>::Ant::v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang) const
 {
-  const double hv = (is ? h(stones[idx], prev.first + x, prev.second + y, rev, ang) : fir ? 0.0 : 1.0) /* * ( std::exp(-4.0 * std::log(2.0) * std::pow((double)idx / stones.size(), 2.0) )) /**/;
+  const double hv = (is ? h(stones[idx], x, y, rev, ang) : fir ? 0.0 : 1.0) /* * ( std::exp(-4.0 * std::log(2.0) * std::pow((double)idx / stones.size(), 2.0) )) /**/;
   const double ph = env -> get(idx, is, fir, x, y, rev, ang);
   return std::pow(hv + 1, BETA) * std::pow(ph + 1, ALPHA);
 }
 
 template <class F, class S>
-double Ritalgo<F, S>::Ant::v2(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const
+double Ritalgo<F, S>::Ant::v2(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang) const
 {
-  const double hv = (is ? h(stones[idx], prev.first + x, prev.second + y, rev, ang) : fir ? 0.0 : 1.0) /* * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size()) */;
+  const double hv = (is ? h(stones[idx], x, y, rev, ang) : fir ? 0.0 : 1.0) /* * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size()) */;
   const double ph = env->get(idx, is, fir, x, y, rev, ang);
   //return std::exp(hv * BETA) * std::exp(ph * ALPHA);
   return std::pow(hv + 1.0, BETA) * std::exp(ph * ALPHA);
@@ -348,19 +362,18 @@ void Ritalgo<F, S>::Ant::run()
   int fir = 1;
   // for diversity
   int who = skipper(mt);
-  std::pair<int, int> prev = {0, 0};
   for (unsigned int idx = 0; idx < stones.size(); ++idx) {
     if (idx == who)continue;
     std::vector<std::tuple<int, int, int, int, int, int>> list;
     std::vector<double> roulette;
     double accum = 0.0;
     list.push_back(std::make_tuple(0, fir, 0, 0, 0, 0));
-    accum += v2(idx, 0, fir, 0, 0, 0, 0, { 0, 0 });
-    //accum += v(idx, 0, fir, 0, 0, 0, 0, { 0, 0 });
+    accum += v2(idx, 0, fir, 0, 0, 0, 0);
+    //accum += v(idx, 0, fir, 0, 0, 0, 0);
     roulette.push_back(accum);
     const std::pair<int, int> zr = {
       -8,
-      fir ? 31 : 8
+      32
     };
     /*
     const std::pair<int, int> prev = [&](){
@@ -372,7 +385,7 @@ void Ritalgo<F, S>::Ant::run()
       return std::make_pair(gx, gy);
     }();
     */
-    // ATTENTION : variable "accum" maybe going to overflow.
+    /**
     for (int x = zr.first; x <= zr.second; ++x) {
       for (int y = zr.first; y <= zr.second; ++y) {
         for (int rev = 0; rev < 2; ++rev) {
@@ -387,6 +400,18 @@ void Ritalgo<F, S>::Ant::run()
         }
       }
     }
+    /**/
+    // ATTENTION : variable "accum" maybe going to overflow.
+    for (const auto & t : ok_list[idx]) {
+      int x, y, rev, ang;
+      std::tie(x, y, rev, ang) = t;
+      if (field->appliable(stones[idx], x, y, rev, ang)) {
+        list.push_back(std::make_tuple(1, fir, x, y, rev, ang));
+        accum += v2(idx, 1, fir, x, y, rev, ang);
+        //accum += v(idx, 1, fir, x, y, rev, ang);
+        roulette.push_back(accum);
+      }
+    }
     auto action_id = std::distance(roulette.begin(),
         std::lower_bound(roulette.begin(), roulette.end(), dist(mt) * accum)
     );
@@ -396,10 +421,9 @@ void Ritalgo<F, S>::Ant::run()
 #endif
     std::tie(is, std::ignore, x, y, rev, ang) = list[action_id];
     if (!is) continue;
-    field -> apply( stones[idx], prev.first + x, prev.second + y, rev, ang );
+    //field -> apply( stones[idx], prev.first + x, prev.second + y, rev, ang );
+    field->apply(stones[idx], x, y, rev, ang);
     fir &= 0;
-    prev.first  += x;
-    prev.second += y;
   }
 }
 
