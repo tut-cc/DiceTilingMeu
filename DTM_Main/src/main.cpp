@@ -6,6 +6,7 @@
 #include "SimpleProblem.hpp"
 #include "ExtendedField.hpp"
 #include "ExtendedStone.hpp"
+#include "BoostBitField.hpp"
 #include <memory>
 
 int main()
@@ -18,6 +19,8 @@ int main()
 	// rita -> solve();
 	std::unique_ptr<Algorithm> meu(new Meu<SimpleField, SimpleStone>(prob));
 	meu->solve();
+
+  std::shared_ptr<FieldEX<int>> fx(new BoostBitField<int>(prob->get_field_str());
 
 	return 0;
 }
