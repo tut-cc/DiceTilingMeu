@@ -3,6 +3,7 @@
 #include <bitset>
 
 ExtendedStone::ExtendedStone(std::vector<std::string> strs, int index) {
+	ID = index;
 	for (int i = 0; i < 8; ++i) {
 		for (int j = 0; j < 8; ++j) {
 			mat[0][0][i][j] = strs[i][j] == '1';

@@ -126,6 +126,7 @@ void ExtendedField::apply_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int
 }
 
 void ExtendedField::apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) {
+	Field::apply(s, x, y, reverse, angle);
 #ifdef _DEBUG
 	if (!appliable_bit(s, x, y, reverse, angle)) {
 
@@ -216,7 +217,7 @@ std::ostream& operator << (std::ostream& os, const std::shared_ptr<ExtendedField
 
 std::string ExtendedField::get_bit_str() {
 	std::string str = "";
-	for (int i = 0; i < 32; i++) {
+	for (int i = 0; i < 10; i++) {
 		std::bitset<32> bits(bitmat[i]);
 		str += bits.to_string();
 		if (i < 31)str += "\n";

@@ -14,7 +14,7 @@ class Beamalgo : public Algorithm {
 
 	int stones_num;
 
-	const int BEAM_WIDTH = 1000;
+	const int BEAM_WIDTH = 10000;
 public:
 	Beamalgo(std::shared_ptr<Problem> p);
 
