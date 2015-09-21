@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <bitset>
+#include <intrin.h>
 
 const int ExtendedField::tx[] = { 1, 0, -1, 0 };
 const int ExtendedField::ty[] = { 0, -1, 0, 1 };
@@ -42,7 +43,7 @@ ExtendedField::ExtendedField(const ExtendedField &f, const decltype(((Field *)nu
 		next_block[i] = f.next_block[i];
 	}
 	block_count = f.block_count;
-	value = -1;
+	value = f.value;
 }
 
 //ExtendedField::ExtendedField(const ExtendedField & f)
@@ -145,6 +146,7 @@ void ExtendedField::apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, in
 		next_block[ym] = (next_block[ym] | s->get_neighbor_row(reverse, angle, x, i)) & (~bitmat[ym]);
 	}
 	block_count += s->getZK();
+	value = -1;
 }
 bool ExtendedField::appliable_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const {
 	if (!s->movable(reverse, angle, x, y))return false;
@@ -183,22 +185,10 @@ int ExtendedField::eval_final_score() {
 int ExtendedField::eval_select_score() {
 	if (value == -1) {
 		int count = 0;
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				if (mat[i][j] == 0)continue;
-				bool f = false;
-				for (int t = 0; t < 4; t++) {
-					int nx = j + tx[t];
-					int ny = i + ty[t];
-					if (nx < 0 || 32 <= nx || ny < 0 || 32 <= ny) {
-						continue;
-					}
-					if (mat[nx][ny] == 0) {
-						f = true;
-					}
-				}
-				if (f)count++;
-			}
+		for (int i = 0; i < 30; i++) count += __popcnt(bitmat[i] ^ bitmat[i + 1]);
+		for (int i = 1; i < 30; i++) count += __popcnt(bitmat[i - 1] ^ bitmat[i]);
+		for (int i = 0; i < 31; i++) {
+//			count += __popcnt()
 		}
 		value = count;
 	}
@@ -239,3 +229,15 @@ void ExtendedField::set_bit(int x, int y) {
 	tmp >>= x;
 	bitmat[y] |= tmp;
 }
+
+int ExtendedField::get_bit(int x, int y) {
+	return (bitmat[y] >> (31 - x)) & 1;
+}
+/*
+0 31
+1 30
+2 29
+Åc
+
+31 0
+*/

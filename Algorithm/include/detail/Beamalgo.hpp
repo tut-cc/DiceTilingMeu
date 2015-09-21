@@ -63,7 +63,7 @@ void Beamalgo<F, S>::solve()
 		std::vector<std::shared_ptr<ExtendedField>>,
 		std::function<bool(std::shared_ptr<ExtendedField>, std::shared_ptr<ExtendedField>) >> states_list(
 			[](const std::shared_ptr<ExtendedField> &f1, const std::shared_ptr<ExtendedField> &f2) {
-		return f1->eval_final_score() > f2->eval_final_score();
+		return f1->eval_final_score() < f2->eval_final_score();
 	});
 
 	//std::priority_queue <
@@ -108,7 +108,8 @@ void Beamalgo<F, S>::solve()
 			std::vector<std::shared_ptr<ExtendedField>>,
 			std::function<bool(std::shared_ptr<ExtendedField>, std::shared_ptr<ExtendedField>) >> tmp_list(
 				[](const std::shared_ptr<ExtendedField> &f1, const std::shared_ptr<ExtendedField> &f2) {
-			return f1->eval_final_score() > f2->eval_final_score();
+//			return f1->eval_final_score() > f2->eval_final_score();
+			return f1->eval_select_score() > f2->eval_select_score();
 		});
 
 		//全ての状態に対して石を置く
@@ -126,8 +127,7 @@ void Beamalgo<F, S>::solve()
 
 			//裏表、回転すべての置き方を試す
 			for (int a = 0; a < 4; a++) {
-				for (int r = 0; r < 1; r++) {
-
+				for (int r = 0; r < 2; r++) {
 					for (auto& pos : appliable_list[st_idx][r][a]) {
 						if (state->appliable_bit(stone, pos.first, pos.second, r, a)) {
 							std::shared_ptr<ExtendedField> tmp = state->clone_ex();
