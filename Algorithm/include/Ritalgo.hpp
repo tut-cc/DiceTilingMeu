@@ -17,7 +17,7 @@ class Ritalgo : public Algorithm {
     std::vector<std::shared_ptr<Stone>> stones;
     class Env {
       private:
-        static constexpr double EVAPORATE_RATE = 0.98;
+        static constexpr double EVAPORATE_RATE = 0.95;
         static constexpr int    GETA           = 8;
         union {
           double env[256][2][2][64][64][2][4];
@@ -59,21 +59,43 @@ class Ritalgo : public Algorithm {
     };
     class Ant {
       private:
-        static constexpr double PHEROMONE = 10.0;
-        static constexpr double ALPHA     = 1.0;
-        static constexpr double BETA      = 0.5;
+        // TODO: PHEROMONE to constexpr value to function made from average score
+        static constexpr double PHEROMONE = 1024.0;
+        //static constexpr double ALPHA = 3.0;
+        //static constexpr double BETA = 5.0;
+        static constexpr double ALPHA = 10;
+        static constexpr double BETA = 6.0;
+
+        static double noise(const std::unique_ptr<Field>& src) {
+          double sum = 0.0;
+          for (int i = 1; i < 31; ++i) {
+            for (int j = 1; j < 31; ++j) {
+              double ave = 0.0;
+              for (int k = -1; k <= 1; ++k) {
+                for (int l = -1; l <= 1; ++l) {
+                  ave += (1.0 / 9.0) * src->at(j + l, i + k);
+                }
+              }
+              sum += std::pow(src->at(j, i) - ave, 2.0);
+            }
+          }
+          return sum;
+        }
         std::unique_ptr<Field> field;
         std::vector<std::shared_ptr<Stone>> stones;
         std::shared_ptr<Env> env;
         std::mt19937 mt;
         std::uniform_real_distribution<double> dist;
+        std::uniform_int_distribution<int> skipper;
         double h(const std::shared_ptr<Stone> s, const int x, const int y, const int rev, const int ang) const;
         double v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const;
+        double v2(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const;
       public:
         Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, std::shared_ptr<Env> env);
         ~Ant() = default;
         void run();
         void renew();
+        void renew(double anchor);
         void reset(std::unique_ptr<Field> field);
         int score() const;
         std::unique_ptr<Field> loot() const;

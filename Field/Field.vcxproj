@@ -119,11 +119,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\BoostBitField.hpp" />
     <ClInclude Include="include\ExtendedField.hpp" />
     <ClInclude Include="include\field.hpp" />
+    <ClInclude Include="include\FieldEX.hpp" />
     <ClInclude Include="include\SimpleField.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\BoostBitField.cpp" />
     <ClCompile Include="src\ExtendedField.cpp" />
     <ClCompile Include="src\field.cpp" />
     <ClCompile Include="src\SimpleField.cpp" />
