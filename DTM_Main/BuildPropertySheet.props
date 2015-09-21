@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)\Algorithm\include\;$(SolutionDir)\DTM_Main\include\;$(SolutionDir)\Field\include\;$(SolutionDir)\Problem\include\;$(SolutionDir)\Stone\include\;$(IncludePath)</IncludePath>
+    <IncludePath>C:\boost\include\boost-1_59\;$(SolutionDir)\Algorithm\include\;$(SolutionDir)\DTM_Main\include\;$(SolutionDir)\Field\include\;$(SolutionDir)\Problem\include\;$(SolutionDir)\Stone\include\;$(IncludePath)</IncludePath>
     <_PropertySheetDisplayName>BuildPropertySheet</_PropertySheetDisplayName>
   </PropertyGroup>
   <ItemDefinitionGroup>
@@ -13,7 +13,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\boost\lib\;$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
