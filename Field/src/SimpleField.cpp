@@ -8,17 +8,18 @@ SimpleField::SimpleField(std::vector<std::string> strs)
   for (int i = 0; i < 32; ++i) {
     for(int j = 0; j < 32; ++j) {
       mat[i][j] = strs[i][j] == '1';
-      ok[i][j] = true;
+      ok[i][j] = false;
+      is_first = true;
     }
   }
 }
 
-SimpleField::SimpleField(const bool mat[32][32], const decltype(((Field *)nullptr)->get_history()) & src = {}) : Field(src)
+SimpleField::SimpleField(const bool mat[32][32], const bool ok[32][32] = {}, const decltype(((Field *)nullptr)->get_history()) & src = {}) : Field(src)
 {
   for (int i = 0; i < 32; ++i) {
     for (int j = 0; j < 32; ++j) {
       this -> mat[i][j] = mat[i][j];
-      ok[i][j] = true;
+      this -> ok[i][j] = ok[i][j];
     }
   }
 }
@@ -34,15 +35,15 @@ bool SimpleField::appliable(std::shared_ptr<Stone> s, int x, int y, int reverse,
   for (int i = 0; i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
       if (y + i < 0 || 32 <= y + i || x + j < 0 || 32 <= x + j) {
-        if( s -> at(j, i, reverse, angle) ) {
+        if (s->at(j, i, reverse, angle)) {
           return false;
         }
         continue;
       }
-      if ( mat[y + i][x + j] && s -> at(j, i, reverse, angle) ) {
+      if (mat[y + i][x + j] && s->at(j, i, reverse, angle)) {
         return false;
       }
-      adjf |= s -> at(j, i, reverse, angle) & ok[y + i][x + j];
+      adjf |= s->at(j, i, reverse, angle) && (is_first || ok[y + i][x + j]);
     }
   }
   return adjf;
@@ -56,11 +57,6 @@ void SimpleField::apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int
     throw std::runtime_error("cannot apply");
   }
 #endif
-  for (int i = 0; i < 32; ++i) {
-    for (int j = 0; j < 32; ++j) {
-      ok[i][j] = 0;
-    }
-  }
   for (int i = 0; i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
       if ( x + j < 0 || 32 <= x + j || y + i < 0 || 32 <= y + i) continue;
@@ -84,11 +80,12 @@ void SimpleField::apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int
   }
 
   value = -1;
+  is_first |= true;
 }
 
 std::unique_ptr<Field> SimpleField::clone() const
 {
-  auto ptr = std::unique_ptr<Field>(new SimpleField(mat, history));
+  auto ptr = std::unique_ptr<Field>(new SimpleField(mat, ok, history));
   return std::move(ptr);
 }
 
