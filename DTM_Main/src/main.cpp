@@ -20,8 +20,7 @@ int main()
 	std::unique_ptr<Algorithm> meu(new Meu<SimpleField, SimpleStone>(prob));
 	meu->solve();
 
-  std::shared_ptr<FieldEX<int>> fx(new BoostBitField<int>(prob->get_field_str());
-
+  std::unique_ptr<FieldEX<boost::multiprecision::uint1024_t>> fx(new BoostBitField(prob->get_field_str()));
 	return 0;
 }
 

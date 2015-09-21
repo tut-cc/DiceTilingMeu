@@ -12,6 +12,8 @@ class Field {
   public:
     Field() = default;
     Field(const decltype(history) &);
+    Field(const Field &) = default;
+    Field(Field &&) = default;
     virtual ~Field() = default;
     virtual bool at(int x, int y) const = 0;
     virtual bool appliable(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) const = 0;
