@@ -57,4 +57,5 @@ public:
 	std::string get_neighbor_str();
 
 	void set_bit(int x, int y);
+	int get_bit(int x, int y);
 };

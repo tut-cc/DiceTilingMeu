@@ -13,7 +13,7 @@ int main()
 	std::shared_ptr<Problem> prob(new SampleProblem());
 	std::unique_ptr<Algorithm> solver(new Beamalgo<ExtendedField, ExtendedStone>(prob));
 	//  std::unique_ptr<Algorithm> rita(new Ritalgo<SimpleField, SimpleStone>(prob));
-	//  solver -> solve();
+	solver -> solve();
 	//  rita -> solve();
 
 	return 0;
