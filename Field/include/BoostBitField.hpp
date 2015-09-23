@@ -19,6 +19,8 @@ public:
 
   virtual const boost::multiprecision::uint1024_t & raw() const override;
   virtual std::unique_ptr<FieldEX<boost::multiprecision::uint1024_t>> cloneEX() const override;
+  virtual bool appliable(std::shared_ptr < StoneEX<T> > s, int x, int y, int reverse, int angle) const override;
+  virtual void apply(std::shared_ptr < StoneEX<T> > s, int x, int y, int reverse, int angle) const override;
 
   virtual bool at(int x, int y) const override;
   virtual bool appliable(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) const override;
