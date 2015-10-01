@@ -24,6 +24,7 @@ public:
 	virtual ~ExtendedStone() = default;
 	virtual bool at(int x, int y, int reverse, int angle) const override;
 	virtual int getID();
+	virtual std::pair<double, double> center(int reverse, int angle) const override;
 
 	//— •Ô‚µA‰ñ“]Œã‚Ì‚È‚ñ‚©‚ğ•Ô‚·
 	virtual RowBit* get_bit(int r, int a);

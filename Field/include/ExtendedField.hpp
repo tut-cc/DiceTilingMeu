@@ -1,9 +1,11 @@
 #pragma once
-#include "field.hpp"
-#include  "ExtendedStone.hpp"
 #include <vector>
 #include <string>
 #include <array>
+
+#include "field.hpp"
+#include "ExtendedStone.hpp"
+#include "HistoryTree.hpp"
 
 class ExtendedField : public Field {
 private:
@@ -29,6 +31,8 @@ public:
 	//4•ûŒü‚ðŒ©‚é‚½‚ß‚Ì”z—ñ
 	static const int tx[];
 	static const int ty[];
+
+	int parent_idx = 0;
 
 	ExtendedField(std::vector<std::string>);
 	ExtendedField(const bool mat[32][32], const decltype(history) &);

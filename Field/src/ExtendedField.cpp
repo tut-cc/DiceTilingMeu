@@ -44,6 +44,7 @@ ExtendedField::ExtendedField(const ExtendedField &f, const decltype(((Field *)nu
 	}
 	block_count = f.block_count;
 	value = f.value;
+	parent_idx = f.parent_idx;
 }
 
 //ExtendedField::ExtendedField(const ExtendedField & f)
@@ -127,7 +128,7 @@ void ExtendedField::apply_ex(std::shared_ptr<ExtendedStone> s, int x, int y, int
 }
 
 void ExtendedField::apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) {
-	Field::apply(s, x, y, reverse, angle);
+//	Field::apply(s, x, y, reverse, angle);
 #ifdef _DEBUG
 	if (!appliable_bit(s, x, y, reverse, angle)) {
 
@@ -147,6 +148,10 @@ void ExtendedField::apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, in
 	}
 	block_count += s->getZK();
 	value = -1;
+
+	//ƒqƒXƒgƒŠ[’Ç‰Á
+	PlaceInfo p = PlaceInfo(s->identify(), x, y, reverse, angle);
+	parent_idx = HistoryTree::add(parent_idx, p);
 }
 bool ExtendedField::appliable_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const {
 	if (!s->movable(reverse, angle, x, y))return false;
@@ -185,9 +190,9 @@ int ExtendedField::eval_final_score() {
 int ExtendedField::eval_select_score() {
 	if (value == -1) {
 		int count = 0;
-		for (int i = 0; i < 30; i++) count += __popcnt(bitmat[i] ^ bitmat[i + 1]);
-		for (int i = 1; i < 30; i++) count += __popcnt(bitmat[i - 1] ^ bitmat[i]);
-		for (int i = 0; i < 31; i++) {
+		for (int i = 0; i < 31; i++) count += __popcnt(bitmat[i] ^ bitmat[i + 1]);
+		for (int i = 1; i < 32; i++) count += __popcnt(bitmat[i - 1] ^ bitmat[i]);
+		for (int i = 0; i < 32; i++) {
 //			count += __popcnt()
 		}
 		value = count;

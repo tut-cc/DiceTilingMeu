@@ -123,6 +123,11 @@ int ExtendedStone::getID() {
 	return id;
 }
 
+std::pair<double, double> ExtendedStone::center(int reverse, int angle) const
+{
+	return std::pair<double, double>();
+}
+
 std::string ExtendedStone::get_bit_str(int r, int a) {
 	std::string str = "";
 	for (int i = 0; i < 32; i++) {

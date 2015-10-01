@@ -11,12 +11,14 @@ template <class F, class S>
 Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
 {
 	field = std::move(std::shared_ptr<ExtendedField>(new F(p->get_field_str())));
+
 	int s_idx = 0;
 	for (auto&& s : p->get_stones_str()) {
 		stones.push_back(std::shared_ptr<ExtendedStone>(new S(s, s_idx)));
 		s_idx++;
 	}
 	stones_num = (int)(stones.size());
+	HistoryTree::init_history_tree(stones_num);
 
 	//debug
 	std::ofstream ofs("test_result.txt");
@@ -76,6 +78,7 @@ void Beamalgo<F, S>::solve()
 
 	std::cout << "field:\n" << field->get_bit_str() << std::endl;
 	std::shared_ptr<ExtendedField> result = std::move(field->clone_ex());
+
 
 	typedef std::vector<std::pair<int, int>> PairList;
 	std::vector<std::array<std::array<PairList, 4>, 2>> appliable_list;
@@ -159,18 +162,20 @@ void Beamalgo<F, S>::solve()
 	std::ofstream ofs("answer.txt");
 	//ofs << (*(result.get())) << std::endl;
 
-	auto hst = result->get_history();
-	if (hst.size() == 0)return;
-	int t_id, t_x, t_y, t_r, t_a;
-	std::shared_ptr<Stone> t_s;
+	ofs << HistoryTree::get_answer(result->parent_idx);
 
-	int b_id = -1;
-	for (int i = 0; i < hst.size(); i++) {
-		std::tie(t_s, t_x, t_y, t_r, t_a) = hst[i];
-		t_id = t_s->identify();
-		for (int j = b_id + 1; j < t_id; j++) { ofs << std::endl; }
-		ofs << t_x << " " << t_y << " " << (t_r ? "T" : "H") << " " << (t_a * 90) << std::endl;
-		b_id = t_id;
-	}
-	for (int j = t_id + 1; j < stones_num; j++) { ofs << std::endl; }
+	//auto hst = result->get_history();
+	//if (hst.size() == 0)return;
+	//int t_id, t_x, t_y, t_r, t_a;
+	//std::shared_ptr<Stone> t_s;
+
+	//int b_id = -1;
+	//for (int i = 0; i < hst.size(); i++) {
+	//	std::tie(t_s, t_x, t_y, t_r, t_a) = hst[i];
+	//	t_id = t_s->identify();
+	//	for (int j = b_id + 1; j < t_id; j++) { ofs << std::endl; }
+	//	ofs << t_x << " " << t_y << " " << (t_r ? "T" : "H") << " " << (t_a * 90) << std::endl;
+	//	b_id = t_id;
+	//}
+	//for (int j = t_id + 1; j < stones_num; j++) { ofs << std::endl; }
 }
