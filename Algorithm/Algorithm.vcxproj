@@ -140,9 +140,11 @@
     <ClInclude Include="include\Beamalgo.hpp" />
     <ClInclude Include="include\detail\Beamalgo.hpp" />
     <ClInclude Include="include\detail\meu.hpp" />
+    <ClInclude Include="include\detail\PlaceLists.hpp" />
     <ClInclude Include="include\detail\Ritalgo.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="include\detail\StateQueue.hpp" />
     <ClInclude Include="include\meu.hpp" />
     <ClInclude Include="include\Ritalgo.h" />
     <ClInclude Include="include\Ritalgo.hpp">

@@ -1,5 +1,6 @@
 #pragma once
 #include "Beamalgo.hpp"
+#include "PlaceLists.hpp"
 #include <SimpleField.hpp>
 #include <iostream>
 #include <queue>
@@ -88,26 +89,27 @@ void Beamalgo<F, S>::solve()
 	std::cout << "field:\n" << field->get_bit_str() << std::endl;
 	std::shared_ptr<ExtendedField> result = std::move(field->clone_ex());
 
+	PlaceLists place_lists(field, stones);
 
-	typedef std::vector<std::pair<int, int>> PairList;
-	std::vector<std::array<std::array<PairList, 4>, 2>> appliable_list;
-	for (int i = 0; i < stones_num; i++) {
-		std::array<std::array<PairList, 4>, 2> tmp_st_list;
-		for (int a = 0; a < 4; a++) {
-			for (int r = 0; r < 2; r++) {
-				PairList tmp_pl;
-				for (int y = -7; y < 32; y++) {
-					for (int x = -7; x < 32; x++) {
-						if (field->appliable_bit(stones[i], x, y, r, a)) {
-							tmp_pl.emplace_back(std::pair<int, int>(x, y));
-						}
-					}
-				}
-				tmp_st_list[r][a] = tmp_pl;
-			}
-		}
-		appliable_list.push_back(tmp_st_list);
-	}
+	//typedef std::vector<std::pair<int, int>> PairList;
+	//std::vector<std::array<std::array<PairList, 4>, 2>> appliable_list;
+	//for (int i = 0; i < stones_num; i++) {
+	//	std::array<std::array<PairList, 4>, 2> tmp_st_list;
+	//	for (int a = 0; a < 4; a++) {
+	//		for (int r = 0; r < 2; r++) {
+	//			PairList tmp_pl;
+	//			for (int y = -7; y < 32; y++) {
+	//				for (int x = -7; x < 32; x++) {
+	//					if (field->appliable_bit(stones[i], x, y, r, a)) {
+	//						tmp_pl.emplace_back(std::pair<int, int>(x, y));
+	//					}
+	//				}
+	//			}
+	//			tmp_st_list[r][a] = tmp_pl;
+	//		}
+	//	}
+	//	appliable_list.push_back(tmp_st_list);
+	//}
 
 	states_list.push(field->clone_ex());
 	//全ての石を置く
@@ -137,30 +139,33 @@ void Beamalgo<F, S>::solve()
 
 //			std::cout << state << std::endl;
 
-			//裏表、回転すべての置き方を試す
-			for (int a = 0; a < 4; a++) {
-				for (int r = 0; r < 2; r++) {
-					for (auto& pos : appliable_list[st_idx][r][a]) {
-						if (state->appliable_bit(stone, pos.first, pos.second, r, a)) {
-							std::shared_ptr<ExtendedField> tmp = state->clone_ex();
-							tmp->apply_bit(stone, pos.first, pos.second, r, a);
-							//std::cout << tmp->get_bit_str() << std::endl;
-							//キューのサイズをビーム幅に制限する
-							tmp_list.push(tmp);
-							if (tmp_list.size() >= BEAM_WIDTH) {
-								tmp_list.pop();
-							}
-						}
-						else {
-							
-							if (state->eval_final_score() > result->eval_final_score()) {
-								result = state;
-//								std::cout << "result:\n" << result->get_bit_str() << std::endl;
-							}
-						}
+			auto place_list = place_lists.get_list(st_idx);
+			for (auto t : place_list) {
+				int r = std::get<0>(t);
+				int a = std::get<1>(t);
+				int x = std::get<2>(t);
+				int y = std::get<3>(t);
+
+				if (state->appliable_bit(stone, pos.first, pos.second, r, a)) {
+					std::shared_ptr<ExtendedField> tmp = state->clone_ex();
+					tmp->apply_bit(stone, pos.first, pos.second, r, a);
+					//std::cout << tmp->get_bit_str() << std::endl;
+
+					//キューのサイズをビーム幅に制限する
+					tmp_list.push(tmp);
+					if (tmp_list.size() >= BEAM_WIDTH) {
+						tmp_list.pop();
+					}
+				}
+				else {
+
+					if (state->eval_final_score() > result->eval_final_score()) {
+						result = state;
+						//								std::cout << "result:\n" << result->get_bit_str() << std::endl;
 					}
 				}
 			}
+
 		}
 		states_list = tmp_list;
 	}
