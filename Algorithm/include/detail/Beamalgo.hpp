@@ -20,8 +20,17 @@ Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
 	stones_num = (int)(stones.size());
 	HistoryTree::init_history_tree(stones_num);
 
+	//for (auto st : stones) {
+	//	std::cout << "#" << st->identify() << std::endl;
+	//	auto pl = st->get_place_list();
+	//	std::cout << "type:" << pl.size() << std::endl;
+	//	for (auto p : pl) {
+	//		std::cout << st->get_bit_str(p.first, p.second) << "\n" << std::endl;
+	//	}
+	//}
+
 	//debug
-	std::ofstream ofs("test_result.txt");
+	//std::ofstream ofs("test_result.txt");
 
 	//for (int r = 0; r < 2; r++) {
 	//	for (int a = 0; a < 4; a++) {
@@ -65,7 +74,7 @@ void Beamalgo<F, S>::solve()
 		std::vector<std::shared_ptr<ExtendedField>>,
 		std::function<bool(std::shared_ptr<ExtendedField>, std::shared_ptr<ExtendedField>) >> states_list(
 			[](const std::shared_ptr<ExtendedField> &f1, const std::shared_ptr<ExtendedField> &f2) {
-		return f1->eval_final_score() < f2->eval_final_score();
+		return f1->eval_select_score() < f2->eval_select_score();
 	});
 
 	//std::priority_queue <

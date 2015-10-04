@@ -29,8 +29,6 @@ private:
 
 public:
 	//4•ûŒü‚ğŒ©‚é‚½‚ß‚Ì”z—ñ
-	static const int tx[];
-	static const int ty[];
 
 	int parent_idx = 0;
 

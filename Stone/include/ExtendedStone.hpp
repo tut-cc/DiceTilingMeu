@@ -1,25 +1,23 @@
 #pragma once
 #include "stone.hpp"
+#include "EachStone.hpp"
+#include "Constants.hpp"
 #include <vector>
 #include <string>
-
-typedef unsigned __int32 RowBit;
+#include <unordered_set>
 
 class ExtendedStone : public Stone {
 private:
 	bool mat[4][2][8][8];
-	RowBit bitmat[2][4][32] = {};
-	RowBit around_bit[2][4][32] = {};
-	int margin[2][4][4];
 
 	int id;
 	int zk = 0;
 
-	static const int RIGHT = 0;
-	static const int UP = 1;
-	static const int LEFT = 2;
-	static const int DOWN = 3;
+	EachStone stones[2][4];
+	std::vector<std::pair<int, int>> place_list;
+
 public:
+	std::vector<std::pair<int, int>> get_place_list();
 	ExtendedStone(std::vector<std::string> strs, int index);
 	virtual ~ExtendedStone() = default;
 	virtual bool at(int x, int y, int reverse, int angle) const override;
@@ -29,9 +27,6 @@ public:
 	//ó†ï‘ÇµÅAâÒì]å„ÇÃÇ»ÇÒÇ©Çï‘Ç∑
 	virtual RowBit* get_bit(int r, int a);
 	virtual RowBit* get_neighbor(int r, int a);
-
-	virtual void set_bit(int r, int a, int x, int y);
-	virtual void set_neighbor(int r, int a, int x, int y);
 
 	std::string get_bit_str(int r, int a);
 	std::string get_neighbor_str(int r, int a);

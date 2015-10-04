@@ -5,8 +5,7 @@
 #include <bitset>
 #include <intrin.h>
 
-const int ExtendedField::tx[] = { 1, 0, -1, 0 };
-const int ExtendedField::ty[] = { 0, -1, 0, 1 };
+
 
 ExtendedField::ExtendedField(std::vector<std::string> strs) {
 	for (int i = 0; i < 32; ++i) {
@@ -190,12 +189,15 @@ int ExtendedField::eval_final_score() {
 int ExtendedField::eval_select_score() {
 	if (value == -1) {
 		int count = 0;
-		for (int i = 0; i < 31; i++) count += __popcnt(bitmat[i] ^ bitmat[i + 1]);
-		for (int i = 1; i < 32; i++) count += __popcnt(bitmat[i - 1] ^ bitmat[i]);
+		//for (int i = 0; i < 31; i++) count += __popcnt(bitmat[i] ^ bitmat[i + 1]);
+		//for (int i = 1; i < 32; i++) count += __popcnt(bitmat[i - 1] ^ bitmat[i]);
 		for (int i = 0; i < 32; i++) {
-//			count += __popcnt()
+			//count += __popcnt(bitmat[i] & (bitmat[i] >> 1));
+			//count += __popcnt(bitmat[i] & (bitmat[i] << 1));
+			count += __popcnt(this->next_block[i]);
 		}
-		value = count;
+		value = -count;
+		//std::cout << value << std::endl;
 	}
 	return value;
 }
@@ -212,7 +214,7 @@ std::ostream& operator << (std::ostream& os, const std::shared_ptr<ExtendedField
 
 std::string ExtendedField::get_bit_str() {
 	std::string str = "";
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 32; i++) {
 		std::bitset<32> bits(bitmat[i]);
 		str += bits.to_string();
 		if (i < 31)str += "\n";
@@ -238,11 +240,3 @@ void ExtendedField::set_bit(int x, int y) {
 int ExtendedField::get_bit(int x, int y) {
 	return (bitmat[y] >> (31 - x)) & 1;
 }
-/*
-0 31
-1 30
-2 29
-Åc
-
-31 0
-*/
