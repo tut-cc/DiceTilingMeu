@@ -6,12 +6,16 @@
 #include <intrin.h>
 
 
+int ExtendedField::space_count = 0;
 
 ExtendedField::ExtendedField(std::vector<std::string> strs) {
 	for (int i = 0; i < 32; ++i) {
 		for (int j = 0; j < 32; ++j) {
 			if (strs[i][j] == '1') {
 				set_bit(j, i);
+			}
+			else {
+				space_count++;
 			}
 		}
 	}
@@ -190,7 +194,7 @@ int ExtendedField::eval_select_score() {
 	if (value == -1) {
 		int count = 0;
 		//for (int i = 0; i < 31; i++) count += __popcnt(bitmat[i] ^ bitmat[i + 1]);
-		//for (int i = 1; i < 32; i++) count += __popcnt(bitmat[i - 1] ^ bitmat[i]);
+		for (int i = 1; i < 32; i++) count += __popcnt(bitmat[i - 1] ^ bitmat[i]);
 		for (int i = 0; i < 32; i++) {
 			//count += __popcnt(bitmat[i] & (bitmat[i] >> 1));
 			//count += __popcnt(bitmat[i] & (bitmat[i] << 1));

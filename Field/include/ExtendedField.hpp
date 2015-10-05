@@ -18,6 +18,8 @@ private:
 	//フィールドに存在するブロック数
 	int block_count = 0;
 
+	//フィールドの最大空きマス数
+	static int space_count;
 	//
 	bool mat[32][32];
 	bool ok[32][32];

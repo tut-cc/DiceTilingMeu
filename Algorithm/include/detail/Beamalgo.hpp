@@ -2,6 +2,7 @@
 #include "Beamalgo.hpp"
 #include "PlaceLists.hpp"
 #include "StateQueue.hpp"
+#include "RandomValue.hpp"
 #include <SimpleField.hpp>
 #include <iostream>
 #include <queue>
@@ -21,6 +22,7 @@ Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
 	}
 	stones_num = (int)(stones.size());
 	HistoryTree::init_history_tree(stones_num);
+	
 
 	//for (auto st : stones) {
 	//	std::cout << "#" << st->identify() << std::endl;
@@ -92,6 +94,7 @@ void Beamalgo<F, S>::solve()
 			tmp_queue.push(state->clone_ex());
 
 			auto place_list = place_lists.get_list(st_idx);
+
 			for (auto t : place_list) {
 				int r = std::get<0>(t);
 				int a = std::get<1>(t);
