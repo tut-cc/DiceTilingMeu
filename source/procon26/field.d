@@ -192,7 +192,6 @@ final class LazyField
             _numOfRemainStones -= _commit.stone.id + 1;
         }
 
-        _history ~= _commit;
         _numOfEmpty -= stone.numOfZk;
 
         // 石を置くことで消える隣接マスの計数
@@ -253,6 +252,7 @@ final class LazyField
                 adj[x, y] = true;
         }
 
+        _history ~= _commit;
         _commit = CommitContent.init;
         _parent = tf;
         _adjacent = adj;
@@ -286,7 +286,10 @@ final class LazyField
 
 
     const(CommitContent)[] history() const pure nothrow @safe @nogc @property
-    {
+    in{
+        assert(!this.hasCommit);
+    }
+    body{
         return _history;
     }
 
@@ -386,7 +389,7 @@ unittest
     assert(lf.hasCommit);
     assert(lf[0, 0]);
     assert(lf[1, 0]);
-    assert(lf.history.length == 1);
+    //assert(lf.history.length == 1);
     assert(lf.numOfEmpty == 32*32 - 2);
     assert(lf.numOfAdjacents == 2);
     assert(lf.numOfRemainStones == 3);
@@ -417,7 +420,7 @@ unittest
     assert(lf[0, 0]);
     assert(lf[1, 0]);
     assert(lf[2, 0]);
-    assert(lf.history.length == 2);
+    //assert(lf.history.length == 2);
     assert(lf.numOfEmpty == 32*32 - 3);
     assert(lf.numOfAdjacents == 3);
     assert(lf.numOfRemainStones == 1);
