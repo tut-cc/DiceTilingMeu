@@ -48,7 +48,7 @@ final class Problem
     }
 
 
-    const(TinyField) initField() const pure nothrow @safe @nogc @property
+    ref const(TinyField) initField() const pure nothrow @safe @nogc @property
     {
         return _initField;
     }

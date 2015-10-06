@@ -56,7 +56,7 @@ if(is(typeof((byte x, byte y){ naryFun!pred(field, x, y); })))
         }
 
       private:
-        T _field;
+        const(T) _field;
         Rectangle _rect;
     }
 

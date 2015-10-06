@@ -5,14 +5,14 @@ import std.typecons     : Rebindable;
 import std.array        : array, appender;
 import std.format       : formattedWrite;
 
-version(unittest) import std.stdio;
+import std.stdio;
 debug import std.stdio;
 
 import procon26.problem;
 import procon26.stone;
 import procon26.util;
 
-/+
+
 mixin template TinyFieldMember()
 {
     enum byte width = 32;
@@ -39,93 +39,6 @@ mixin template TinyFieldMember()
     }
 
 
-    bool isCollided(byte x, byte y, InstantiatedStone stone) const
-    {
-        auto mr = stone.minRect;
-        if(!(   mr.x + x >= 0 && mr.x + mr.w + x < 32
-             && mr.y + y >= 0 && mr.y + mr.h + y < 32))
-            return true;
-
-        foreach(byte zx, byte zy; stone.byZk){
-            zx += x;
-            zy += y;
-            if(this[zx, zy]) return true;
-        }
-
-        //if(_isCollided(x, y, stone))
-        //{
-        //    writefln("%s, %s", x, y);
-        //}
-
-        return false;
-    }
-
-
-    /*
-    can optimize by bit-wise operators
-    */
-    //bool _isCollided(byte x, byte y, InstantiatedStone stone) const
-    //{
-    //    auto mr = stone.minRect;
-    //    if(!(   mr.x + x >= 0 && mr.x + mr.w + x < 32
-    //         && mr.y + y >= 0 && mr.y + mr.h + y < 32))
-    //        return true;
-
-    //    ulong bits = stone.bitField;
-    //    foreach(byte yy; mr.y .. cast(byte)(mr.y + mr.h)){
-    //        uint bb = (bits >> (y*8)) & 0b11111111;
-    //        if(x < 0) bb >>= -x;
-    //        else      bb <<= x;
-
-    //        yy += y;
-    //        if(_bitField[yy] & bb) return true;
-    //    }
-    //    return false;
-    //}
-
-
-    /*
-    can optimize by bit-wise operators
-    */
-    void putStone(byte x, byte y, InstantiatedStone stone)
-    in{
-        assert(!isCollided(x, y, stone));
-    }
-    body{
-        foreach(byte zx, byte zy; stone.byZk){
-            zx += x;
-            zy += y;
-            this[zx, zy] = true;
-        }
-    }
-}
-+/
-
-
-mixin template TinyFieldMember()
-{
-    enum byte width = 32;
-    enum byte height = 32;
-
-  private
-  {
-    bool[64][64] _bitField;
-  }
-
-
-    bool opIndex(byte x, byte y) const pure nothrow @safe @nogc
-    {
-        //return !!(_bitField[y] & (1 << x));
-        return _bitField[y][x];
-    }
-
-
-    void opIndexAssign(bool b, byte x, byte y) pure nothrow @safe @nogc
-    {
-        _bitField[y][x] = b;
-    }
-
-
     /*
     can optimize by bit-wise operators
     */
@@ -136,10 +49,14 @@ mixin template TinyFieldMember()
              && mr.y + y >= 0 && mr.y + mr.h + y < 32))
             return true;
 
-        foreach(byte zx, byte zy; stone.byZk){
-            zx += x;
-            zy += y;
-            if(this[zx, zy]) return true;
+        ulong bits = stone.bitField;
+        foreach(byte yy; mr.y .. cast(byte)(mr.y + mr.h)){
+            uint bb = (bits >> (yy*8)) & 0b11111111;
+            if(x < 0) bb >>= -x;
+            else      bb <<= x;
+
+            yy += y;
+            if(_bitField[yy] & bb) return true;
         }
         return false;
     }
@@ -153,10 +70,33 @@ mixin template TinyFieldMember()
         assert(!isCollided(x, y, stone));
     }
     body{
-        foreach(byte zx, byte zy; stone.byZk){
-            zx += x;
-            zy += y;
-            this[zx, zy] = true;
+        auto mr = stone.minRect;
+        ulong bits = stone.bitField;
+        foreach(byte yy; mr.y .. cast(byte)(mr.y + mr.h)){
+            uint bb = (bits >> (yy*8)) & 0b11111111;
+            if(x < 0) bb >>= -x;
+            else      bb <<= x;
+
+            yy += y;
+            _bitField[yy] |= bb;
+        }
+    }
+
+
+    /*
+    can optimize by bit-wise operators
+    */
+    void putStoneInv(byte x, byte y, InstantiatedStone stone)
+    {
+        auto mr = stone.minRect;
+        ulong bits = stone.bitField;
+        foreach(byte yy; mr.y .. cast(byte)(mr.y + mr.h)){
+            uint bb = (bits >> (yy*8)) & 0b11111111;
+            if(x < 0) bb >>= -x;
+            else      bb <<= x;
+
+            yy += y;
+            _bitField[yy] &= ~bb;
         }
     }
 }
@@ -231,8 +171,8 @@ final class LazyField
 
 
     this(const TinyField initField, size_t numOfRemainStones,
-         const TinyField parent, size_t numOfEmpty,
-         const TinyField adjField, size_t numOfAdjacents,
+         const ref StructTinyField parent, size_t numOfEmpty,
+         const ref StructTinyField adjField, size_t numOfAdjacents,
          const(CommitContent)[] history,
          byte x, byte y, InstantiatedStone stone)
     {
@@ -273,7 +213,10 @@ final class LazyField
 
     this(size_t numOfRemainStones, const TinyField initField, size_t numOfEmpty, byte x, byte y, InstantiatedStone stone)
     {
-        this(initField, numOfRemainStones, initField, numOfEmpty, new TinyField, 0, [], x, y, stone);
+        StructTinyField ini;
+        StructTinyField stf;
+        stf._bitField = initField._bitField;
+        this(initField, numOfRemainStones, stf, numOfEmpty, ini, 0, [], x, y, stone);
     }
 
 
@@ -292,8 +235,8 @@ final class LazyField
 
     void commit()
     {
-        auto tf = _parent.dup;
-        auto adj = _adjacent.dup;
+        auto tf = _parent;
+        auto adj = _adjacent;
         foreach(byte x, byte y; _commit.stone.byZk){
             x += _commit.x;
             y += _commit.y;
@@ -385,7 +328,7 @@ final class LazyField
     }
 
 
-    const(TinyField) parent() const pure nothrow @safe @nogc @property
+    ref const(StructTinyField) parent() const pure nothrow @safe @nogc @property
     {
         return _parent;
     }
@@ -393,18 +336,19 @@ final class LazyField
 
     bool isCollided(byte x, byte y, InstantiatedStone stone)
     {
+        import std.math : abs;
+
         if(!this.hasCommit) return _parent.isCollided(x, y, stone);
         else if(_parent.isCollided(x, y, stone)) return true;
-        else{
-            return .isCollided(this, x, y, stone);
-        }
+        else if(abs(_commit.x - x) < 8 && abs(_commit.y - y) < 8) return .isCollided(this, x, y, stone);
+        else return false;
     }
 
 
   private:
     const TinyField _initField;
-    Rebindable!(const(TinyField)) _parent;
-    Rebindable!(const(TinyField)) _adjacent;
+    StructTinyField _parent;
+    StructTinyField _adjacent;
     CommitContent _commit;
     const(CommitContent)[] _history;
     size_t _numOfEmpty;
@@ -417,7 +361,6 @@ final class LazyField
         mixin TinyFieldMember!();
     }
 }
-
 
 
 unittest
