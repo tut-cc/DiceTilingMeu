@@ -13,6 +13,12 @@ import procon26.stone;
 import procon26.util;
 
 
+//byte upConvert(byte x)
+//{
+//    return cast(byte)[8, 27, 64][x/8];
+//}
+
+
 mixin template TinyFieldMember()
 {
     enum byte width = 32;
@@ -309,7 +315,8 @@ struct LazyField
         foreach(byte xx, byte yy; stone.byAdjacentZk){
             xx += x;
             yy += y;
-            if(isInField!32(xx, yy) && !parent._field[xx, yy]) _numOfAdjacents += parent._adjacent[yy][xx] ? parent._adjacent[yy][xx]*2 : 1;
+            if(isInField!32(xx, yy) && !parent._field[xx, yy]) _numOfAdjacents += parent._adjacent[yy][xx] ? parent._adjacent[yy][xx]*3 : 1;
+            //if(isInField!32(xx, yy) && !parent._field[xx, yy]) _numOfAdjacents += parent._adjacent[yy][xx] ? (parent._adjacent[yy][xx].upConvert - parent._adjacent[yy][xx]) : 1;
         }
     }
 
@@ -336,7 +343,8 @@ struct LazyField
             if(x < 0 || x >= 32 || y < 0 || y >= 32) continue;
 
             if(!tf[x, y])
-                adj[y][x] += adj[y][x] ? adj[y][x]*2 : 1;
+                adj[y][x] += adj[y][x] ? adj[y][x]*3 : 1;
+                //adj[y][x] = adj[y][x] ? adj[y][x].upConvert : 1;
         }
 
         auto hists = _parent.history;
@@ -349,6 +357,8 @@ struct LazyField
     size_t numOfEmpty() const pure nothrow @safe @nogc { return _numOfEmpty; }
     size_t numOfAdjacents() const pure nothrow @safe @nogc { return _numOfAdjacents; }
     size_t numOfRemainStones() const pure nothrow @safe @nogc { return _numOfRemainStones; }
+
+    size_t lastStoneID() const pure nothrow @safe @nogc { return _commit.stone.id; }
 
 
   private:

@@ -28,10 +28,16 @@ struct RainbowSearchState
         size_t minNumOfAdj = size_t.max;
         RBTree[] slots; // indexed by numOfRemainStones
         size_t leastRS = 0;
+        size_t limitStoneID = size_t.max;
 
 
         bool insert(ref LazyField f)
         {
+            if(f.lastStoneID > limitStoneID){
+                //writeln("error");
+                return false;
+            }
+
             if(f.numOfRemainStones < leastRS)
                 return false;
 
@@ -136,7 +142,7 @@ auto nextFields(GeneralField field, Problem problem)
         {
             int res = 0;
             foreach(byte x, byte y; _field.byAdjacentZk){
-                foreach(id; _field.history[$-1].stone.id+1 .. _problem.stones.length){
+                foreach(id; _field.history[$-1].stone.id+1 .. min(_problem.stones.length, _field.history[$-1].stone.id+25)){
                     auto problemStone = _problem.stones[id];
                     foreach(ss; problemStone.uniqueState){
                         auto stone = problemStone[ss];
@@ -169,22 +175,46 @@ auto nextFields(GeneralField field, Problem problem)
 
 size_t calcSlotSize(size_t idxOfStage, size_t numOfEmpty)
 {
-    if(idxOfStage < 20) return 32;
-    else if(idxOfStage < 50) return 8;
-    else if(idxOfStage < 100) return 4;
-    else if(idxOfStage < 200) return 2;
-    else return 1;
+    if(numOfEmpty < 100){
+        if(idxOfStage < 50) return 100;
+        else return 100;
+    }
+    else if(numOfEmpty < 500){
+        if(idxOfStage < 20) return 32;
+        else if(idxOfStage < 50) return 16;
+        else if(idxOfStage < 100) return 4;
+        else if(idxOfStage < 200) return 4;
+        else return 4;
+    }else{
+        if(idxOfStage < 50) return 32;
+        else if(idxOfStage < 100) return 16;
+        else if(idxOfStage < 200) return 4;
+        else if(idxOfStage < 400) return 2;
+        else return 1;
+    }
 }
 
 
 size_t calcThrValue(size_t idxOfStage, size_t numOfEmpty)
 {
-    if(idxOfStage < 20) return 1024;
-    else if(idxOfStage < 50) return 32;
-    else if(idxOfStage < 100) return 8;
-    else if(idxOfStage < 200) return 4;
-    else if(idxOfStage < 400) return 2;
-    else return 1;
+    if(numOfEmpty < 100){
+        if(idxOfStage < 50) return 1024*1024;
+        else return 1024*512;
+    }
+    else if(numOfEmpty < 500){
+        if(idxOfStage < 20) return 256;
+        else if(idxOfStage < 50) return 64;
+        else if(idxOfStage < 100) return 32;
+        else if(idxOfStage < 200) return 16;
+        else if(idxOfStage < 400) return 8;
+        else return 4;
+    }else{
+        if(idxOfStage < 50) return 256;
+        else if(idxOfStage < 100) return 32;
+        else if(idxOfStage < 200) return 8;
+        else if(idxOfStage < 400) return 4;
+        else return 2;
+    }
 }
 
 
@@ -192,6 +222,30 @@ size_t calcThrValue(size_t idxOfStage, size_t numOfEmpty)
 GeneralField simpleRainbowSearch(Problem problem)
 {
     GeneralField minResult = null;
+
+
+    size_t[] sumOfZk = new size_t[problem.stones.length];
+    foreach_reverse(i, st; problem.stones){
+        if(i == problem.stones.length -1)
+            sumOfZk[i] = st.numOfZk;
+        else
+            sumOfZk[i] = sumOfZk[i+1] + st.numOfZk;
+    }
+    //writeln(sumOfZk);
+
+
+    size_t[] limitStoneID = new size_t[problem.numOfEmpty + 1];
+    {
+        foreach_reverse(i, ref e; limitStoneID){
+            size_t lastIdx = problem.stones.length-1;
+            while(lastIdx > 0 && sumOfZk[lastIdx] < i) --lastIdx;
+            lastIdx += 1;
+            e = lastIdx;
+            lastIdx = problem.stones.length-1;
+        }
+    }
+    //writeln(limitStoneID);
+    //return null;
 
 
     static
@@ -230,6 +284,7 @@ GeneralField simpleRainbowSearch(Problem problem)
 
         foreach(i, ref e; state.stages){
             e.thr = calcThrValue(i, problem.numOfEmpty);
+            e.limitStoneID = limitStoneID[i];
         }
 
         auto res = state.rainbowSearch();
