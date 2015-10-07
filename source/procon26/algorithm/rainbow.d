@@ -14,6 +14,7 @@ version(unittest) import std.stdio;
 import std.stdio;
 
 
+
 struct RainbowSearchState
 {
     alias RBTree = RedBlackTree!(LazyField, "a.numOfAdjacents < b.numOfAdjacents");
@@ -28,7 +29,7 @@ struct RainbowSearchState
         size_t leastRS = 0;
 
 
-        bool insert(LazyField f)
+        bool insert(ref LazyField f)
         {
             if(f.numOfRemainStones < leastRS)
                 return false;
@@ -70,7 +71,7 @@ struct RainbowSearchState
             int res = 0;
             foreach(k, ref slot; slots) if(slot !is null)
             {
-                foreach(e; slot[]){
+                foreach(ref e; slot[]){
                     res = dg(e);
                     if(res) return res;
                 }
@@ -81,7 +82,7 @@ struct RainbowSearchState
     }
 
 
-    bool insert(LazyField field)
+    bool insert(ref LazyField field)
     {
         return stages[field.numOfEmpty].insert(field);
     }
@@ -91,7 +92,7 @@ struct RainbowSearchState
     Stage[] stages;
 
 
-    LazyField rainbowSearch()
+    GeneralField rainbowSearch()
     {
         foreach_reverse(i, ref stage; stages)
         {
@@ -103,18 +104,20 @@ struct RainbowSearchState
                     stages[j] = Stage.init;
             }
 
-            foreach(LazyField field; stage){
-                field.commit();
-                foreach(LazyField next; field.nextFields(problem))
+            foreach(ref LazyField field; stage){
+                auto gf = field.commit();
+                foreach(ref LazyField next; gf.nextFields(problem))
                     this.insert(next);
             }
         }
 
         foreach(ref stage; stages)
             if(stage.slots[].map!"a is null ? 0 : a.length".sum()){
-                auto tree = new RedBlackTree!(LazyField, "a.history.length < b.history.length");
-                foreach(LazyField ee; stage)
-                    tree.insert(ee);
+                auto tree = new RedBlackTree!(GeneralField, "a.history.length < b.history.length");
+                foreach(ref LazyField ee; stage){
+                    auto gf = ee.commit();
+                    tree.insert(gf);
+                }
 
                 return tree.front;
             }
@@ -124,11 +127,11 @@ struct RainbowSearchState
 }
 
 
-auto nextFields(LazyField field, Problem problem)
+auto nextFields(GeneralField field, Problem problem)
 {
     static struct Result()
     {
-        int opApply(int delegate(ref LazyField) dg) const
+        int opApply(int delegate(ref LazyField) dg)
         {
             int res = 0;
             foreach(byte x, byte y; _field.byAdjacentZk){
@@ -139,8 +142,9 @@ auto nextFields(LazyField field, Problem problem)
                         foreach(byte xx, byte yy; stone.byZk){
                             byte xxx = cast(byte)(x - xx);
                             byte yyy = cast(byte)(y - yy);
-                            if(!_field.parent.isCollided(xxx, yyy, stone)){
-                                LazyField newField = new LazyField(_field, xxx, yyy, stone);
+                            if(!_field.isCollided(xxx, yyy, stone)){
+                                //LazyField newField = new LazyField(_field, xxx, yyy, stone);
+                                auto newField = LazyField(_field, xxx, yyy, stone);
                                 res = dg(newField);
                                 if(res) return res;
                             }
@@ -153,7 +157,7 @@ auto nextFields(LazyField field, Problem problem)
 
 
       private:
-        LazyField _field;
+        GeneralField _field;
         Problem _problem;
     }
 
@@ -162,9 +166,9 @@ auto nextFields(LazyField field, Problem problem)
 }
 
 
-LazyField simpleRainbowSearch(Problem problem)
+GeneralField simpleRainbowSearch(Problem problem)
 {
-    LazyField minResult = null;
+    GeneralField minResult = null;
 
 
     static
@@ -190,25 +194,26 @@ LazyField simpleRainbowSearch(Problem problem)
         state.stages.length = problem.numOfEmpty + 1;
         foreach(ref e; state.stages){
             e.thr = size_t.max;
-            e.thrSlot = 1;
+            e.thrSlot = 8;
         }
 
         size_t cnt;
         foreach(byte x; -8 .. 40) foreach(byte y; -8 .. 40) if(!problem.initField.isCollided(x, y, st))
         {
             ++cnt;
-            state.insert(new LazyField(problem.stones.length, problem.initField, problem.numOfEmpty, x, y, st));
+            auto lf = LazyField(problem.stones.length, problem.initField, problem.numOfEmpty, x, y, st);
+            state.insert(lf);
         }
 
         foreach(ref e; state.stages){
-            e.thr = 1;
+            e.thr = 8;
         }
 
         auto res = state.rainbowSearch();
 
         if(minResult !is null && res !is null && (minResult.numOfEmpty == res.numOfEmpty ? (minResult.history.length > res.history.length) : minResult.numOfEmpty > res.numOfEmpty)){
             minResult = res;
-            writeln("Update: ", res.numOfEmpty);
+            //writeln("Update: ", res.numOfEmpty);
         }
 
         if(minResult is null)

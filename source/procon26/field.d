@@ -116,6 +116,12 @@ final class TinyField
 }
 
 
+struct StructTinyField
+{
+    mixin TinyFieldMember!();
+}
+
+
 unittest
 {
     string[] lines = [`01000000`,
@@ -163,6 +169,104 @@ struct CommitContent
 }
 
 
+final class GeneralField
+{
+    enum byte width = 32;
+    enum byte height = 32;
+
+
+    this(const ref StructTinyField field,
+         const ref StructTinyField adjField,
+         const(CommitContent)[] history,
+         size_t numOfEmpty, size_t numOfAdjacents, size_t numOfRemainStones) pure nothrow @safe @nogc
+    {
+        _field = field;
+        _adjacent = adjField;
+        _history = history;
+        _numOfEmpty = numOfEmpty;
+        _numOfAdjacents = numOfAdjacents;
+        _numOfRemainStones = numOfRemainStones;
+    }
+
+
+    bool opIndex(byte x, byte y) const pure nothrow @safe @nogc @property
+    {
+        return _field[x, y];
+    }
+
+
+    auto byAdjacentZk() const pure nothrow @safe @nogc @property
+    {
+        return _adjacent.byZk();
+    }
+
+
+    const(CommitContent)[] history() const pure nothrow @safe @nogc @property
+    {
+        return _history;
+    }
+
+
+    size_t numOfEmpty() const pure nothrow @safe @nogc @property
+    {
+        return _numOfEmpty;
+    }
+
+
+    size_t numOfAdjacents() const pure nothrow @safe @nogc @property
+    {
+        return _numOfAdjacents;
+    }
+
+
+    size_t numOfRemainStones() const pure nothrow @safe @nogc @property
+    {
+        return _numOfRemainStones;
+    }
+
+
+    string answer() const @property
+    {
+        auto app = appender!string();
+        ptrdiff_t lastId = -1;
+        foreach(ref e; _history){
+            foreach(i; lastId+1 .. e.stone.id)
+                app.put("\r\n");
+
+            app.formattedWrite("%s %s %s\r\n", e.x, e.y, e.stone.state.toString);
+            lastId = e.stone.id;
+        }
+
+        foreach(i; 0 .. _numOfRemainStones)
+            app.put("\r\n");
+
+        return app.data;
+    }
+
+
+    ref const(StructTinyField) field() const pure nothrow @safe @nogc @property
+    {
+        return _field;
+    }
+
+
+    bool isCollided(byte x, byte y, InstantiatedStone stone) const
+    {
+        return _field.isCollided(x, y, stone);
+    }
+
+
+  private:
+    StructTinyField _field;
+    StructTinyField _adjacent;
+    const(CommitContent)[] _history;
+    size_t _numOfEmpty;
+    size_t _numOfAdjacents;
+    size_t _numOfRemainStones;
+}
+
+
+/+
 final class LazyField
 {
     enum byte width = 32;
@@ -230,7 +334,7 @@ final class LazyField
     }
 
 
-    void commit()
+    GeneralField commit() const
     {
         auto tf = _parent;
         auto adj = _adjacent;
@@ -354,12 +458,95 @@ final class LazyField
     size_t _numOfEmpty;
     size_t _numOfAdjacents;
     size_t _numOfRemainStones;
+}
++/
 
-
-    static struct StructTinyField
+struct LazyField
+{
+    this(size_t numOfRemainStones, const TinyField initField, size_t numOfEmpty, byte x, byte y, InstantiatedStone stone)
     {
-        mixin TinyFieldMember!();
+        StructTinyField field, adj;
+        field._bitField = initField._bitField;
+
+        GeneralField iniGF = new GeneralField(field, adj, null, numOfEmpty, 0, numOfRemainStones);
+
+        this(iniGF, x, y, stone);
     }
+
+
+    this(GeneralField parent, byte x, byte y, InstantiatedStone stone)
+    {
+        _parent = parent;
+        _commit = CommitContent(stone, x, y);
+        _numOfEmpty = parent._numOfEmpty;
+        _numOfAdjacents = parent._numOfAdjacents;
+        _numOfRemainStones = parent._numOfRemainStones;
+
+        if(parent._history.length){
+            _numOfRemainStones -= (_commit.stone.id - parent._history[$-1].stone.id);
+        }else{
+            _numOfRemainStones -= _commit.stone.id + 1;
+        }
+
+        _numOfEmpty -= stone.numOfZk;
+
+        // 石を置くことで消える隣接マスの計数
+        foreach(byte xx, byte yy; stone.byZk){
+            xx += x;
+            yy += y;
+            if(parent._adjacent[xx, yy]) --_numOfAdjacents;
+        }
+
+        // 石を置くことで新たに追加される隣接マスの計数
+        foreach(byte xx, byte yy; stone.byAdjacentZk){
+            xx += x;
+            yy += y;
+            if(isInField!32(xx, yy) && !parent._field[xx, yy] && !parent._adjacent[xx, yy]) ++_numOfAdjacents;
+        }
+    }
+
+
+    GeneralField commit() const
+    {
+        StructTinyField tf, adj;
+
+        tf._bitField = _parent._field._bitField;
+        adj._bitField = _parent._adjacent._bitField;
+
+        foreach(byte x, byte y; _commit.stone.byZk){
+            x += _commit.x;
+            y += _commit.y;
+            tf[x, y] = true;
+            adj[x, y] = false;
+        }
+
+        foreach(byte x, byte y; _commit.stone.byAdjacentZk){
+            x += _commit.x;
+            y += _commit.y;
+            if(x < 0 || x >= 32 || y < 0 || y >= 32) continue;
+
+            if(!tf[x, y])
+                adj[x, y] = true;
+        }
+
+        auto hists = _parent.history;
+        hists ~= _commit;
+
+        return new GeneralField(tf, adj, hists, _numOfEmpty, _numOfAdjacents, _numOfRemainStones);
+    }
+
+
+    size_t numOfEmpty() const pure nothrow @safe @nogc { return _numOfEmpty; }
+    size_t numOfAdjacents() const pure nothrow @safe @nogc { return _numOfAdjacents; }
+    size_t numOfRemainStones() const pure nothrow @safe @nogc { return _numOfRemainStones; }
+
+
+  private:
+    GeneralField _parent;
+    CommitContent _commit;
+    size_t _numOfEmpty;
+    size_t _numOfAdjacents;
+    size_t _numOfRemainStones;
 }
 
 
@@ -382,67 +569,67 @@ unittest
 
     auto instSt1 = stone1[StoneState.H0];
 
-    auto lf = new LazyField(5, tf, 32*32-1, 1, 0, instSt1);
-    assert(lf.hasCommit);
-    assert(lf[0, 0]);
-    assert(lf[1, 0]);
+    auto lf = LazyField(5, tf, 32*32-1, 1, 0, instSt1);
+    //assert(lf.hasCommit);
+    //assert(lf[0, 0]);
+    //assert(lf[1, 0]);
     //assert(lf.history.length == 1);
     assert(lf.numOfEmpty == 32*32 - 2);
     assert(lf.numOfAdjacents == 2);
     assert(lf.numOfRemainStones == 3);
 
-    lf.commit();
-    assert(!lf.hasCommit);
-    assert(lf[0, 0]);
-    assert(lf[1, 0]);
-    assert(lf.history.length == 1);
-    assert(lf.numOfEmpty == 32*32 - 2);
-    assert(lf.numOfAdjacents == 2);
-    assert(lf.numOfRemainStones == 3);
+    auto gf = lf.commit();
+    //assert(!lf.hasCommit);
+    assert(gf[0, 0]);
+    assert(gf[1, 0]);
+    assert(gf.history.length == 1);
+    assert(gf.numOfEmpty == 32*32 - 2);
+    assert(gf.numOfAdjacents == 2);
+    assert(gf.numOfRemainStones == 3);
 
-    foreach(byte x, byte y; lf.byAdjacentZk)
+    foreach(byte x, byte y; gf.byAdjacentZk)
         assert([Point(1, 1), Point(2, 0)].canFind(Point(x, y)));
 
     {
         size_t cnt;
-        foreach(byte x, byte y; lf.byAdjacentZk())
+        foreach(byte x, byte y; gf.byAdjacentZk())
             ++cnt;
         assert(cnt == 2);
     }
 
     auto stone3 = new Stone(3, lines);
     auto instSt3 = stone3[StoneState.H0];
-    lf = new LazyField(lf, 2, 0, instSt3);
-    assert(lf.hasCommit);
-    assert(lf[0, 0]);
-    assert(lf[1, 0]);
-    assert(lf[2, 0]);
+    lf = LazyField(gf, 2, 0, instSt3);
+    //assert(lf.hasCommit);
+    //assert(lf[0, 0]);
+    //assert(lf[1, 0]);
+    //assert(lf[2, 0]);
     //assert(lf.history.length == 2);
     assert(lf.numOfEmpty == 32*32 - 3);
     assert(lf.numOfAdjacents == 3);
     assert(lf.numOfRemainStones == 1);
 
-    lf.commit();
-    assert(!lf.hasCommit);
-    assert(lf[0, 0]);
-    assert(lf[1, 0]);
-    assert(lf[2, 0]);
-    assert(lf.history.length == 2);
-    assert(lf.numOfEmpty == 32*32 - 3);
-    assert(lf.numOfAdjacents == 3);
-    assert(lf.numOfRemainStones == 1);
+    gf = lf.commit();
+    //assert(!lf.hasCommit);
+    assert(gf[0, 0]);
+    assert(gf[1, 0]);
+    assert(gf[2, 0]);
+    assert(gf.history.length == 2);
+    assert(gf.numOfEmpty == 32*32 - 3);
+    assert(gf.numOfAdjacents == 3);
+    assert(gf.numOfRemainStones == 1);
 
-    foreach(byte x, byte y; lf.byAdjacentZk)
+    foreach(byte x, byte y; gf.byAdjacentZk)
         assert([Point(1, 1), Point(2, 1), Point(3, 0)].canFind(Point(x, y)));
 
     {
         size_t cnt;
-        foreach(byte x, byte y; lf.byAdjacentZk())
+        foreach(byte x, byte y; gf.byAdjacentZk())
             ++cnt;
         assert(cnt == 3);
     }
 
-    assert(array(map!chomp(splitLines(lf.answer))) == [``, `1 0 H 0`, ``, `2 0 H 0`, ``]);
+    assert(array(map!chomp(splitLines(gf.answer))) == [``, `1 0 H 0`, ``, `2 0 H 0`, ``]);
 }
 
 
