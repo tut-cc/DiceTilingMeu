@@ -163,20 +163,18 @@ struct CommitContent
 }
 
 
-
 final class LazyField
 {
     enum byte width = 32;
     enum byte height = 32;
 
 
-    this(const TinyField initField, size_t numOfRemainStones,
+    this(size_t numOfRemainStones,
          const ref StructTinyField parent, size_t numOfEmpty,
          const ref StructTinyField adjField, size_t numOfAdjacents,
          const(CommitContent)[] history,
          byte x, byte y, InstantiatedStone stone)
     {
-        _initField = initField;
         _numOfRemainStones = numOfRemainStones;
         _parent = parent;
         _numOfEmpty = numOfEmpty;
@@ -215,7 +213,7 @@ final class LazyField
         StructTinyField ini;
         StructTinyField stf;
         stf._bitField = initField._bitField;
-        this(initField, numOfRemainStones, stf, numOfEmpty, ini, 0, [], x, y, stone);
+        this(numOfRemainStones, stf, numOfEmpty, ini, 0, [], x, y, stone);
     }
 
 
@@ -224,7 +222,7 @@ final class LazyField
         assert(!parent.hasCommit);
     }
     body{
-        this(parent._initField, parent._numOfRemainStones,
+        this(parent._numOfRemainStones,
              parent._parent, parent._numOfEmpty,
              parent._adjacent, parent._numOfAdjacents,
              parent._history,
@@ -349,7 +347,6 @@ final class LazyField
 
 
   private:
-    const TinyField _initField;
     StructTinyField _parent;
     StructTinyField _adjacent;
     CommitContent _commit;
