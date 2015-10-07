@@ -5,7 +5,7 @@
 class StateQueue {
 public:
 	StateQueue(int max_width);
-	void push(std::shared_ptr<ExtendedField> f);
+	void push(std::shared_ptr<ExtendedField> &f);
 
 	std::shared_ptr<ExtendedField> operator[](int index);
 
@@ -20,7 +20,8 @@ private:
 
 StateQueue::StateQueue(int max_width) : max_width(max_width) {}
 
-inline void StateQueue::push(std::shared_ptr<ExtendedField> f)
+inline void StateQueue::push(std::shared_ptr<ExtendedField> &f) {
+#pragma omp critical
 {
 	if (vec.size() == max_width) {
 		remove_min();
@@ -28,6 +29,8 @@ inline void StateQueue::push(std::shared_ptr<ExtendedField> f)
 	vec.push_back(f);
 	create_heap();
 }
+}
+
 inline void StateQueue::remove_min()
 {
 	int n = vec.size() - 1;

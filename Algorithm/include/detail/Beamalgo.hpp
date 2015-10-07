@@ -95,23 +95,33 @@ void Beamalgo<F, S>::solve()
 
 			auto place_list = place_lists.get_list(st_idx);
 
-			for (auto t : place_list) {
+			/*
+			sharedなオブジェクト
+			state, stone, place_list, tmp_queue
+			*/
+			int s = place_list.size();
+#pragma omp parallel for shared(state, stone, tmp_queue, result)
+			for (int j = 0; j < s;j++){
+//			for (auto t : place_list) {
+				auto t = place_list[j];
 				int r = std::get<0>(t);
 				int a = std::get<1>(t);
 				int x = std::get<2>(t);
 				int y = std::get<3>(t);
 
-				if (state->appliable_bit(stone, x, y, r, a)) {
-					auto tmp = state->clone_ex();
-					tmp->apply_bit(stone, x, y, r, a);
-					//std::cout << tmp->get_bit_str() << std::endl;
+				{
+					if (state->appliable_bit(stone, x, y, r, a)) {
+						auto tmp = state->clone_ex();
+						tmp->apply_bit(stone, x, y, r, a);
+						//std::cout << tmp->get_bit_str() << std::endl;
 
-					tmp_queue.push(tmp);
-				}
-				else {
-					if (state->eval_final_score() > result->eval_final_score()) {
-						result = state;
-						//std::cout << "result:\n" << result->get_bit_str() << std::endl;
+						tmp_queue.push(tmp);
+					}
+					else {
+						if (state->eval_final_score() > result->eval_final_score()) {
+							result = state;
+							//std::cout << "result:\n" << result->get_bit_str() << std::endl;
+						}
 					}
 				}
 			}

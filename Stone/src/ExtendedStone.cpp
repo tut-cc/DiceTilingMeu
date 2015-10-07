@@ -50,7 +50,6 @@ bool ExtendedStone::at(int x, int y, int reverse, int angle) const {
 }
 
 RowBit* ExtendedStone::get_bit(int r, int a) {
-//	return bitmat[rev][rot];
 	return stones[r][a].get_bit();
 }
 RowBit* ExtendedStone::get_neighbor(int r, int a) {

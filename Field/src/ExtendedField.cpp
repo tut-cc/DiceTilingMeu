@@ -33,8 +33,7 @@ ExtendedField::ExtendedField(const bool mat[32][32], const decltype(((Field *)nu
 	block_count = 0;
 	value = -1;
 }
-ExtendedField::ExtendedField(const ExtendedField &f, const decltype(((Field *)nullptr)->get_history()) & src = {}) : Field(src)
-{
+ExtendedField::ExtendedField(const ExtendedField &f) {
 	//for (int i = 0; i < 32; ++i) {
 	//	for (int j = 0; j < 32; ++j) {
 	//		this->mat[i][j] = f.at(j, i);
@@ -153,8 +152,8 @@ void ExtendedField::apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, in
 	value = -1;
 
 	//ƒqƒXƒgƒŠ[’Ç‰Á
-	PlaceInfo p = PlaceInfo(s->identify(), x, y, reverse, angle);
-	parent_idx = HistoryTree::add(parent_idx, p);
+	//PlaceInfo p = PlaceInfo(s->identify(), x, y, reverse, angle);
+	//parent_idx = HistoryTree::add(parent_idx, p);
 }
 bool ExtendedField::appliable_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const {
 	if (!s->movable(reverse, angle, x, y))return false;
@@ -183,7 +182,7 @@ std::unique_ptr<Field> ExtendedField::clone() const {
 	return std::move(ptr);
 }
 std::shared_ptr<ExtendedField> ExtendedField::clone_ex() const {
-	auto ptr = std::shared_ptr<ExtendedField>(new ExtendedField(*this, history));
+	auto ptr = std::shared_ptr<ExtendedField>(new ExtendedField(*this));
 	return std::move(ptr);
 }
 
