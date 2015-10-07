@@ -176,7 +176,7 @@ final class GeneralField
 
 
     this(const ref StructTinyField field,
-         const ref StructTinyField adjField,
+         const ref byte[32][32] adjField,
          const(CommitContent)[] history,
          size_t numOfEmpty, size_t numOfAdjacents, size_t numOfRemainStones) pure nothrow @safe @nogc
     {
@@ -197,7 +197,7 @@ final class GeneralField
 
     auto byAdjacentZk() const pure nothrow @safe @nogc @property
     {
-        return _adjacent.byZk();
+        return _adjacent.byZk!"field[y][x]"(Rectangle(0, 0, 32, 32));
     }
 
 
@@ -258,7 +258,7 @@ final class GeneralField
 
   private:
     StructTinyField _field;
-    StructTinyField _adjacent;
+    byte[32][32] _adjacent;
     const(CommitContent)[] _history;
     size_t _numOfEmpty;
     size_t _numOfAdjacents;
@@ -270,8 +270,10 @@ struct LazyField
 {
     this(size_t numOfRemainStones, const TinyField initField, size_t numOfEmpty, byte x, byte y, InstantiatedStone stone)
     {
-        StructTinyField field, adj;
+        StructTinyField field;
         field._bitField = initField._bitField;
+
+        byte[32][32] adj;
 
         GeneralField iniGF = new GeneralField(field, adj, null, numOfEmpty, 0, numOfRemainStones);
 
@@ -299,30 +301,33 @@ struct LazyField
         foreach(byte xx, byte yy; stone.byZk){
             xx += x;
             yy += y;
-            if(parent._adjacent[xx, yy]) --_numOfAdjacents;
+            //if(parent._adjacent[xx, yy]) --_numOfAdjacents;
+            _numOfAdjacents -= parent._adjacent[yy][xx];
         }
 
         // 石を置くことで新たに追加される隣接マスの計数
         foreach(byte xx, byte yy; stone.byAdjacentZk){
             xx += x;
             yy += y;
-            if(isInField!32(xx, yy) && !parent._field[xx, yy] && !parent._adjacent[xx, yy]) ++_numOfAdjacents;
+            if(isInField!32(xx, yy) && !parent._field[xx, yy]) _numOfAdjacents += parent._adjacent[yy][xx] ? parent._adjacent[yy][xx]*2 : 1;
         }
     }
 
 
     GeneralField commit() const
     {
-        StructTinyField tf, adj;
+        StructTinyField tf;
+        byte[32][32] adj;
 
         tf._bitField = _parent._field._bitField;
-        adj._bitField = _parent._adjacent._bitField;
+        //adj._bitField = _parent._adjacent._bitField;
+        adj = _parent._adjacent;
 
         foreach(byte x, byte y; _commit.stone.byZk){
             x += _commit.x;
             y += _commit.y;
             tf[x, y] = true;
-            adj[x, y] = false;
+            adj[y][x] = 0;
         }
 
         foreach(byte x, byte y; _commit.stone.byAdjacentZk){
@@ -331,7 +336,7 @@ struct LazyField
             if(x < 0 || x >= 32 || y < 0 || y >= 32) continue;
 
             if(!tf[x, y])
-                adj[x, y] = true;
+                adj[y][x] += adj[y][x] ? adj[y][x]*2 : 1;
         }
 
         auto hists = _parent.history;
@@ -349,6 +354,7 @@ struct LazyField
   private:
     GeneralField _parent;
     CommitContent _commit;
+    size_t _numOfIsolated;
     size_t _numOfEmpty;
     size_t _numOfAdjacents;
     size_t _numOfRemainStones;

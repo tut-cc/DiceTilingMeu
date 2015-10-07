@@ -29,28 +29,31 @@ struct Point
 }
 
 
-auto byZk(alias pred = "a[b, c]", T)(const ref T field)
-if(is(typeof((byte x, byte y){ naryFun!pred(field, x, y); }))
-&& is(typeof((){ size_t x = field.width + field.height; })))
+auto byZk(alias pred = "field[x, y]", T)(const ref T field)
+//if(is(typeof((byte x, byte x){ mixin(pred); }))
+//&& is(typeof((){ size_t x = field.width + field.height; })))
 {
     return .byZk!pred(field, Rectangle(0, 0, cast(byte)field.width, cast(byte)field.height));
 }
 
 
-auto byZk(alias pred = "a[b, c]", T)(const ref T field, Rectangle rect)
-if(is(typeof((byte x, byte y){ naryFun!pred(field, x, y); })))
+auto byZk(alias pred = "field[x, y]", T)(const ref T field, Rectangle rect)
+//if(is(typeof((byte x, byte x){ mixin(pred); })))
 {
     static struct Result()
     {
         int opApply(int delegate(ref byte, ref byte) dg)
         {
+            alias field = _field;
+
             int res = 0;
             foreach(byte y; _rect.y .. cast(byte)(_rect.y + _rect.h))
-                foreach(byte x; _rect.x .. cast(byte)(_rect.x + _rect.w))
-                    if(naryFun!pred(_field, x, y)){
+                foreach(byte x; _rect.x .. cast(byte)(_rect.x + _rect.w)){
+                    if(mixin(pred)){
                         res = dg(x, y);
                         if(res) return res;
                     }
+                }
 
             return res;
         }
@@ -66,20 +69,20 @@ if(is(typeof((byte x, byte y){ naryFun!pred(field, x, y); })))
 
 
 auto byEmptyZk(T)(const ref T field)
-if(is(typeof((byte x, byte y){ if(field[x, y]){} }))
-&& is(typeof((){ size_t x = field.width + field.height; })))
+//if(is(typeof((byte x, byte x){ mixin(pred); }))
+//&& is(typeof((){ size_t x = field.width + field.height; })))
 {
   static if(is(typeof(field.minRect)))
-    return .byZk!"!(a[b, c])"(field, field.minRect);
+    return .byZk!"!(field[x, y])"(field, field.minRect);
   else
-    return .byZk!"!(a[b, c])"(field);
+    return .byZk!"!(field[x, y])"(field);
 }
 
 
 auto byEmptyZk(T)(const ref T field, Rectangle rect)
-if(is(typeof((byte x, byte y){ if(field[x, y]){} })))
+//if(is(typeof((byte x, byte x){ mixin(pred); })))
 {
-    return .byZk!"!(a[b, c])"(field, rect);
+    return .byZk!"!(field[x, y])"(field, rect);
 }
 
 

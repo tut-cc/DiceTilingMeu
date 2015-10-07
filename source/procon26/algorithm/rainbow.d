@@ -2,6 +2,7 @@ module procon26.algorithm.rainbow;
 
 import std.algorithm        : map, sum;
 import std.container        : RedBlackTree;
+import std.math;
 
 import procon26.field;
 import procon26.problem;
@@ -96,7 +97,7 @@ struct RainbowSearchState
     {
         foreach_reverse(i, ref stage; stages)
         {
-            //writefln("     %s: %s, %s", i, stage.slots[].map!"a is null ? 0 : 1".sum(), stage.slots[].map!"a is null ? 0 : a.length".sum());
+            //writefln("     %s: %s, %s", i, stage.slots[].map!"a is null ? 0 : 1".sum(), stage.slots[].map!"a is null ? 0 : a.length");
 
             // for GC, release unused state
             if(stage.slots[].map!"a is null ? 0 : a.length".sum()){
@@ -166,6 +167,28 @@ auto nextFields(GeneralField field, Problem problem)
 }
 
 
+size_t calcSlotSize(size_t idxOfStage, size_t numOfEmpty)
+{
+    if(idxOfStage < 20) return 32;
+    else if(idxOfStage < 50) return 8;
+    else if(idxOfStage < 100) return 4;
+    else if(idxOfStage < 200) return 2;
+    else return 1;
+}
+
+
+size_t calcThrValue(size_t idxOfStage, size_t numOfEmpty)
+{
+    if(idxOfStage < 20) return 1024;
+    else if(idxOfStage < 50) return 32;
+    else if(idxOfStage < 100) return 8;
+    else if(idxOfStage < 200) return 4;
+    else if(idxOfStage < 400) return 2;
+    else return 1;
+}
+
+
+
 GeneralField simpleRainbowSearch(Problem problem)
 {
     GeneralField minResult = null;
@@ -192,28 +215,28 @@ GeneralField simpleRainbowSearch(Problem problem)
         RainbowSearchState state;
         state.problem = problem;
         state.stages.length = problem.numOfEmpty + 1;
-        foreach(ref e; state.stages){
+        foreach(i, ref e; state.stages){
             e.thr = size_t.max;
-            e.thrSlot = 8;
+            e.thrSlot = calcSlotSize(i, problem.numOfEmpty);
         }
 
         size_t cnt;
-        foreach(byte x; -8 .. 40) foreach(byte y; -8 .. 40) if(!problem.initField.isCollided(x, y, st))
+        foreach(byte x; -8 .. 32) foreach(byte y; -8 .. 32) if(!problem.initField.isCollided(x, y, st))
         {
             ++cnt;
             auto lf = LazyField(problem.stones.length, problem.initField, problem.numOfEmpty, x, y, st);
             state.insert(lf);
         }
 
-        foreach(ref e; state.stages){
-            e.thr = 8;
+        foreach(i, ref e; state.stages){
+            e.thr = calcThrValue(i, problem.numOfEmpty);
         }
 
         auto res = state.rainbowSearch();
 
         if(minResult !is null && res !is null && (minResult.numOfEmpty == res.numOfEmpty ? (minResult.history.length > res.history.length) : minResult.numOfEmpty > res.numOfEmpty)){
             minResult = res;
-            //writeln("Update: ", res.numOfEmpty);
+            writeln("Update: ", res.numOfEmpty);
         }
 
         if(minResult is null)
@@ -222,3 +245,70 @@ GeneralField simpleRainbowSearch(Problem problem)
 
     return minResult;
 }
+
+
+/+
+GeneralField simpleRainbowSearch(Problem problem)
+{
+    GeneralField minResult = null;
+
+
+    static
+    struct TaskInput
+    {
+        byte x, y;
+    }
+
+    TaskInput[] inputs;
+
+    //foreach(i, stone; problem.stones)
+    //    foreach(ss; stone.uniqueState)
+    //        inputs ~= TaskInput(stone[ss]);
+    foreach(byte x; cast(byte)(problem.minRect.x - 8) .. cast(byte)(problem.minRect.x + problem.minRect.w))
+        foreach(byte y; cast(byte)(problem.minRect.y - 8) .. cast(byte)(problem.minRect.y + problem.minRect.h))
+            inputs ~= TaskInput(x, y);
+
+    //foreach(task; inputs.parallel(1))
+    foreach(task; inputs.parallel(1))
+    {
+        writefln("%s, %s", task.x, task.y);
+
+        //auto st = task.stone[ss];
+        //auto st = task.stone;
+
+        RainbowSearchState state;
+        state.problem = problem;
+        state.stages.length = problem.numOfEmpty + 1;
+        foreach(ref e; state.stages){
+            e.thr = size_t.max;
+            e.thrSlot = problem.numOfEmpty+1;
+        }
+
+        //foreach(byte x; -8 .. 32) foreach(byte y; -8 .. 32) if(!problem.initField.isCollided(x, y, st))
+        foreach(stone; problem.stones) foreach(ss; stone.uniqueState)
+        {
+            auto st = stone[ss];
+            if(!problem.initField.isCollided(task.x, task.y, st)){
+                auto lf = LazyField(problem.stones.length, problem.initField, problem.numOfEmpty, task.x, task.y, st);
+                state.insert(lf);
+            }
+        }
+
+        foreach(ref e; state.stages){
+            e.thr = 1024;
+        }
+
+        auto res = state.rainbowSearch();
+
+        if(minResult !is null && res !is null && (minResult.numOfEmpty == res.numOfEmpty ? (minResult.history.length > res.history.length) : minResult.numOfEmpty > res.numOfEmpty)){
+            minResult = res;
+            writeln("Update: ", res.numOfEmpty);
+        }
+
+        if(minResult is null)
+            minResult = res;
+    }
+
+    return minResult;
+}
++/
