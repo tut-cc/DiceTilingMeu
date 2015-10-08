@@ -33,8 +33,9 @@ struct RainbowSearchState
 
         bool insert(ref LazyField f)
         {
+            //writefln("        %s, %s, %s, %s", f.numOfEmpty, f.numOfRemainStones, f.numOfAdjacents, slots[].map!"a is null ? 0 : 1".sum());
+
             if(f.lastStoneID > limitStoneID){
-                //writeln("error");
                 return false;
             }
 
@@ -111,11 +112,17 @@ struct RainbowSearchState
                     stages[j] = Stage.init;
             }
 
+            //size_t cnt;
+            //size_t cntFail;
             foreach(ref LazyField field; stage){
                 auto gf = field.commit();
-                foreach(ref LazyField next; gf.nextFields(problem))
+                foreach(ref LazyField next; gf.nextFields(problem)){
                     this.insert(next);
+                    //if(b) ++cnt;
+                    //else ++cntFail;
+                }
             }
+            //writefln("        success: %s, fail: %s, total: %s", cnt, cntFail, cnt + cntFail);
         }
 
         foreach(ref stage; stages)
@@ -140,9 +147,10 @@ auto nextFields(GeneralField field, Problem problem)
     {
         int opApply(int delegate(ref LazyField) dg)
         {
+            /*
             int res = 0;
             foreach(byte x, byte y; _field.byAdjacentZk){
-                foreach(id; _field.history[$-1].stone.id+1 .. min(_problem.stones.length, _field.history[$-1].stone.id+25)){
+                foreach(id; _field.history[$-1].stone.id+1 .. min(_problem.stones.length, _field.history[$-1].stone.id+10)){
                     auto problemStone = _problem.stones[id];
                     foreach(ss; problemStone.uniqueState){
                         auto stone = problemStone[ss];
@@ -160,6 +168,37 @@ auto nextFields(GeneralField field, Problem problem)
                 }
             }
             return res;
+            */
+            int res = 0;
+            foreach(id; _field.history[$-1].stone.id+1 .. min(_problem.stones.length, _field.history[$-1].stone.id+10)){
+                auto problemStone = _problem.stones[id];
+                foreach(ss; problemStone.uniqueState){
+                    auto stone = problemStone[ss];
+                    //RedBlackTree!Point ps = new RedBlackTree!Point;
+                    bool[40][40] bs;
+
+                    foreach(byte x, byte y; _field.byAdjacentZk)
+                        foreach(byte xx, byte yy; stone.byZk){
+                            byte xxx = cast(byte)(x - xx);
+                            byte yyy = cast(byte)(y - yy);
+                            //ps.insert(Point(xxx, yyy));
+                            bs[yyy+8][xxx+8] = true;
+                            /*
+                            */
+                        }
+
+                    foreach(byte x; -8 .. 32) foreach(byte y; -8 .. 32){
+                        if(bs[y+8][x+8] && !_field.isCollided(x, y, stone)){
+                            //LazyField newField = new LazyField(_field, xxx, yyy, stone);
+                            auto newField = LazyField(_field, x, y, stone);
+                            res = dg(newField);
+                            if(res) return res;
+                        }
+                    }
+                }
+            }
+
+            return res;
         }
 
 
@@ -176,45 +215,51 @@ auto nextFields(GeneralField field, Problem problem)
 size_t calcSlotSize(size_t idxOfStage, size_t numOfEmpty)
 {
     if(numOfEmpty < 100){
-        if(idxOfStage < 50) return 100;
-        else return 100;
+        if(idxOfStage < 50) return 20;
+        else return 20;
     }
     else if(numOfEmpty < 500){
         if(idxOfStage < 20) return 32;
-        else if(idxOfStage < 50) return 16;
-        else if(idxOfStage < 100) return 4;
-        else if(idxOfStage < 200) return 4;
-        else return 4;
-    }else{
+        else if(idxOfStage < 50) return 20;
+        else if(idxOfStage < 100) return 20;
+        else if(idxOfStage < 200) return 20;
+        else return 20;
+    }
+    else{
         if(idxOfStage < 50) return 32;
         else if(idxOfStage < 100) return 16;
-        else if(idxOfStage < 200) return 4;
-        else if(idxOfStage < 400) return 2;
-        else return 1;
+        else if(idxOfStage < 200) return 10;
+        else if(idxOfStage < 400) return 5;
+        else return 3;
     }
+    //return 30;
+    //return 10;
 }
 
 
 size_t calcThrValue(size_t idxOfStage, size_t numOfEmpty)
 {
     if(numOfEmpty < 100){
-        if(idxOfStage < 50) return 1024*1024;
-        else return 1024*512;
+        if(idxOfStage < 50) return 20;
+        else return 20;
     }
     else if(numOfEmpty < 500){
         if(idxOfStage < 20) return 256;
         else if(idxOfStage < 50) return 64;
         else if(idxOfStage < 100) return 32;
-        else if(idxOfStage < 200) return 16;
-        else if(idxOfStage < 400) return 8;
-        else return 4;
+        else if(idxOfStage < 200) return 40;
+        else if(idxOfStage < 400) return 40;
+        else return 40;
     }else{
         if(idxOfStage < 50) return 256;
         else if(idxOfStage < 100) return 32;
-        else if(idxOfStage < 200) return 8;
-        else if(idxOfStage < 400) return 4;
-        else return 2;
+        else if(idxOfStage < 200) return 10;
+        else if(idxOfStage < 400) return 5;
+        else return 3;
     }
+    //return 1000;
+    //return 1024;
+    //return 20;
 }
 
 
@@ -248,23 +293,39 @@ GeneralField simpleRainbowSearch(Problem problem)
     //return null;
 
 
+    /*
     static
     struct TaskInput
     {
         InstantiatedStone stone;
+    }*/
+    static
+    struct TaskInput
+    {
+        byte x, y;
     }
 
     TaskInput[] inputs;
 
+/*
     foreach(i, stone; problem.stones)
         foreach(ss; stone.uniqueState)
             inputs ~= TaskInput(stone[ss]);
+*/
+    auto pmr = problem.minRect;
+    foreach(byte x; cast(byte)(pmr.x - 8) .. cast(byte)(pmr.x + pmr.w))
+        foreach(byte y; cast(byte)(pmr.y - 8) .. cast(byte)(pmr.y + pmr.h))
+            inputs ~= TaskInput(x, y);
+    
+    //foreach(byte x; -8 .. 40)
+        //foreach(byte y; -8 .. 40)
+            //inputs ~= TaskInput(x, y);
+
+    import std.random;
+    inputs.randomShuffle();
 
     foreach(task; inputs.parallel(1)){
-        writefln("%s, %s", task.stone.id, task.stone.state);
-
-        //auto st = task.stone[ss];
-        auto st = task.stone;
+        writefln("%s, %s", task.tupleof);
 
         RainbowSearchState state;
         state.problem = problem;
@@ -274,13 +335,16 @@ GeneralField simpleRainbowSearch(Problem problem)
             e.thrSlot = calcSlotSize(i, problem.numOfEmpty);
         }
 
-        size_t cnt;
-        foreach(byte x; -8 .. 32) foreach(byte y; -8 .. 32) if(!problem.initField.isCollided(x, y, st))
-        {
-            ++cnt;
-            auto lf = LazyField(problem.stones.length, problem.initField, problem.numOfEmpty, x, y, st);
-            state.insert(lf);
+        foreach(i, ref e; problem.stones){
+            foreach(ss; e.uniqueState){
+                auto st = e[ss];
+                if(!problem.initField.isCollided(task.x, task.y, st)){
+                    auto lf = LazyField(problem.stones.length, problem.initField, problem.numOfEmpty, task.x, task.y, st);
+                    state.insert(lf);
+                }
+            }
         }
+        
 
         foreach(i, ref e; state.stages){
             e.thr = calcThrValue(i, problem.numOfEmpty);
@@ -289,13 +353,12 @@ GeneralField simpleRainbowSearch(Problem problem)
 
         auto res = state.rainbowSearch();
 
-        if(minResult !is null && res !is null && (minResult.numOfEmpty == res.numOfEmpty ? (minResult.history.length > res.history.length) : minResult.numOfEmpty > res.numOfEmpty)){
+        if((minResult is null && res !is null) || (minResult !is null && res !is null && (minResult.numOfEmpty == res.numOfEmpty ? (minResult.history.length > res.history.length) : minResult.numOfEmpty > res.numOfEmpty))){
+            import std.datetime;
             minResult = res;
             writeln("Update: ", res.numOfEmpty);
+            std.file.write("ans_" ~ Clock.currTime.toISOString() ~ ".txt", minResult.answer);
         }
-
-        if(minResult is null)
-            minResult = res;
     }
 
     return minResult;
