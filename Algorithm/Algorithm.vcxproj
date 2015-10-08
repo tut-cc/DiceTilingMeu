@@ -141,6 +141,7 @@
     <ClInclude Include="include\detail\Beamalgo.hpp" />
     <ClInclude Include="include\detail\meu.hpp" />
     <ClInclude Include="include\detail\PlaceLists.hpp" />
+    <ClInclude Include="include\detail\RandomQueue.hpp" />
     <ClInclude Include="include\detail\RandomValue.hpp" />
     <ClInclude Include="include\detail\Ritalgo.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

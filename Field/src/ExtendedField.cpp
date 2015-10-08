@@ -152,28 +152,35 @@ void ExtendedField::apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, in
 	value = -1;
 
 	//ヒストリー追加
-	//PlaceInfo p = PlaceInfo(s->identify(), x, y, reverse, angle);
-	//parent_idx = HistoryTree::add(parent_idx, p);
+	PlaceInfo p = PlaceInfo(s->identify(), x, y, reverse, angle);
+	parent_idx = HistoryTree::add(parent_idx, p);
 }
 bool ExtendedField::appliable_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const {
 	if (!s->movable(reverse, angle, x, y))return false;
-	int y_margin;
-	y_margin = s->get_y_margin(reverse, angle);
+	int y_margin = s->get_y_margin(reverse, angle);
+	RowBit p_flag = 0;
+
 	//置けるかどうか
+	//結果がどれか一つでも非0の場合false, 全て0であればtrue
 	for (int i = 0; i < 8; i++) {
 		if ((i + y - y_margin) < 0 || (i + y - y_margin) > 31)continue;
-		if ((bitmat[i + y - y_margin] & s->get_bit_row(reverse, angle, x, i)) != 0)return false;
+		p_flag |= (bitmat[i + y - y_margin] & s->get_bit_row(reverse, angle, x, i));
+//		if ((bitmat[i + y - y_margin] & s->get_bit_row(reverse, angle, x, i)) != 0)return false;
 	}
 	//すでに配置した石と隣り合っているかどうか
-	bool n_flag = block_count == 0;
+	//結果がどれか1つでも非0の場合true, 全て0であればfalse
+	bool f_flag = block_count == 0;
+	RowBit n_flag = 0;
 	for (int i = 0; i < 32; i++) {
 		if ((i + y - y_margin) < 0 || (i + y - y_margin) > 31)continue;
-		if ((next_block[i + y - y_margin] & s->get_bit_row(reverse, angle, x, i)) != 0)return true;
+		n_flag |= (next_block[i + y - y_margin] & s->get_bit_row(reverse, angle, x, i));
+//		if ((next_block[i + y - y_margin] & s->get_bit_row(reverse, angle, x, i)) != 0)return true;
 	}
 
-	if (n_flag)return true;
+	return p_flag == 0 && (f_flag || n_flag != 0);
+	//if (n_flag)return true;
 
-	return false;
+	//return false;
 }
 
 
@@ -192,15 +199,11 @@ int ExtendedField::eval_final_score() {
 int ExtendedField::eval_select_score() {
 	if (value == -1) {
 		int count = 0;
-		//for (int i = 0; i < 31; i++) count += __popcnt(bitmat[i] ^ bitmat[i + 1]);
-		for (int i = 1; i < 32; i++) count += __popcnt(bitmat[i - 1] ^ bitmat[i]);
-		for (int i = 0; i < 32; i++) {
-			//count += __popcnt(bitmat[i] & (bitmat[i] >> 1));
-			//count += __popcnt(bitmat[i] & (bitmat[i] << 1));
-			count += __popcnt(this->next_block[i]);
-		}
-		value = -count;
-		//std::cout << value << std::endl;
+
+		count += space_bit_count();
+
+		value = count;
+//		std::cout << value << std::endl;
 	}
 	return value;
 }
@@ -242,4 +245,22 @@ void ExtendedField::set_bit(int x, int y) {
 
 int ExtendedField::get_bit(int x, int y) {
 	return (bitmat[y] >> (31 - x)) & 1;
+}
+
+int ExtendedField::space_bit_count() {
+	int count = 0;
+	for (int i = 0; i < 31; i++) count += __popcnt(bitmat[i] ^ bitmat[i + 1]);
+	for (int i = 0; i < 32; i++) {
+		auto a = bitmat[i];
+		auto x = a & 0xaaaaaaaa;
+		auto y = a & 0x55555555;
+		int inc = 0;
+		inc += __popcnt(x & (~(y << 1)));
+		inc += __popcnt(y & (~(x >> 1)));
+		inc += __popcnt((x & 0x7fffffff) & ~(y >> 1));
+		inc += __popcnt((y & 0xfffffffe) & ~(x << 1));
+		//			std::cout << i << " " << inc << std::endl;
+		count += inc;
+	}
+	return count;
 }

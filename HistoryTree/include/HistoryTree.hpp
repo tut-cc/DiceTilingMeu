@@ -12,6 +12,7 @@ public:
 	static std::vector<Node> tree;
 
 	static std::string get_answer(int index);
+	static void clear();
 private:
 	HistoryTree();
 	static int stone_num;

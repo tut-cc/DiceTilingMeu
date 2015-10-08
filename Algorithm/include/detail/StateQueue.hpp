@@ -41,7 +41,9 @@ inline void StateQueue::remove_min()
 			j++;
 		}
 		if (vec[i]->eval_select_score() < vec[j]->eval_select_score()) {
-			auto tmp = vec[j]; vec[j] = vec[i]; vec[i] = tmp;
+			auto tmp = std::move(vec[j]);
+			vec[j] = std::move(vec[i]);
+			vec[i] = std::move(tmp);
 		}
 		i = j;
 	}
@@ -52,7 +54,9 @@ inline void StateQueue::create_heap()
 	while (n != 0){
 		int i = (n - 1) / 2;
 		if (vec[n]->eval_select_score() > vec[i]->eval_select_score()) {
-			auto tmp = vec[n]; vec[n] = vec[i]; vec[i] = tmp;
+			auto tmp = std::move(vec[n]);
+			vec[n] = std::move(vec[i]);
+			vec[i] = std::move(tmp);
 		}
 		n = i;
 	}

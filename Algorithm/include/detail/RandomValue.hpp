@@ -21,3 +21,7 @@ inline void RandomValue::init_random()
 inline float RandomValue::get_value() {
 	return dist(mt);
 }
+
+std::random_device RandomValue::rnd;
+std::mt19937 RandomValue::mt;
+std::uniform_real_distribution<float> RandomValue::dist;

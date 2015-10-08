@@ -62,4 +62,6 @@ public:
 
 	void set_bit(int x, int y);
 	int get_bit(int x, int y);
+
+	int space_bit_count();
 };

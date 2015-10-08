@@ -21,11 +21,14 @@ int HistoryTree::init_history_tree(int stone_num)
 	HistoryTree::tree.push_back(Node(-1, PlaceInfo()));
 	return 0;
 }
-
 int HistoryTree::add(int parent_idx, PlaceInfo & info)
 {
-	int ret = tree.size();
-	tree.emplace_back(parent_idx, info);
+	int ret = 0;
+#pragma omp critical
+	{
+		ret = tree.size();
+		tree.emplace_back(parent_idx, info);
+	}
 	return ret;
 }
 
@@ -54,3 +57,7 @@ std::string HistoryTree::get_answer(int index)
 }
 
 
+void HistoryTree::clear()
+{
+	tree.clear();
+}
