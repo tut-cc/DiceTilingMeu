@@ -36,13 +36,14 @@ int main()
   //auto str = cl.receive();
   //std::cerr << str << std::endl;
 
-  Core core(ios, "testform26.procon-online.net", "0123456789abcdef", 1);
-  auto probs = core.get();
+  //Core core(ios, "testform26.procon-online.net", "0123456789abcdef", 1);
+  //auto probs = core.get();
+  Core core2(ios, "testform26.procon-online.net", "0123456789abcdef", 1);
   std::stringstream ss;
-  for (int i = 0; i < 35; ++i) {
+  for (int i = 0; i < 36; ++i) {
     ss << std::endl;
   }
-  core.submit(ss.str());
+  core2.submit(ss.str());
 
   return 0;
 }

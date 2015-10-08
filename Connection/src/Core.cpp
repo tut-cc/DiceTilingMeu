@@ -63,13 +63,13 @@ std::string Core::get()
 
 void Core::submit(const std::string& answer)
 {
-  auto constexpr BOUNDARY = "1145148941919";
+  auto constexpr BOUNDARY = "cce6735153bf14e47e999e68bb183e70a1fa7fc89722fc1efdf03a917340";
   auto constexpr ENDL     = "\r\n";
 
   boost::asio::streambuf request;
   std::ostream rs(&request);
 
-  rs << "POST " << "/answer" << " HTTP/1.0" << ENDL;
+  rs << "POST " << "/answer" << " HTTP/1.1" << ENDL;
   rs << "Host: " << host_ << ENDL;
   rs << "Content-Type: multipart/form-data; boundary=" << BOUNDARY << ENDL;
   rs << ENDL;
@@ -77,17 +77,17 @@ void Core::submit(const std::string& answer)
   rs << R"(Content-Disposition: form-data; name="token")" << ENDL;
   rs << ENDL;
   rs << token_ << ENDL;
-  rs << "--" << BOUNDARY;
-  rs << R"(Content-Disposition: form-data; name="answer"; filename="@answer.txt")" << ENDL;
+  rs << "--" << BOUNDARY << ENDL;
+  rs << R"(Content-Disposition: form-data; name="answer"; filename="answer.txt")" << ENDL;
   rs << "Content-Type: text/plain" << ENDL;
   rs << ENDL;
   rs << answer << ENDL;
-  rs << "--" << BOUNDARY << "--" << ENDL;
+  rs << "--" << BOUNDARY << "--" << ENDL << ENDL;
 
-  boost::system::error_code ee;
-  boost::asio::write(socket_, request, ee);
-  if (ee)
-    throw boost::system::system_error(ee); // Some other error.
+  const std::string result = boost::asio::buffer_cast<const char*>(request.data());
+  std::cerr << result << std::endl;
+
+  boost::asio::write(socket_, request);
 
   std::stringstream ss;
   try
