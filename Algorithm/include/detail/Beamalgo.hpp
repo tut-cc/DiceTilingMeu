@@ -35,16 +35,19 @@ void Beamalgo<F, S>::solve()
 	std::cout << "field:\n" << field->get_bit_str() << std::endl;
 	std::shared_ptr<ExtendedField> result = std::move(field->clone_ex());
 
-	for (int i = 0; i < stones_num-1; i++) {
+	for (int i = 0; i * i< stones_num-1; i++) {
+//	for (int i = 0; i < 1; i++) {
 		HistoryTree::clear();
 		auto tmp = std::move(solve(i));
+		std::cout << "now score:" << result->eval_final_score() << std::endl;
+		std::cout << "new score:" << tmp->eval_final_score() << std::endl;
 		if (tmp->eval_final_score() > result->eval_final_score()) {
+			std::cout << "new score:" << result->eval_final_score() << std::endl;
 			result = std::move(tmp);
-			std::cout << "score:" << result->eval_final_score() << std::endl;
 			std::ofstream ofs("answer.txt");
 			ofs << HistoryTree::get_answer(result->parent_idx);
 			ofs.close();
-
+			std::cout << "answer complete" << std::endl;
 		}
 	}
 
@@ -72,9 +75,15 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 		RandomQueue tmp_sub_queue(BEAM_WIDTH);
 
 		//全ての状態に対して石を置く
+#pragma omp parallel for shared(stone, tmp_sub_queue, sub_queue, tmp_main_queue, main_queue, result, place_lists)
 		for (int i = 0; i < main_queue.size(); i++) {
 			auto state = main_queue[i];
 			if(i != 0)tmp_sub_queue.push(state->clone_ex());
+
+			if (i == 0) {
+				std::cout << "tmp_score…" << state->eval_final_score() << std::endl;
+				std::cout << "tmp_score…\n" << state->get_bit_str() << std::endl;
+			}
 
 			auto place_list = place_lists.get_list(st_idx);
 
@@ -84,7 +93,6 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 			state, stone, place_list, tmp_queue
 			*/
 			int s = place_list.size();
-#pragma omp parallel for shared(state, stone, tmp_sub_queue, tmp_main_queue, result, place_list)
 			for (int j = 0; j < s; j++) {
 				//			for (auto t : place_list) {
 				auto t = place_list[j];
@@ -105,13 +113,13 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 			if (!pf) {
 				if (state->eval_final_score() > result->eval_final_score()) {
 					result = state;
-					//std::cout << "result:\n" << result->get_bit_str() << std::endl;
+					std::cout << "result:" << result->eval_final_score() << std::endl;
 				}
 			}
 
 		}
 		//全ての状態に対して石を置く
-#pragma omp parallel for shared(stone, tmp_sub_queue, sub_queue, tmp_main_queue, main_queue, result, place_list)
+#pragma omp parallel for shared(stone, tmp_sub_queue, sub_queue, tmp_main_queue, main_queue, result, place_lists)
 		for (int i = 0; i < sub_queue.size(); i++) {
 			auto state = sub_queue[i];
 			tmp_sub_queue.push(state->clone_ex());
@@ -144,7 +152,7 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 			if (!pf) {
 				if (state->eval_final_score() > result->eval_final_score()) {
 					result = state;
-					//std::cout << "result:\n" << result->get_bit_str() << std::endl;
+					std::cout << "result:" << result->eval_final_score() << std::endl;
 				}
 			}
 		}

@@ -13,6 +13,8 @@ public:
 
 	static std::string get_answer(int index);
 	static void clear();
+	static void remove(int index);
+	//static void fit();
 private:
 	HistoryTree();
 	static int stone_num;

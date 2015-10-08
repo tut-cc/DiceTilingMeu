@@ -18,7 +18,9 @@ HistoryTree::HistoryTree(){}
 int HistoryTree::init_history_tree(int stone_num)
 {
 	HistoryTree::stone_num = stone_num;
-	HistoryTree::tree.push_back(Node(-1, PlaceInfo()));
+	Node n(-1, PlaceInfo());
+	n.own_index = 0;
+	HistoryTree::tree.push_back(n);
 	return 0;
 }
 int HistoryTree::add(int parent_idx, PlaceInfo & info)
@@ -27,7 +29,10 @@ int HistoryTree::add(int parent_idx, PlaceInfo & info)
 #pragma omp critical
 	{
 		ret = tree.size();
-		tree.emplace_back(parent_idx, info);
+		Node n(parent_idx, info);
+		n.own_index = ret;
+		tree.push_back(n);
+		tree[ret].child_count++;
 	}
 	return ret;
 }
@@ -59,5 +64,19 @@ std::string HistoryTree::get_answer(int index)
 
 void HistoryTree::clear()
 {
+	auto tmp = std::move(tree[0]);
 	tree.clear();
+	tree.push_back(tmp);
 }
+
+void HistoryTree::remove(int index)
+{
+	auto rm = std::move(tree[index]);
+	tree[rm.parent_index].child_count--;
+	while (rm.parent_index != 0 && tree[rm.parent_index].child_count == 0) {
+		auto tmp = std::move(tree[rm.parent_index]);
+		tree[tmp.parent_index].child_count--;
+		rm = std::move(tmp);
+	}
+}
+

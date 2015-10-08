@@ -35,6 +35,8 @@ inline void StateQueue::remove_min()
 {
 	int n = vec.size() - 1;
 	vec[0] = vec[n];
+	auto tmp = vec.back();
+	HistoryTree::remove(tmp->parent_idx);
 	vec.pop_back();
 	for (int i = 0, j; (j = 2 * i + 1) < n;) {
 		if ((j != n - 1) && (vec[j]->eval_select_score() < vec[j + 1]->eval_select_score())) {
