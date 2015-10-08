@@ -123,9 +123,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Client.hpp" />
+    <ClInclude Include="include\Core.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Client.cpp" />
+    <ClCompile Include="src\Core.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

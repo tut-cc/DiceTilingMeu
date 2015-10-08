@@ -9,49 +9,44 @@ Client::Client(asio::io_service& io_service, const std::string& addr, int port)
 
 void Client::connect()
 {
-  boost::system::error_code error;
-  socket_.connect(tcp::endpoint(asio::ip::address::from_string(addr_), port_), error);
+  tcp::resolver resolver(io_service_);
+  tcp::resolver::query query(tcp::v4(), addr_, std::to_string(port_));
+  tcp::resolver::iterator iterator = resolver.resolve(query);
 
-  std::cerr << "[" << addr_ << "]";
-  if (error) {
-    std::cerr << "connect failed : " << error.message() << std::endl;
-  }
-  else {
-    std::cerr << "connected" << std::endl;
-  }
+  boost::asio::connect(socket_, iterator);
 }
 
 void Client::accept()
 {
-  tcp::acceptor acc(io_service_, tcp::endpoint(tcp::v4(), port_));
-  tcp::socket socket(io_service_);
-
-  boost::system::error_code error;
-  acc.accept(socket, error);
-
-  std::cerr << "[" << addr_ << "]";
-  if (error) {
-    std::cerr << "accept failed: " << error.message() << std::endl;
-  }
-  else {
-    std::cerr << "accept correct!" << std::endl;
-  }
-
+  tcp::acceptor a(io_service_, tcp::endpoint(tcp::v4(), port_));
+  a.accept(socket_);
 }
 
 std::string Client::receive()
 {
-  asio::streambuf receive_buffer;
-  boost::system::error_code error;
-  asio::read(socket_, receive_buffer, asio::transfer_all(), error);
+  std::stringstream ss;
+  try
+  {
+    for (;;)
+    {
+      char data[8192];
 
-  if (error && error != asio::error::eof) {
-    std::cerr << "[" << addr_ << "]" << "receive failed: " << error.message() << std::endl;
+      boost::system::error_code error;
+      size_t length = socket_.read_some(boost::asio::buffer(data), error);
+      ss.write(data, length);
+      if (error == boost::asio::error::eof)
+        break; // Connection closed cleanly by peer.
+      else if (error)
+        throw boost::system::system_error(error); // Some other error.
+
+    }
   }
-  const char* data = asio::buffer_cast<const char*>(receive_buffer.data());
-  std::string str(data);
+  catch (std::exception& e)
+  {
+    std::cerr << "Exception in thread: " << e.what() << "\n";
+  }
 
-  return str;
+  return ss.str();
 }
 
 void Client::send(const std::string msg)

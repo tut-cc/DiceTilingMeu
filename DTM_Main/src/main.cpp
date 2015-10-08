@@ -23,10 +23,26 @@ int main()
 	//meu->solve();
 
  // std::unique_ptr<FieldEX<boost::multiprecision::uint1024_t>> fx(new BoostBitField(prob->get_field_str()));
-  boost::asio::io_service io_service;
-  Client cl(io_service, "172.26.32.189", 65534);
+  //boost::asio::io_service io_service;
+
+  //tcp::resolver resolver(io_service);
+  //tcp::resolver::query query(tcp::v4(), "172.26.32.189", "8080");
+  //tcp::resolver::iterator iterator = resolver.resolve(query);
+
+  //tcp::socket s(io_service);
+  //boost::asio::connect(s, iterator);
+
+  //std::cout << "Enter message: ";
+  //char request[1024];
+  //std::cin.getline(request, 1024);
+  //size_t request_length = strlen(request);
+  //boost::asio::write(s, boost::asio::buffer(request, request_length));
+
+  boost::asio::io_service ios;
+  Client cl(ios, "172.26.32.189", 65534);
   cl.connect();
   cl.send("ping");
-	return 0;
+
+  return 0;
 }
 
