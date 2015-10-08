@@ -19,16 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BoostBitStone.hpp" />
+    <ClInclude Include="include\BoostBitStone.hpp" />
     <ClInclude Include="include\ExtendedStone.hpp" />
     <ClInclude Include="include\SimpleStone.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="include\stone.hpp" />
-    <ClInclude Include="StoneEX.hpp" />
+    <ClInclude Include="include\StoneEX.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BoostBitStone.cpp" />
+    <ClCompile Include="src\BoostBitStone.cpp" />
     <ClCompile Include="src\ExtendedStone.cpp" />
     <ClCompile Include="src\SimpleStone.cpp" />
     <ClCompile Include="src\stone.cpp" />

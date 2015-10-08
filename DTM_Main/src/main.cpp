@@ -7,6 +7,7 @@
 #include "ExtendedField.hpp"
 #include "ExtendedStone.hpp"
 #include "BoostBitField.hpp"
+#include "BoostBitStone.hpp"
 #include <memory>
 
 int main()

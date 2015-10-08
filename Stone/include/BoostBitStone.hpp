@@ -9,7 +9,7 @@ private:
   std::pair<double, double> centers[4][2];
 
 public:
-  BoostBitStone(const std::vector<std::string> &);
+  BoostBitStone(const std::vector<std::string> &, int);
   BoostBitStone() = delete;
   BoostBitStone(const BoostBitStone &) = default;
   BoostBitStone(BoostBitStone &&) = default;
