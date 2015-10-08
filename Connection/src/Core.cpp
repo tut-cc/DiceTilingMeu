@@ -63,6 +63,7 @@ std::string Core::get()
 
 void Core::submit(const std::string& answer)
 {
+	std::cout << "!!!! submit !!!!" << std::endl;
   auto constexpr BOUNDARY = "cce6735153bf14e47e999e68bb183e70a1fa7fc89722fc1efdf03a917340";
   auto constexpr ENDL     = "\r\n";
 
@@ -71,20 +72,23 @@ void Core::submit(const std::string& answer)
 
   rs << "POST " << "/answer" << " HTTP/1.1" << ENDL;
   rs << "Host: " << host_ << ENDL;
-  rs << "Content-Type: multipart/form-data; boundary=" << BOUNDARY << ENDL;
+  rs << "Content-Type: multipart/form-data, boundary=" << BOUNDARY << ENDL;
   rs << ENDL;
   rs << "--" << BOUNDARY << ENDL;
   rs << R"(Content-Disposition: form-data; name="token")" << ENDL;
   rs << ENDL;
   rs << token_ << ENDL;
   rs << "--" << BOUNDARY << ENDL;
-  rs << R"(Content-Disposition: form-data; name="answer"; filename="answer.txt")" << ENDL;
+  rs << R"(Content-Disposition: form-data; name="answer", filename="answer.txt")" << ENDL;
   rs << "Content-Type: text/plain" << ENDL;
+  rs << "Content-Length: " << answer.size() << ENDL;
   rs << ENDL;
   rs << answer << ENDL;
   rs << "--" << BOUNDARY << "--" << ENDL << ENDL;
 
   const std::string result = boost::asio::buffer_cast<const char*>(request.data());
+  std::cout << "!!!! result !!!!" << std::endl;
+
   std::cerr << result << std::endl;
 
   boost::asio::write(socket_, request);

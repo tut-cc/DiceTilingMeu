@@ -41,7 +41,7 @@ int main()
   Core core2(ios, "testform26.procon-online.net", "0123456789abcdef", 1);
   std::stringstream ss;
   for (int i = 0; i < 36; ++i) {
-    ss << std::endl;
+    ss  << std::endl;
   }
   core2.submit(ss.str());
 
