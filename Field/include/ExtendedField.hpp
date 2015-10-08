@@ -7,6 +7,8 @@
 #include "ExtendedStone.hpp"
 #include "HistoryTree.hpp"
 
+
+
 class ExtendedField : public Field {
 private:
 	//フィールドをビット列で表す
@@ -20,6 +22,7 @@ private:
 
 	//フィールドの最大空きマス数
 	static int space_count;
+
 	//
 	bool mat[32][32];
 	bool ok[32][32];
@@ -32,6 +35,7 @@ private:
 public:
 	//4方向を見るための配列
 
+	int stone_count = 0;
 	int parent_idx = 0;
 
 	ExtendedField(std::vector<std::string>);

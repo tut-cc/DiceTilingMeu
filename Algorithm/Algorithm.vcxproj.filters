@@ -45,10 +45,10 @@
     <ClInclude Include="include\detail\PlaceLists.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="include\detail\RandomValue.hpp">
+    <ClInclude Include="include\detail\RandomQueue.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="include\detail\RandomQueue.hpp">
+    <ClInclude Include="include\RandomValue.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

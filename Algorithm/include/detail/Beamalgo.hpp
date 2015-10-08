@@ -26,6 +26,8 @@ Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
 	RandomValue::init_random();
 
 //	std::cout << field->eval_select_score() << "\n" << field->get_bit_str() << std::endl;
+	//PlaceInfo info(128, 5, 10, 0, 0);
+	//std::cout << info.get_id() << std::endl;
 }
 
 
@@ -35,13 +37,14 @@ void Beamalgo<F, S>::solve()
 	std::cout << "field:\n" << field->get_bit_str() << std::endl;
 	std::shared_ptr<ExtendedField> result = std::move(field->clone_ex());
 
-	for (int i = 0; i * i< stones_num-1; i++) {
+	for (int i = 0; i < stones_num-1; i++) {
 //	for (int i = 0; i < 1; i++) {
 		HistoryTree::clear();
 		auto tmp = std::move(solve(i));
 		std::cout << "now score:" << result->eval_final_score() << std::endl;
 		std::cout << "new score:" << tmp->eval_final_score() << std::endl;
-		if (tmp->eval_final_score() > result->eval_final_score()) {
+		if (tmp->eval_final_score() > result->eval_final_score() || 
+			(tmp->eval_final_score() == result->eval_final_score() && tmp->stone_count < result->stone_count)) {
 			std::cout << "new score:" << result->eval_final_score() << std::endl;
 			result = std::move(tmp);
 			std::ofstream ofs("answer.txt");
@@ -111,7 +114,13 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 				}
 			}
 			if (!pf) {
-				if (state->eval_final_score() > result->eval_final_score()) {
+				if (state->eval_final_score() == result->eval_final_score()) {
+					if (state->stone_count < result->stone_count) {
+						result = state;
+						std::cout << "result:" << result->eval_final_score() << std::endl;
+					}
+				}
+				else if (state->eval_final_score() > result->eval_final_score()) {
 					result = state;
 					std::cout << "result:" << result->eval_final_score() << std::endl;
 				}
@@ -150,7 +159,13 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 				}
 			}
 			if (!pf) {
-				if (state->eval_final_score() > result->eval_final_score()) {
+				if (state->eval_final_score() == result->eval_final_score()) {
+					if (state->stone_count < result->stone_count) {
+						result = state;
+						std::cout << "result:" << result->eval_final_score() << std::endl;
+					}
+				}
+				else if (state->eval_final_score() > result->eval_final_score()) {
 					result = state;
 					std::cout << "result:" << result->eval_final_score() << std::endl;
 				}

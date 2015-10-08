@@ -3,7 +3,7 @@
 PlaceInfo::PlaceInfo(){}
 
 /*
-stone_id	7bit	15 - 21	00000000 00IDIDID I0000000 00000000
+stone_id	8bit	15 - 22	00000000 0IDIDIDI D0000000 00000000
 x			6bit	9  - 14	00000000 00000000 0XXXXXX0 00000000
 y			6bit	3  -  8	00000000 00000000 0000000Y YYYYY000
 reverse		1bit	2  -  2	00000000 00000000 00000000 00000R00
@@ -15,7 +15,7 @@ PlaceInfo::PlaceInfo(int stone_id, int x, int y, int reverse, int angle) {
 
 }
 
-int PlaceInfo::get_id() { return (value >> 15) & 0x7F; }
+int PlaceInfo::get_id() { return (value >> 15) & 0xFF; }
 int PlaceInfo::get_x() { return ((value >> 9) & 0x3F) - 8; }
 int PlaceInfo::get_y() { return ((value >> 3) & 0x3F) - 8; }
 int PlaceInfo::get_reverse() { return (value >> 2) & 0x01; }

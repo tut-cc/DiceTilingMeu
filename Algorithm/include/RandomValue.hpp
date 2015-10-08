@@ -3,6 +3,7 @@
 
 class RandomValue {
 public:
+	void test();
 	static void init_random();
 	//0ˆÈã1ˆÈ‰º‚Ì¬”‚ğ•Ô‚·
 	static float get_value();
@@ -12,16 +13,18 @@ private:
 	static std::uniform_real_distribution<float> dist;
 };
 
-inline void RandomValue::init_random()
+void RandomValue::init_random()
 {
 	mt.seed(rnd());
 	dist = std::uniform_real_distribution<float>(0.0f, 1.0f);
 }
 
-inline float RandomValue::get_value() {
+float RandomValue::get_value() {
 	return dist(mt);
 }
 
 std::random_device RandomValue::rnd;
 std::mt19937 RandomValue::mt;
 std::uniform_real_distribution<float> RandomValue::dist;
+
+

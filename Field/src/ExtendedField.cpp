@@ -47,6 +47,7 @@ ExtendedField::ExtendedField(const ExtendedField &f) {
 	block_count = f.block_count;
 	value = f.value;
 	parent_idx = f.parent_idx;
+	stone_count = f.stone_count;
 }
 
 //ExtendedField::ExtendedField(const ExtendedField & f)
@@ -150,10 +151,14 @@ void ExtendedField::apply_bit(std::shared_ptr<ExtendedStone> s, int x, int y, in
 	}
 	block_count += s->getZK();
 	value = -1;
-
+	stone_count++;
 	//ƒqƒXƒgƒŠ[’Ç‰Á
-	PlaceInfo p = PlaceInfo(s->identify(), x, y, reverse, angle);
-	parent_idx = HistoryTree::add(parent_idx, p);
+#pragma omp critical
+	{
+		PlaceInfo p = PlaceInfo(s->identify(), x, y, reverse, angle);
+		parent_idx = HistoryTree::add(parent_idx, p);
+
+	}
 }
 bool ExtendedField::appliable_bit(std::shared_ptr<ExtendedStone> s, int x, int y, int reverse, int angle) const {
 	if (!s->movable(reverse, angle, x, y))return false;
