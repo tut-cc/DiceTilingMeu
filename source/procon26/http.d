@@ -5,6 +5,7 @@ import std.format;
 import std.uri;
 import std.array;
 import std.stdio;
+import std.string;
 
 
 struct RequestSpec
