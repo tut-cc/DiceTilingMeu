@@ -80,10 +80,10 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 			auto state = main_queue[i];
 			if(i != 0)tmp_sub_queue.push(state->clone_ex());
 
-			if (i == 0) {
-				std::cout << "tmp_score…" << state->eval_final_score() << std::endl;
-				std::cout << "tmp_score…\n" << state->get_bit_str() << std::endl;
-			}
+			//if (i == 0) {
+			//	std::cout << "tmp_score…" << state->eval_final_score() << std::endl;
+			//	std::cout << "tmp_score…\n" << state->get_bit_str() << std::endl;
+			//}
 
 			auto place_list = place_lists.get_list(st_idx);
 
@@ -159,6 +159,20 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 
 		main_queue = tmp_main_queue;
 		sub_queue = tmp_sub_queue;
+	}
+	for (int i = 0; i < main_queue.size(); i++) {
+		auto state = main_queue[i];
+		if (state->eval_final_score() > result->eval_final_score()) {
+			result = state;
+			std::cout << "result:" << result->eval_final_score() << std::endl;
+		}
+	}
+	for (int i = 0; i < sub_queue.size(); i++) {
+		auto state = sub_queue[i];
+		if (state->eval_final_score() > result->eval_final_score()) {
+			result = state;
+			std::cout << "result:" << result->eval_final_score() << std::endl;
+		}
 	}
 
 	return result;
