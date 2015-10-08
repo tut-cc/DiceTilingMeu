@@ -21,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="BuildPropertySheet.props" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="problem\quest11.txt" />
