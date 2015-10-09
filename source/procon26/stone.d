@@ -8,6 +8,7 @@ import std.string       : chomp, splitLines;
 import std.traits       : EnumMembers;
 import std.container    : RedBlackTree;
 import std.typecons     : Rebindable;
+import std.format       : formattedWrite;
 
 import procon26.util;
 
@@ -151,9 +152,9 @@ final class Stone
     }
 
 
-    InstantiatedStone opIndex(StoneState state) const pure nothrow @safe @nogc
+    InstantiatedStone opIndex(StoneState state) pure nothrow @safe @nogc
     {
-        return InstantiatedStone(Rebindable!(const(Stone))(this), state);
+        return InstantiatedStone(this, state);
     }
 
 
@@ -208,6 +209,12 @@ final class Stone
     const(StoneState)[] uniqueState() const pure nothrow @safe @nogc
     {
         return _uniqState;
+    }
+
+
+    void toString(scope void delegate(const(char)[]) sink) const
+    {
+        sink.formattedWrite("%s", _id);
     }
 
 
@@ -476,7 +483,7 @@ struct InstantiatedStone
     }
 
 
-    const(Stone) origin() const pure nothrow @safe @nogc @property
+    inout(Stone) origin() inout pure nothrow @safe @nogc @property
     {
         return _stone;
     }
@@ -489,6 +496,6 @@ struct InstantiatedStone
 
 
   private:
-    Rebindable!(const(Stone)) _stone;
+    Stone _stone;
     StoneState _state;
 }

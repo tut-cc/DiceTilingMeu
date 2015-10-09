@@ -45,6 +45,35 @@ final class Problem
             _stones ~= new Stone(i, lines[0 .. 8]);
             lines = lines[8 .. $];
         }
+
+        StructLargeField!(byte, 32) adjs;
+        foreach(byte xx, byte yy; _initField.byZk){
+            foreach(d; [[1, 0], [-1, 0], [0, -1], [0, 1]]) {
+                byte xxx = cast(byte)(xx + d[0]),
+                     yyy = cast(byte)(yy + d[1]);
+
+                if(isInField!32(xxx, yyy) && !_initField[xxx, yyy]){
+                    auto v = adjs[xxx, yyy];
+                    size_t inc = incValue(v);
+
+                    adjs[xxx, yyy] += inc;
+                }
+            }
+        }
+
+        foreach(byte x;  0 .. 32) foreach(byte y; 0 .. 32) {
+            _difficulty[x, y] += adjs[x, y];
+            _sumOfDifficulty += adjs[x, y];
+            foreach(d; [[1, 0], [-1, 0], [0, -1], [0, 1]]) {
+                byte xx = cast(byte)(x + d[0]),
+                     yy = cast(byte)(y + d[1]);
+
+                if(isInField!32(xx, yy)){
+                    _difficulty[x, y] += adjs[xx, yy];
+                    _sumOfDifficulty += adjs[xx, yy];
+                }
+            }
+        }
     }
 
 
@@ -54,7 +83,7 @@ final class Problem
     }
 
 
-    const(Stone)[] stones() const pure nothrow @safe @nogc @property
+    inout(Stone)[] stones() inout pure nothrow @safe @nogc @property
     {
         return _stones;
     }
@@ -72,11 +101,25 @@ final class Problem
     }
 
 
+    ref const(StructLargeField!(size_t, 32)) difficulty() const pure nothrow @safe @nogc @property
+    {
+        return _difficulty;
+    }
+
+
+    size_t sumOfDifficulty() const pure nothrow @safe @nogc @property
+    {
+        return _sumOfDifficulty;
+    }
+
+
   private:
     TinyField _initField;
     Stone[] _stones;
     Rectangle _minRect;
     size_t _numOfEmpty;
+    StructLargeField!(size_t, 32) _difficulty;
+    size_t _sumOfDifficulty;
 }
 
 

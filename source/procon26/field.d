@@ -19,6 +19,33 @@ import procon26.util;
 //}
 
 
+mixin template LargeFieldMember(T, byte N)
+{
+    enum byte width = N;
+    enum byte height = N;
+
+    T[N][N] _field;
+
+
+    ref inout(T) opIndex(byte x, byte y) inout pure nothrow @safe @nogc
+    {
+        return _field[y][x];
+    }
+
+
+    void opIndexAssign(T value, byte x, byte y) pure nothrow @safe @nogc
+    {
+        _field[y][x] = value;
+    }
+}
+
+
+struct StructLargeField(T, byte N)
+{
+    mixin LargeFieldMember!(T, N);
+}
+
+
 mixin template TinyFieldMember()
 {
     enum byte width = 32;
@@ -44,7 +71,7 @@ mixin template TinyFieldMember()
             _bitField[y] &= ~(1 << x);
     }
 
-/+
+
     /*
     can optimize by bit-wise operators
     */
@@ -66,22 +93,22 @@ mixin template TinyFieldMember()
         }
         return false;
     }
-+/
-    bool isCollided(byte x, byte y, InstantiatedStone stone) const
-    {
-        auto mr = stone.minRect;
-        if(!(   mr.x + x >= 0 && mr.x + mr.w + x <= 32
-             && mr.y + y >= 0 && mr.y + mr.h + y <= 32))
-            return true;
 
-        foreach(byte xx, byte yy; stone.byZk)
-        {
-            xx += x;
-            yy += y;
-            if(this[xx, yy]) return true;
-        }
-        return false;
-    }
+    //bool isCollided(byte x, byte y, InstantiatedStone stone) const
+    //{
+    //    auto mr = stone.minRect;
+    //    if(!(   mr.x + x >= 0 && mr.x + mr.w + x <= 32
+    //         && mr.y + y >= 0 && mr.y + mr.h + y <= 32))
+    //        return true;
+
+    //    foreach(byte xx, byte yy; stone.byZk)
+    //    {
+    //        xx += x;
+    //        yy += y;
+    //        if(this[xx, yy]) return true;
+    //    }
+    //    return false;
+    //}
 
     /*
     can optimize by bit-wise operators
@@ -196,12 +223,14 @@ final class GeneralField
     enum byte height = 32;
 
 
-    this(const ref StructTinyField field,
-         const ref byte[32][32] adjMem,
-         const ref bool[32][32] adjField,
+    this(Problem problem,
+         const ref StructTinyField field,
+         const ref StructLargeField!(byte, 32) adjMem,
+         const ref StructTinyField adjField,
          const(CommitContent)[] history,
          size_t numOfEmpty, size_t numOfAdjacents, size_t numOfRemainStones) pure nothrow @safe @nogc
     {
+        _problem = problem;
         _field = field;
         _adjMem = adjMem;
         _adjacent = adjField;
@@ -220,7 +249,7 @@ final class GeneralField
 
     auto byAdjacentZk() const pure nothrow @safe @nogc @property
     {
-        return _adjacent.byZk!"field[y][x]"(Rectangle(0, 0, 32, 32));
+        return _adjacent.byZk(Rectangle(0, 0, 32, 32));
     }
 
 
@@ -279,10 +308,14 @@ final class GeneralField
     }
 
 
+    Problem problem() pure nothrow @safe @nogc @property { return _problem; }
+
+
   private:
+    Problem _problem;
     StructTinyField _field;
-    byte[32][32] _adjMem;
-    bool[32][32] _adjacent;
+    StructLargeField!(byte, 32) _adjMem;
+    StructTinyField _adjacent;
     const(CommitContent)[] _history;
     size_t _numOfEmpty;
     size_t _numOfAdjacents;
@@ -290,57 +323,79 @@ final class GeneralField
 }
 
 
+byte incValue(byte v)
+{
+    static immutable byte[] incList = [1, 3, 6, 9, 16 - 4, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 127 - 16];
+    return incList[v];
+}
+
+
 struct LazyField
 {
-    this(size_t numOfRemainStones, const TinyField initField, size_t numOfEmpty, byte x, byte y, InstantiatedStone stone)
+    this(Problem problem, size_t numOfRemainStones,
+         const TinyField initField, size_t numOfEmpty,
+         byte x, byte y, InstantiatedStone stone)
     {
         StructTinyField field;
         field._bitField = initField._bitField;
 
-        byte[32][32] adjMem;
-        size_t numOfAdj = 0;
+        StructLargeField!(byte, 32) adjMem;
+        size_t numOfAdj = problem.sumOfDifficulty;
+        //size_t numOfAdj = 0;
 
-        foreach(byte xx, byte yy; initField.byZk){
-            foreach(dx; [1, -1, 0, 0]) foreach(dy; [0, 0, -1, -1]){
-                byte xxx = cast(byte)(xx + dx),
-                     yyy = cast(byte)(yy + dy);
+        foreach(byte xx, byte yy; initField.byZk)
+        {
+            foreach(d; [[1, 0], [-1, 0], [0, 1], [0, -1]]){
+                byte xxx = cast(byte)(xx + d[0]),
+                     yyy = cast(byte)(yy + d[1]);
 
                 if(isInField!32(xxx, yyy) && !initField[xxx, yyy]){
-                    size_t inc = adjMem[yyy][xxx] ? adjMem[yyy][xxx]*3 : 1;
-                    //size_t inc = 1;
-                    adjMem[yyy][xxx] += inc;
+                    auto v = adjMem[xxx, yyy];
+                    size_t inc = incValue(v);
+
+                    adjMem[xxx, yyy] += inc;
                     numOfAdj += inc;
                 }
             }
         }
 
+        //writeln(adjMem._field);
+
         foreach(byte i; 0 .. 32)
         {
             if(!initField[0, i]){
-                size_t inc = adjMem[i][0] ? adjMem[i][0]*3 : 1;
-                adjMem[i][0] += inc;
+                //size_t inc = adjMem[0, i] ? adjMem[0, i]*3 : 1;
+               size_t inc = incValue(adjMem [0, i]);
+                adjMem[0, i] += inc;
                 numOfAdj += inc;
             }
             if(!initField[31, i]){
-                size_t inc = adjMem[i][31] ? adjMem[i][31]*3 : 1;
-                adjMem[i][31] += inc;
+                //size_t inc = adjMem[31, i] ? adjMem[31, i]*3 : 1;
+                size_t inc = incValue(adjMem[31, i]);
+                adjMem[31, i] += inc;
                 numOfAdj += inc;
             }
             if(!initField[i, 0]){
-                size_t inc = adjMem[0][i] ? adjMem[0][i]*3 : 1;
-                adjMem[0][i] += inc;
+                //size_t inc = adjMem[i, 0] ? adjMem[i, 0]*3 : 1;
+               size_t inc = incValue(adjMem [i, 0]);
+                adjMem[i, 0] += inc;
                 numOfAdj += inc;
             }
             if(!initField[i, 31]){
-                size_t inc = adjMem[31][i] ? adjMem[31][i]*3 : 1;
-                adjMem[31][i] += inc;
+                //size_t inc = adjMem[i, 31] ? adjMem[i, 31]*3 : 1;
+                size_t inc = incValue(adjMem[i, 31]);
+                adjMem[i, 31] += inc;
                 numOfAdj += inc;
             }
         }
 
-        bool[32][32] adj;
 
-        GeneralField iniGF = new GeneralField(field, adjMem, adj, null, numOfEmpty, numOfAdj, numOfRemainStones);
+        //writeln(adjMem._field);
+
+        //bool[32][32] adj;
+        StructTinyField adj;
+
+        GeneralField iniGF = new GeneralField(problem, field, adjMem, adj, null, numOfEmpty, numOfAdj, numOfRemainStones);
 
         this(iniGF, x, y, stone);
     }
@@ -367,24 +422,24 @@ struct LazyField
             xx += x;
             yy += y;
 
-            _numOfAdjacents -= parent._adjMem[yy][xx];
+            _numOfAdjacents -= parent._adjMem[xx, yy];
+            _numOfAdjacents -= parent.problem.difficulty[xx, yy];
         }
 
         // 石を置くことで新たに追加される隣接マスの計数
         foreach(byte xx, byte yy; stone.byAdjacentZk){
             xx += x;
             yy += y;
-            if(isInField!32(xx, yy) && !parent._field[xx, yy]) _numOfAdjacents += parent._adjMem[yy][xx] ? parent._adjacent[yy][xx]*3 : 1;
-            //if(isInField!32(xx, yy) && !parent._field[xx, yy]) _numOfAdjacents += parent._adjacent[yy][xx] ? (parent._adjacent[yy][xx].upConvert - parent._adjacent[yy][xx]) : 1;
+            if(isInField!32(xx, yy) && !parent._field[xx, yy]) _numOfAdjacents += incValue(parent._adjMem[xx, yy]);
         }
     }
 
 
-    GeneralField commit() const
+    GeneralField commit()
     {
         StructTinyField tf;
-        byte[32][32] adjMem;
-        bool[32][32] adj;
+        StructLargeField!(byte, 32) adjMem;
+        StructTinyField adj;
 
         tf._bitField = _parent._field._bitField;
         //adj._bitField = _parent._adjacent._bitField;
@@ -395,8 +450,8 @@ struct LazyField
             x += _commit.x;
             y += _commit.y;
             tf[x, y] = true;
-            adj[y][x] = false;
-            adjMem[y][x] = 0;
+            adj[x, y] = false;
+            adjMem[x, y] = 0;
         }
 
         foreach(byte x, byte y; _commit.stone.byAdjacentZk){
@@ -405,16 +460,15 @@ struct LazyField
             if(x < 0 || x >= 32 || y < 0 || y >= 32) continue;
 
             if(!tf[x, y]){
-                adjMem[y][x] += adjMem[y][x] ? adjMem[y][x]*3 : 1;
-                //adjMem[y][x] += 1;
-                adj[y][x] = true;
+                adjMem[x, y] += incValue(adjMem[x, y]);
+                adj[x, y] = true;
             }
         }
 
         auto hists = _parent.history;
         hists ~= _commit;
 
-        return new GeneralField(tf, adjMem, adj, hists, _numOfEmpty, _numOfAdjacents, _numOfRemainStones);
+        return new GeneralField(_parent.problem, tf, adjMem, adj, hists, _numOfEmpty, _numOfAdjacents, _numOfRemainStones);
     }
 
 
@@ -454,7 +508,7 @@ unittest
 
     auto instSt1 = stone1[StoneState.H0];
 
-    auto lf = LazyField(5, tf, 32*32-1, 1, 0, instSt1);
+    auto lf = LazyField(null, 5, tf, 32*32-1, 1, 0, instSt1);
     //assert(lf.hasCommit);
     //assert(lf[0, 0]);
     //assert(lf[1, 0]);
@@ -518,7 +572,7 @@ unittest
 }
 
 
-/+
+
 /*
 can optimize by bit-wise operators
 */
@@ -536,4 +590,3 @@ bool isCollided(F)(F field, byte x, byte y, InstantiatedStone stone)
     }
     return false;
 }
-+/

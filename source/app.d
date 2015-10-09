@@ -18,17 +18,23 @@ void main()
 {
     auto sw = StopWatch();
     sw.start(); 
-    auto input = readText("9.txt");
+    auto input = readText("1.txt");
     //auto input = getProblem(1);
 
     auto inputLines = input.splitLines.map!chomp().array();
     auto problem = new Problem(inputLines);
 
-    auto res = simpleRainbowSearch(problem);
+    GeneralField res;
+
+    if(problem.numOfEmpty < 300)
+        res = simpleRainbowSearchByStone(problem);
+    else
+        res = simpleRainbowSearchByXY(problem);
+
     sw.stop();
 
     writeln(res.numOfEmpty);
     writeln(sw.peek.msecs);
     //writeln(res.answer);
-    std.file.write("ans9.txt", res.answer);
+    std.file.write("ans1.txt", res.answer);
 }
