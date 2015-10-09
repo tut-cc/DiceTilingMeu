@@ -78,8 +78,8 @@ mixin template TinyFieldMember()
     bool isCollided(byte x, byte y, InstantiatedStone stone) const
     {
         auto mr = stone.minRect;
-        if(!(   mr.x + x >= 0 && mr.x + mr.w + x < 32
-             && mr.y + y >= 0 && mr.y + mr.h + y < 32))
+        if(!(   mr.x + x >= 0 && mr.x + mr.w + x <= 32
+             && mr.y + y >= 0 && mr.y + mr.h + y <= 32))
             return true;
 
         ulong bits = stone.bitField;
@@ -579,8 +579,8 @@ can optimize by bit-wise operators
 bool isCollided(F)(F field, byte x, byte y, InstantiatedStone stone)
 {
     auto mr = stone.minRect;
-    if(!(   mr.x + x >= 0 && mr.x + mr.w + x < 32
-         && mr.y + y >= 0 && mr.y + mr.h + y < 32))
+    if(!(   mr.x + x >= 0 && mr.x + mr.w + x <= 32
+         && mr.y + y >= 0 && mr.y + mr.h + y <= 32))
         return true;
 
     foreach(byte zx, byte zy; stone.byZk){
