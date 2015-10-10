@@ -12,9 +12,8 @@
 #include <memory>
 #include <boost/asio.hpp>
 
-int main()
+int main(const int argc, const char **argv)
 {
-
   //std::shared_ptr<Problem> prob(new SimpleProblem());
   // std::unique_ptr<Algorithm> solver(new Beamalgo<ExtendedField, ExtendedStone>(prob));
   // std::unique_ptr<Algorithm> rita(new Ritalgo<SimpleField, SimpleStone>(prob));
@@ -34,7 +33,12 @@ int main()
 
   //Core core(ios, "testform26.procon-online.net", "0123456789abcdef", 1);
   //auto probs = core.get();
+
   Core core(ios, "192.168.1.219:8080");
+
+  for (int i = 0; i < 1; ++i) {
+    auto probs = core.get();
+  }
   for (int i = 0; i < 10; ++i) {
     core.submit(189 - i, 0, "out.txt");
   }

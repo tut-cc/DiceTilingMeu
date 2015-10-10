@@ -18,6 +18,6 @@ public:
   Core(Core &&) = delete;
   ~Core() = default;
 
-  std::string get();
+  virtual std::string get(bool flag=false) final;
   void submit(int, int, const std::string &);
 };
