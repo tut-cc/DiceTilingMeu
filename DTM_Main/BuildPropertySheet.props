@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Algorithm\include\;$(SolutionDir)DTM_Main\include\;$(SolutionDir)Stone\include\;$(SolutionDir)Problem\include\;$(SolutionDir)Field\include\;$(SolutionDir)Connection\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Algorithm\include\;$(SolutionDir)DTM_Main\include\;$(SolutionDir)Stone\include\;$(SolutionDir)Problem\include\;$(SolutionDir)Field\include\;$(SolutionDir)HistoryTree\include\;$(SolutionDir)Connection\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>

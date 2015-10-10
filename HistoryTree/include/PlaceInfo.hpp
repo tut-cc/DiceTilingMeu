@@ -3,7 +3,6 @@
 #include <string>
 #include <iostream>
 #include "boost/format.hpp"
-
 class PlaceInfo {
 public:
 	PlaceInfo();
