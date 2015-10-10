@@ -35,7 +35,7 @@
     <ClInclude Include="include\SampleProblem.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="ProductionProblem.hpp">
+    <ClInclude Include="include\ProductionProblem.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

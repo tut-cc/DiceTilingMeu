@@ -23,7 +23,7 @@ int main(const int argc, const char **argv)
   else {
     boost::asio::io_service ios;
     std::unique_ptr<Core> core(new Core(ios, argv[1]));
-    auto probs = core.get();
+    const std::string probs = core->get();
     std::shared_ptr<Problem> prob(new ProductionProblem(probs));
     std::unique_ptr<Algorithm> rita(new Ritalgo<SimpleField, SimpleStone>(prob, std::move(core)));
     rita->solve();

@@ -125,9 +125,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\problem.hpp" />
+    <ClInclude Include="include\ProductionProblem.hpp" />
     <ClInclude Include="include\SampleProblem.hpp" />
     <ClInclude Include="include\SimpleProblem.hpp" />
-    <ClInclude Include="ProductionProblem.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
