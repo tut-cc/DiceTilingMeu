@@ -4,6 +4,7 @@
 #include "field.hpp"
 #include "stone.hpp"
 #include "problem.hpp"
+#include "Core.hpp"
 #include <memory>
 #include <vector>
 #include <type_traits>
@@ -16,6 +17,9 @@ class Ritalgo : public Algorithm {
     std::unique_ptr<Field> field;
     std::vector<std::shared_ptr<Stone>> stones;
     std::vector <std::vector < std::tuple < int, int, int, int >>> ok_list;
+    std::unique_ptr<Core> core;
+    bool is_production;
+    void submit(std::unique_ptr<Field>);
     class Env {
       public:
         static constexpr int    BEAM = 4;
@@ -93,6 +97,7 @@ class Ritalgo : public Algorithm {
     };
   public:
     Ritalgo(const std::shared_ptr<Problem> p);
+    Ritalgo(const std::shared_ptr<Problem> p, std::unique_ptr<Core> core);
     virtual ~Ritalgo() = default;
     virtual void solve();
 };

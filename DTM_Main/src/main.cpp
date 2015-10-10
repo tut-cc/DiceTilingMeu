@@ -6,20 +6,14 @@
 #include "SimpleProblem.hpp"
 #include "ExtendedField.hpp"
 #include "ExtendedStone.hpp"
+#include "BoostBitField.hpp"
+#include "Client.hpp"
+#include "Core.hpp"
 #include <memory>
+#include <boost/asio.hpp>
 
 int main()
 {
-
-  std::shared_ptr<Problem> prob(new SimpleProblem());
-
-  // std::unique_ptr<Algorithm> solver(new Beamalgo<ExtendedField, ExtendedStone>(prob));
-  std::unique_ptr<Algorithm> rita(new Ritalgo<SimpleField, SimpleStone>(prob));
-  // std::unique_ptr<Algorithm> meu(new Meu<SimpleField, SimpleStone>(prob));
-
-  // solver -> solve();
-  rita -> solve();
-  // meu->solve();
 
   return 0;
 }

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iterator>
 #include <valarray>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 template <class F, class S>
 Ritalgo<F, S>::Ritalgo(std::shared_ptr<Problem> p)
@@ -30,6 +31,36 @@ Ritalgo<F, S>::Ritalgo(std::shared_ptr<Problem> p)
 }
 
 template <class F, class S>
+Ritalgo<F, S>::Ritalgo(std::shared_ptr<Problem> p, std::unique_ptr<Core> core)
+{
+  Ritalgo::Ritalgo(p);
+
+  this->core = std::move(core);
+  is_production |= true;
+}
+
+
+template <class F, class S>
+void Ritalgo<F, S>::submit(std::unique_ptr<Field> field)
+{
+  std::stringstream ss;
+  ss << *field;
+  for (int i = std::get<0>(*(field->get_history().rbegin()))->identify() + 1; i < stones.size(); ++i)
+    ss << std::endl;
+
+  boost::posix_time::ptime time = boost::posix_time::microsec_clock::local_time();
+  std::string fn = "Rita" + boost::posix_time::to_iso_string(time) + ".txt";
+  
+  std::ofstream ofs(fn);
+  ofs << ss.str();
+  ofs.close();
+
+  if (is_production) {
+    core->submit(field->score(), field->get_history().size(), fn);
+  }
+}
+
+template <class F, class S>
 void Ritalgo<F, S>::solve()
 {
   std::shared_ptr<Env> env(new Env());
@@ -40,7 +71,7 @@ void Ritalgo<F, S>::solve()
   }
   int best_score = 1 << 28;
   std::unique_ptr<Field> best_field;
-  for (int ite = 0; ite < 32; ++ite) {
+  for (int ite = 0; ; ++ite) {
     std::cerr << "iteration : " << ite << std::endl;
     double ave_score = 0.0;
     env->eva();
@@ -55,11 +86,13 @@ void Ritalgo<F, S>::solve()
         //std::cout << *(ant -> loot()) << std::endl;
         best_field = std::move(ant->loot());
         std::cerr << ant->score() << " ... " << ant -> loot() -> get_history().size() << std::endl;
+        submit(best_field->clone());
       }
       else if (ant->score() == best_score) {
         if (ant->loot()->get_history().size() < best_field->get_history().size()) {
           best_field = std::move(ant->loot());
           std::cerr << ant->score() << " ... " << ant->loot()->get_history().size() << std::endl;
+          submit(best_field->clone());
         }
       }
     }
@@ -70,9 +103,6 @@ void Ritalgo<F, S>::solve()
       ant -> reset(field -> clone());
     }
   }
-  std::cout << *best_field;
-  for (int i = std::get<0>(*(best_field->get_history().rbegin()))->identify() + 1; i < stones.size(); ++i)
-    std::cout << std::endl;
 }
 
 /*
