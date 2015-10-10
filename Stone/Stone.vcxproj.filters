@@ -24,7 +24,10 @@
     <ClInclude Include="include\ExtendedStone.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="include\EachStone.hpp">
+    <ClInclude Include="include\BoostBitStone.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="include\StoneEX.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,11 +41,8 @@
     <ClCompile Include="src\ExtendedStone.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="src\EachStone.cpp">
+    <ClCompile Include="src\BoostBitStone.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>

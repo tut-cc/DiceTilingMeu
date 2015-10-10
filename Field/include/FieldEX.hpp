@@ -1,6 +1,7 @@
 #pragma once
 
 #include "field.hpp"
+#include "StoneEX.hpp"
 
 template <typename T>
 class FieldEX : public Field {
@@ -12,6 +13,8 @@ public:
   virtual FieldEX& operator = (FieldEX &&) = default;
   virtual ~FieldEX() = default;
 
-  virtual const T & raw() const = 0;
-  virtual std::unique_ptr<FieldEX> cloneEX() const = 0;
+  virtual const T & raw() const noexcept = 0;
+  virtual bool appliable(std::shared_ptr < StoneEX<T> > s, int x, int y, int reverse, int angle) const noexcept = 0;
+  virtual void apply(std::shared_ptr < StoneEX<T> > s, int x, int y, int reverse, int angle) noexcept = 0;
+  virtual std::unique_ptr<FieldEX> cloneEX() const noexcept = 0;
 };

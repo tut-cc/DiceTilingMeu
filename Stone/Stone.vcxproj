@@ -19,21 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\EachStone.hpp" />
+    <ClInclude Include="include\BoostBitStone.hpp" />
     <ClInclude Include="include\ExtendedStone.hpp" />
     <ClInclude Include="include\SimpleStone.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="include\stone.hpp" />
+    <ClInclude Include="include\StoneEX.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\EachStone.cpp" />
+    <ClCompile Include="src\BoostBitStone.cpp" />
     <ClCompile Include="src\ExtendedStone.cpp" />
     <ClCompile Include="src\SimpleStone.cpp" />
     <ClCompile Include="src\stone.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0EF11A25-EE07-439C-A9C4-3F3B91DB9CC6}</ProjectGuid>
@@ -137,12 +135,5 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\boost.1.59.0.0\build\native\boost.targets" Condition="Exists('..\packages\boost.1.59.0.0\build\native\boost.targets')" />
   </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>このプロジェクトは、このコンピューター上にない NuGet パッケージを参照しています。それらのパッケージをダウンロードするには、[NuGet パッケージの復元] を使用します。詳細については、http://go.microsoft.com/fwlink/?LinkID=322105 を参照してください。見つからないファイルは {0} です。</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\boost.1.59.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.59.0.0\build\native\boost.targets'))" />
-  </Target>
 </Project>
