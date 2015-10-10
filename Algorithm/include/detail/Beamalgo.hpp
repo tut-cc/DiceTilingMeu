@@ -25,9 +25,18 @@ Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
 	HistoryTree::init_history_tree(stones_num);
 	RandomValue::init_random();
 
-//	std::cout << field->eval_select_score() << "\n" << field->get_bit_str() << std::endl;
-	//PlaceInfo info(128, 5, 10, 0, 0);
-	//std::cout << info.get_id() << std::endl;
+	//int n = 5;
+	//for (int i = 1; i <= n; i++) {
+	//	std::cout << "[" << n <<  ", " << i << "]" << std::endl;
+	//	auto values = ClusteredBeam<F, S>::combination(n, i);
+	//	for (auto val : values) {
+	//		for (auto e : val) {
+	//			std::cout << e << " ";
+	//		}
+	//		std::cout << std::endl;
+	//	}
+	//	std::cout << std::endl;
+	//}
 }
 
 
@@ -37,7 +46,7 @@ void Beamalgo<F, S>::solve()
 	std::cout << "field:\n" << field->get_bit_str() << std::endl;
 	std::shared_ptr<ExtendedField> result = std::move(field->clone_ex());
 
-	for (int i = 0; i < stones_num-1; i++) {
+	for (int i = 0; i * i < stones_num-1; i++) {
 //	for (int i = 0; i < 1; i++) {
 		HistoryTree::clear();
 		auto tmp = std::move(solve(i));
@@ -95,7 +104,7 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 			sharedなオブジェクト
 			state, stone, place_list, tmp_queue
 			*/
-			int s = place_list.size();
+			int s = (int)(place_list.size());
 			for (int j = 0; j < s; j++) {
 				//			for (auto t : place_list) {
 				auto t = place_list[j];
@@ -140,7 +149,7 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 			sharedなオブジェクト
 			state, stone, place_list, tmp_queue
 			*/
-			int s = place_list.size();
+			int s = (int)(place_list.size());
 			for (int j = 0; j < s; j++) {
 				//			for (auto t : place_list) {
 				auto t = place_list[j];

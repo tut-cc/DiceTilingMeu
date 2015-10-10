@@ -138,7 +138,9 @@
   <ItemGroup>
     <ClInclude Include="include\algorithm.hpp" />
     <ClInclude Include="include\Beamalgo.hpp" />
+    <ClInclude Include="include\ClusteredBeam.hpp" />
     <ClInclude Include="include\detail\Beamalgo.hpp" />
+    <ClInclude Include="include\detail\ClusteredBeam.hpp" />
     <ClInclude Include="include\detail\meu.hpp" />
     <ClInclude Include="include\detail\PlaceLists.hpp" />
     <ClInclude Include="include\detail\RandomQueue.hpp" />
@@ -154,6 +156,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

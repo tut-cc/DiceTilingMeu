@@ -39,5 +39,5 @@ inline std::shared_ptr<ExtendedField> RandomQueue::operator[](int index)
 
 inline int RandomQueue::size()
 {
-	return queue.size();
+	return (int)(queue.size());
 }

@@ -26,11 +26,11 @@ int HistoryTree::init_history_tree(int stone_num)
 int HistoryTree::add(int parent_idx, PlaceInfo & info)
 {
 	int ret = 0;
-		ret = tree.size();
-		Node n(parent_idx, info);
-		n.own_index = ret;
-		tree.push_back(n);
-		tree[ret].child_count++;
+	ret = (int)(tree.size());
+	Node n(parent_idx, info);
+	n.own_index = ret;
+	tree.push_back(n);
+	tree[ret].child_count++;
 	return ret;
 }
 

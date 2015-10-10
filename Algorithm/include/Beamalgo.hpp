@@ -4,6 +4,7 @@
 #include "ExtendedField.hpp"
 #include "ExtendedStone.hpp"
 #include "problem.hpp"
+#include "ClusteredBeam.hpp"
 #include <memory>
 #include <vector>
 

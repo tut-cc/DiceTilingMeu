@@ -8,13 +8,15 @@
 #include "ExtendedField.hpp"
 #include "ExtendedStone.hpp"
 #include "BoostBitField.hpp"
+#include "ClusteredBeam.hpp"
 #include <memory>
 
 int main()
 {
 
 	std::shared_ptr<Problem> prob(new SampleProblem());
-	std::unique_ptr<Algorithm> solver(new Beamalgo<ExtendedField, ExtendedStone>(prob));
+	//std::unique_ptr<Algorithm> solver(new Beamalgo<ExtendedField, ExtendedStone>(prob));
+	std::unique_ptr<Algorithm> solver(new ClusteredBeam<ExtendedField, ExtendedStone>(prob));
 	//std::unique_ptr<Algorithm> rita(new Ritalgo<SimpleField, SimpleStone>(prob));
 	solver -> solve();
 	//rita -> solve();

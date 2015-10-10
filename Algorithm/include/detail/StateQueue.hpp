@@ -33,7 +33,7 @@ inline void StateQueue::push(std::shared_ptr<ExtendedField> &f) {
 
 inline void StateQueue::remove_min()
 {
-	int n = vec.size() - 1;
+	int n = (int)(vec.size()) - 1;
 	vec[0] = vec[n];
 	auto tmp = vec.back();
 	vec.pop_back();
@@ -52,7 +52,7 @@ inline void StateQueue::remove_min()
 }
 inline void StateQueue::create_heap()
 {
-	int n = vec.size() - 1;
+	int n = (int)(vec.size()) - 1;
 	while (n != 0){
 		int i = (n - 1) / 2;
 		if (vec[n]->eval_select_score() > vec[i]->eval_select_score()) {
@@ -71,5 +71,5 @@ std::shared_ptr<ExtendedField> StateQueue::operator[](int index) {
 
 inline int StateQueue::size()
 {
-	return vec.size();
+	return (int)(vec.size());
 }
