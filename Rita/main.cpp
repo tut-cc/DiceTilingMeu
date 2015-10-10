@@ -21,8 +21,7 @@ int main(const int argc, const char **argv)
     rita->solve();
   }
   else {
-    boost::asio::io_service ios;
-    std::unique_ptr<Core> core(new Core(ios, argv[1]));
+    std::unique_ptr<Core> core(new Core(argv[1]));
     const std::string probs = core->get();
     std::shared_ptr<Problem> prob(new ProductionProblem(probs));
     std::unique_ptr<Algorithm> rita(new Ritalgo<SimpleField, SimpleStone>(prob, std::move(core)));
