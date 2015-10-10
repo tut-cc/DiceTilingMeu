@@ -20,8 +20,6 @@ private:
 	//フィールドに存在するブロック数
 	int block_count = 0;
 
-	//フィールドの最大空きマス数
-	static int space_count;
 
 	//
 	bool mat[32][32];
@@ -33,7 +31,8 @@ private:
 	virtual void apply(std::shared_ptr<Stone> s, int x, int y, int reverse, int angle) override;
 
 public:
-	//4方向を見るための配列
+	//フィールドの最大空きマス数
+	static int space_count;
 
 	int stone_count = 0;
 	int parent_idx = 0;

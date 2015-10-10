@@ -12,6 +12,7 @@
 template <class F, class S>
 class Beamalgo : public Algorithm {
 	std::shared_ptr<ExtendedField> field;
+	std::shared_ptr<ExtendedField> result;
 	std::vector<std::shared_ptr<ExtendedStone>> stones;
 
 	int stones_num;
@@ -20,7 +21,7 @@ class Beamalgo : public Algorithm {
 	bool is_production;
 
 	std::shared_ptr<ExtendedField> solve(int first_stone);
-	void submit(std::unique_ptr<Field>);
+	void submit();
 public:
 	Beamalgo(std::shared_ptr<Problem> p);
 	Beamalgo(std::shared_ptr<Problem> p, std::unique_ptr<Core> core);
