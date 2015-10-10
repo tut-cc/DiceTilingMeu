@@ -15,9 +15,9 @@ import procon26.field,
        procon26.http;
 
 enum string ip = "192.168.1.219:8080";
-enum string token = "0123456789abcdef";
+enum string token = "11e2351a1459e3fc";
 enum int problemID = 1;
-enum string server = "testform26.procon-online.net";
+enum string server = "172.16.1.2";
 
 void main()
 {
