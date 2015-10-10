@@ -8,6 +8,7 @@
 #include "ExtendedStone.hpp"
 #include "BoostBitField.hpp"
 #include "Client.hpp"
+#include "Core.hpp"
 #include <memory>
 #include <boost/asio.hpp>
 
@@ -39,9 +40,11 @@ int main()
   //boost::asio::write(s, boost::asio::buffer(request, request_length));
 
   boost::asio::io_service ios;
-  Client cl(ios, "172.26.32.189", 65534);
+  /**/
+  Client cl(ios, "192.168.1.219", 8080);
   cl.connect();
   cl.send("ping");
+  /**/
 
   return 0;
 }

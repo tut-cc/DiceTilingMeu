@@ -12,10 +12,6 @@
 #include <memory>
 #include <boost/asio.hpp>
 
-using boost::asio::ip::tcp;
-
-const int max_length = 1024;
-
 int main()
 {
 
@@ -38,13 +34,10 @@ int main()
 
   //Core core(ios, "testform26.procon-online.net", "0123456789abcdef", 1);
   //auto probs = core.get();
-  Core core2(ios, "testform26.procon-online.net", "0123456789abcdef", 1);
-  std::stringstream ss;
-  for (int i = 0; i < 36; ++i) {
-    ss << std::endl;
+  Core core(ios, "192.168.1.219:8080");
+  for (int i = 0; i < 10; ++i) {
+    core.submit(189 - i, 0, "out.txt");
   }
-  core2.submit(ss.str());
-
   return 0;
 }
 
