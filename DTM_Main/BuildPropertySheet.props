@@ -3,18 +3,18 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)Algorithm\include\;$(SolutionDir)DTM_Main\include\;$(SolutionDir)Field\include\;$(SolutionDir)Problem\include\;$(SolutionDir)Stone\include\;$(SolutionDir)HistoryTree\include\;$(IncludePath)</IncludePath>
+    <IncludePath>C:\boost\include\boost-1_59\;$(SolutionDir)\Algorithm\include\;$(SolutionDir)\DTM_Main\include\;$(SolutionDir)\Field\include\;$(SolutionDir)\Problem\include\;$(SolutionDir)\Stone\include\;$(SolutionDir)\Connection\include\;$(IncludePath)</IncludePath>
     <_PropertySheetDisplayName>BuildPropertySheet</_PropertySheetDisplayName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Algorithm\include\;$(SolutionDir)DTM_Main\include\;$(SolutionDir)Stone\include\;$(SolutionDir)Problem\include\;$(SolutionDir)Field\include\;$(SolutionDir)HistoryTree\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Algorithm\include\;$(SolutionDir)DTM_Main\include\;$(SolutionDir)Stone\include\;$(SolutionDir)Problem\include\;$(SolutionDir)Field\include\;$(SolutionDir)Connection\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\boost\lib\;$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

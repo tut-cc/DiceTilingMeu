@@ -4,6 +4,7 @@
 #include "field.hpp"
 #include "stone.hpp"
 #include "problem.hpp"
+#include "Core.hpp"
 #include <memory>
 #include <vector>
 #include <type_traits>
@@ -15,13 +16,19 @@ class Ritalgo : public Algorithm {
   private:
     std::unique_ptr<Field> field;
     std::vector<std::shared_ptr<Stone>> stones;
+    std::vector <std::vector < std::tuple < int, int, int, int >>> ok_list;
+    std::unique_ptr<Core> core;
+    bool is_production;
+    void submit(std::unique_ptr<Field>);
     class Env {
+      public:
+        static constexpr int    BEAM = 4;
       private:
         static constexpr double EVAPORATE_RATE = 0.95;
         static constexpr int    GETA           = 8;
         union {
-          double env[256][2][2][64][64][2][4];
-          double raw[256 *2 *2 *64 *64 *2 *4];
+          double env[256][BEAM][64][64][2][4];
+          double raw[256 *BEAM *64 *64 *2 *4];
         };
 /* VER : heap
         double *******env;
@@ -53,8 +60,8 @@ class Ritalgo : public Algorithm {
         Env();
         ~Env();
 */
-        void put(int idx, int is, int fir, int x, int y, int rev, int ang, double phe);
-        double get(int idx, int is, int fir, int x, int y, int rev, int ang) const;
+        void put(int idx, int add, int x, int y, int rev, int ang, double phe);
+        double get(int idx, int add, int x, int y, int rev, int ang) const;
         void eva();
     };
     class Ant {
@@ -63,37 +70,25 @@ class Ritalgo : public Algorithm {
         static constexpr double PHEROMONE = 1024.0;
         //static constexpr double ALPHA = 3.0;
         //static constexpr double BETA = 5.0;
-        static constexpr double ALPHA = 10;
-        static constexpr double BETA = 6.0;
+        static constexpr double ALPHA = 10.0;
+        static constexpr double BETA = 5.0;
+        static constexpr int    BEAM = Env::BEAM;
 
-        static double noise(const std::unique_ptr<Field>& src) {
-          double sum = 0.0;
-          for (int i = 1; i < 31; ++i) {
-            for (int j = 1; j < 31; ++j) {
-              double ave = 0.0;
-              for (int k = -1; k <= 1; ++k) {
-                for (int l = -1; l <= 1; ++l) {
-                  ave += (1.0 / 9.0) * src->at(j + l, i + k);
-                }
-              }
-              sum += std::pow(src->at(j, i) - ave, 2.0);
-            }
-          }
-          return sum;
-        }
         std::unique_ptr<Field> field;
         std::vector<std::shared_ptr<Stone>> stones;
+        const std::vector<std::vector<std::tuple<int, int, int, int>>> &ok_list;
         std::shared_ptr<Env> env;
         std::mt19937 mt;
         std::uniform_real_distribution<double> dist;
         std::uniform_int_distribution<int> skipper;
-        double h(const std::shared_ptr<Stone> s, const int x, const int y, const int rev, const int ang) const;
-        double v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const;
-        double v2(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang, const std::pair<int, int> prev) const;
+        double h(const std::shared_ptr<Stone> s, const int x, const int y, const int rev, const int ang) const noexcept;
+        double v(const int idx, const int add, const int x, const int y, const int rev, const int ang) const;
+        double v2(const int idx, const int add, const int x, const int y, const int rev, const int ang) const noexcept;
       public:
-        Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, std::shared_ptr<Env> env);
+        Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, const std::vector<std::vector<std::tuple<int, int, int, int>>> & ok_list, std::shared_ptr<Env> env);
         ~Ant() = default;
-        void run();
+        void run() noexcept;
+        void run_over() noexcept;
         void renew();
         void renew(double anchor);
         void reset(std::unique_ptr<Field> field);
@@ -102,6 +97,7 @@ class Ritalgo : public Algorithm {
     };
   public:
     Ritalgo(const std::shared_ptr<Problem> p);
+    Ritalgo(const std::shared_ptr<Problem> p, std::unique_ptr<Core> core);
     virtual ~Ritalgo() = default;
     virtual void solve();
 };
