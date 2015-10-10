@@ -1,7 +1,8 @@
 {
 	"versions": {
 		"lock-free": "0.1.1",
-		"carbon": "1.6.0"
+		"carbon": "1.6.0",
+		"msgpack-d": "1.0.0-beta.2"
 	},
 	"fileVersion": 1
 }

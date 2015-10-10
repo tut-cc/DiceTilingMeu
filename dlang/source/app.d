@@ -18,7 +18,7 @@ void main()
 {
     auto sw = StopWatch();
     sw.start(); 
-    auto input = readText("1.txt");
+    auto input = readText("42.txt");
     //auto input = getProblem(1);
 
     auto inputLines = input.splitLines.map!chomp().array();
@@ -35,6 +35,7 @@ void main()
 
     writeln(res.numOfEmpty);
     writeln(sw.peek.msecs);
+    //postAnswer(res.answer).writeln();
     //writeln(res.answer);
-    std.file.write("ans1.txt", res.answer);
+    //std.file.write("ans42.txt", res.answer);
 }

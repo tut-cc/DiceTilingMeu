@@ -346,8 +346,8 @@ GeneralField simpleRainbowSearchByStone(Problem problem)
 
         int opCmp(const ref InputTask rhs) const pure nothrow @safe @nogc
         {
-            if(this.stone.id == rhs.stone.id) return this.stone.state < rhs.stone.state;
-            else return this.stone.id < rhs.stone.id;
+            if(this.stone.id == rhs.stone.id) return opCmp(this.stone.state, rhs.stone.state);
+            else return opCmp(this.stone.id, rhs.stone.id);
         }
     }
 
@@ -390,8 +390,8 @@ GeneralField simpleRainbowSearchByXY(Problem problem)
 
         int opCmp(const ref InputTask rhs) const pure nothrow @safe @nogc
         {
-            if(this.x == rhs.x) return this.y < rhs.y;
-            else return this.x < rhs.x;
+            if(this.x == rhs.x) return opCmp(this.y, rhs.y);
+            else return opCmp(this.x, rhs.x);
         }
     }
 
