@@ -10,7 +10,6 @@
 #include "BoostBitStone.hpp"
 #include "Client.hpp"
 #include "Core.hpp"
->>>>>>> dev
 #include <memory>
 #include <boost/asio.hpp>
 
