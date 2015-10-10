@@ -7,12 +7,10 @@ namespace asio = boost::asio;
 using asio::ip::tcp;
 
 class Core {
-  asio::io_service& io_service_;
-  tcp::socket socket_;
   std::string host_;
 
 public:
-  Core(asio::io_service&, const std::string&);
+  Core(const std::string&);
   Core() = delete;
   Core(const Core &) = delete;
   Core(Core &&) = delete;
