@@ -245,7 +245,7 @@ void recalculateLimitStomeID(Problem problem, in size_t[] sumOfZk, size_t[] limi
 
 
 
-GeneralField simpleRainbowSearch(alias genField, alias fieldToTask, Task)(Problem problem, Task[] inputs)
+GeneralField simpleRainbowSearch(alias resultConsumer, alias genField, alias fieldToTask, Task)(Problem problem, Task[] inputs)
 {
     GeneralField minResult = null;
 
@@ -314,7 +314,8 @@ GeneralField simpleRainbowSearch(alias genField, alias fieldToTask, Task)(Proble
                     import std.datetime;
                     minResult = res;
                     writefln("Update: (%s, %s) on %s", res.numOfEmpty, res.history.length, task);
-                    std.file.write("ans_" ~ Clock.currTime.toISOString() ~ ".txt", minResult.answer);
+                    //std.file.write("ans_" ~ Clock.currTime.toISOString() ~ ".txt", minResult.answer);
+                    resultConsumer(minResult);
                 }
             }
         }
@@ -331,7 +332,7 @@ GeneralField simpleRainbowSearch(alias genField, alias fieldToTask, Task)(Proble
 }
 
 
-GeneralField simpleRainbowSearchByStone(Problem problem)
+GeneralField simpleRainbowSearchByStone(alias resultConsumer)(Problem problem)
 {
     static
     struct InputTask
@@ -357,6 +358,7 @@ GeneralField simpleRainbowSearchByStone(Problem problem)
             inputs ~= InputTask(stone[ss]);
 
     return simpleRainbowSearch!(
+        resultConsumer,
         function(Problem p, InputTask t, ref RainbowSearchState s)
         {
             foreach(byte x; -8 .. 32) foreach(byte y; -8 .. 32) if(!p.initField.isCollided(x, y, t.stone))
@@ -375,7 +377,7 @@ GeneralField simpleRainbowSearchByStone(Problem problem)
 }
 
 
-GeneralField simpleRainbowSearchByXY(Problem problem)
+GeneralField simpleRainbowSearchByXY(alias resultConsumer)(Problem problem)
 {
     static
     struct InputTask
@@ -405,6 +407,7 @@ GeneralField simpleRainbowSearchByXY(Problem problem)
     inputs.randomShuffle();
 
     return simpleRainbowSearch!(
+        resultConsumer,
         function(Problem p, InputTask t, ref RainbowSearchState s)
         {
             foreach(i, ref e; p.stones){

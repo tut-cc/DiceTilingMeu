@@ -14,12 +14,16 @@ import procon26.field,
        procon26.util,
        procon26.http;
 
+enum string ip = "192.168.1.219:8080";
+enum string token = "0123456789abcdef";
+enum int problemID = 1;
+enum string server = "testform26.procon-online.net";
+
 void main()
 {
     auto sw = StopWatch();
     sw.start(); 
-    auto input = readText("42.txt");
-    //auto input = getProblem(1);
+    auto input = fallbackGet();
 
     auto inputLines = input.splitLines.map!chomp().array();
     auto problem = new Problem(inputLines);
@@ -27,9 +31,9 @@ void main()
     GeneralField res;
 
     if(problem.numOfEmpty < 300)
-        res = simpleRainbowSearchByStone(problem);
+        res = simpleRainbowSearchByStone!fallbackPost(problem);
     else
-        res = simpleRainbowSearchByXY(problem);
+        res = simpleRainbowSearchByXY!fallbackPost(problem);
 
     sw.stop();
 
@@ -38,4 +42,28 @@ void main()
     //postAnswer(res.answer).writeln();
     //writeln(res.answer);
     //std.file.write("ans42.txt", res.answer);
+}
+
+
+
+void fallbackPost(GeneralField gf)
+{
+    try postToMyServer(gf, ip);
+    catch(Exception){
+        writeln("!!!!!!Fallback POST!!!!!!");
+        std.file.write("ans_" ~ Clock.currTime.toISOString() ~ ".txt", gf.answer);
+    }
+}
+
+
+string fallbackGet()
+{
+    try return getFromMyServer(ip);
+    catch(Exception){
+        writeln("!!!!!!Fallback GET!!!!!!");
+        RequestSpec spec;
+        spec.host = server;
+        spec.token = token;
+        return getProblem(spec, problemID);
+    }
 }

@@ -8,6 +8,7 @@ import std.conv;
 import std.json;
 import std.file;
 import core.sync.mutex;
+import procon26.http;
 
 
 struct Answer
@@ -28,7 +29,7 @@ Answer bestAnswer;
 __gshared immutable(Answer)* ansReq;
 __gshared Mutex mtxUpdate;
 
-JSONValue serverSettings;
+__gshared JSONValue serverSettings;
 
 
 
@@ -49,7 +50,7 @@ shared static this()
 
     bestAnswer = Answer(int.max, int.max, "");
 
-    spawn(&postThread);
+    spawnLinked(&postThread);
 
     logInfo("Please open http://" ~ serverSettings["ip"].str ~ ":8080/ in your browser.");
 }
@@ -71,12 +72,17 @@ void problem(HTTPServerRequest req, HTTPServerResponse res)
             return;
         }
 
+        /*
         requestHTTP("http://" ~ serverSettings["server"].str ~ "/quest" ~ serverSettings["problem"].str ~ ".txt?token=" ~ serverSettings["token"].str,
             (scope req){},
             (scope res){
                 problem = res.bodyReader.readAllUTF8();
             }
-        );
+        );*/
+        RequestSpec spec;
+        spec.token = serverSettings["token"].str;
+        spec.host = serverSettings["server"].str;
+        problem = getProblem(spec, 1);
     }
 
     res.writeBody(problem);
@@ -135,39 +141,19 @@ void postThread()
             Thread.sleep(dur!"msecs"(200));
         }
 
-        synchronized(mtxUpdate){
-            writeln("!!!!!!!!!!POST!!!!!!!!!!!", Clock.currTime);
-            //writeln(*ansReq);
-            postAnswer(ansReq.answer).writeln();
-            ansReq = null;
+        try{
+            synchronized(mtxUpdate){
+                writeln("!!!!!!!!!!POST!!!!!!!!!!!", Clock.currTime);
+
+                RequestSpec spec;
+                spec.token = serverSettings["token"].str;
+                spec.host = serverSettings["server"].str;
+                postAnswer(spec, ansReq.answer).writeln();
+
+                ansReq = null;
+            }
         }
+        catch(Exception ex){ writeln(ex); }
         Thread.sleep(dur!"msecs"(1000));
     }
-}
-
-
-string postAnswer(string ans)
-{
-    import std.net.curl;
-
-    string url = format("http://%s/answer", serverSettings["server"].str);
-
-    auto app = appender!string();
-    HTTP http = HTTP();
-
-    immutable boundary = `cce6735153bf14e47e999e68bb183e70a1fa7fc89722fc1efdf03a917340`;   // 適当な文字列
-    http.addRequestHeader("Content-Type", "multipart/form-data; boundary=" ~ boundary);
-
-    app.put("--"); app.put(boundary); app.put("\r\n");
-    app.put(`Content-Disposition: form-data; name="token"`); app.put("\r\n");
-    app.put("\r\n");
-    app.put(serverSettings["token"].str); app.put("\r\n");
-    app.put("--"); app.put(boundary); app.put("\r\n");
-    app.put(`Content-Disposition: form-data; name="answer"; filename="answer.txt"`); app.put("\r\n");
-    app.put(`Content-Type: text/plain`); app.put("\r\n");
-    app.put("\r\n");
-    app.put(ans); app.put("\r\n");
-    app.put("--"); app.put(boundary); app.put("--\r\n");
-
-    return std.net.curl.post(url, app.data, http).dup;
 }
