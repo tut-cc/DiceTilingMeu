@@ -28,8 +28,6 @@ Answer bestAnswer;
 __gshared immutable(Answer)* ansReq;
 __gshared Mutex mtxUpdate;
 
-
-TaskMutex mtxProblem;
 JSONValue serverSettings;
 
 
@@ -45,10 +43,9 @@ shared static this()
 
     auto settings = new HTTPServerSettings;
     settings.port = 8080;
-    settings.bindAddresses = ["::8080", serverSettings["ip"].str];
+    settings.bindAddresses = [serverSettings["ip"].str];
     listenHTTP(settings, router);
     mtxUpdate = new TaskMutex;
-    mtxProblem = new TaskMutex;
 
     bestAnswer = Answer(int.max, int.max, "");
 
@@ -60,9 +57,12 @@ shared static this()
 
 void problem(HTTPServerRequest req, HTTPServerResponse res)
 {
-    __gshared string problem;
+    static TaskMutex mtx;
+    static string problem;
 
-    synchronized(mtxProblem)
+    if(mtx is null) mtx = new TaskMutex;
+
+    synchronized(mtx)
     {
         if(problem !is null)
         {
@@ -104,8 +104,6 @@ void update(HTTPServerRequest req, HTTPServerResponse res)
                                      req.form["stones"].to!int,
                                      answer);
 
-    writeln("!!!!!!!!!!GET!!!!!!!!!!!");
-    writeln(*ans);
     bool bUpdate = false;
 
     if(*ans < bestAnswer){
@@ -140,7 +138,7 @@ void postThread()
         synchronized(mtxUpdate){
             writeln("!!!!!!!!!!POST!!!!!!!!!!!", Clock.currTime);
             //writeln(*ansReq);
-            postAnswer(ansReq.answer);
+            postAnswer(ansReq.answer).writeln();
             ansReq = null;
         }
         Thread.sleep(dur!"msecs"(1000));

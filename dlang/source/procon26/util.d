@@ -90,3 +90,10 @@ auto isInField(size_t N = 32, T)(T x, T y)
 {
     return x >= 0 && x < N && y >= 0 && y < N;
 }
+
+
+int opCmp(T)(auto ref T lhs, auto ref T rhs)
+{
+    if(lhs == rhs) return 0;
+    else return lhs < rhs ? -1 : 1;
+}
