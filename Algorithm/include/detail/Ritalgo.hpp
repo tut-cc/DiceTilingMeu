@@ -133,25 +133,25 @@ Ritalgo<F, S>::Env::~Env()
 */
 
 template <class F, class S>
-void Ritalgo<F, S>::Env::put(int idx, int is, int fir, int x, int y, int rev, int ang, double phe)
+void Ritalgo<F, S>::Env::put(int idx, int add, int x, int y, int rev, int ang, double phe)
 {
 #ifdef _DEBUG
   if (!( 0 <= x + GETA && x + GETA < 64 && 0 <= y + GETA && y + GETA < 64 ) ) {
     std::cerr << "AHHHHHHHHHH" << std::endl;
   }
 #endif
-  env[idx][is][fir][x + GETA][y + GETA][rev][ang] += phe;
+  env[idx][add][x + GETA][y + GETA][rev][ang] += phe;
 }
 
 template <class F, class S>
-double Ritalgo<F, S>::Env::get(int idx, int is, int fir, int x, int y, int rev, int ang) const
+double Ritalgo<F, S>::Env::get(int idx, int add, int x, int y, int rev, int ang) const
 {
 #ifdef _DEBUG
   if (!( 0 <= x + GETA && x + GETA < 64 && 0 <= y + GETA && y + GETA < 64 ) ) {
     std::cerr << "AHHHHHHHHHH" << std::endl;
   }
 #endif
-  return env[idx][is][fir][x + GETA][y + GETA][rev][ang];
+  return env[idx][add][x + GETA][y + GETA][rev][ang];
 }
 
 template <class F, class S>
@@ -175,7 +175,7 @@ void Ritalgo<F, S>::Env::eva(T& ptr, const TSize ts, const RSize... rs)
 template <class F, class S>
 void Ritalgo<F, S>::Env::eva()
 {
-  eva(env, 256, 2, 2, 64, 64, 2, 4);
+  eva(env, 256, BEAM, 64, 64, 2, 4);
 }
 
 
@@ -203,10 +203,10 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
   for (int i = 0; flag && i < 8; ++i) {
     for (int j = 0; j < 8; ++j) {
       if (s -> at(j, i, rev, ang)) {
-        ++fill;
         std::queue<std::pair<int,int>> queue;
         queue.push({j, i});
         while (queue.size()) {
+          ++fill;
           static constexpr int ofs[4][2] = {
             {0, 1},
             {1, 0},
@@ -266,43 +266,45 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
     }
   }
   double acm = 0.0;
+  int cnt = 0;
   for (int i = 0; i < 10; ++i) {
     for (int j = 0; j < 10; ++j) {
-      if (chck[i][j])
-        acm += std::pow(4.0, cell[i][j]);
+      if (!chck[i][j]) continue;
+      acm += std::pow(4.0, cell[i][j]);
+      ++cnt;
     }
   }
+  acm /= cnt;
 
-  double dist = [&]() {
-    auto ct = s->center(rev, ang);
-    std::valarray<double> arr = {ct.first + x, ct.second + y};
-    arr -= 16;
-    arr *= arr;
-    return std::sqrt(arr.sum() + 0.1);
-//    return arr.min() + 1.0;
-  }();
+//  double dist = [&]() {
+//    auto ct = s->center(rev, ang);
+//    std::valarray<double> arr = {ct.first + x, ct.second + y};
+//    arr -= 16;
+//    arr *= arr;
+//    return std::sqrt(arr.sum() + 0.1);
+////    return arr.min() + 1.0;
+//  }();
 
   return acm;
 }
 
 // 
 template <class F, class S>
-double Ritalgo<F, S>::Ant::v(const int idx, const int is, const int fir, const int x, const int y, const int rev, const int ang) const
+double Ritalgo<F, S>::Ant::v(const int idx, const int add, const int x, const int y, const int rev, const int ang) const
 {
   const double hv = (is ? h(stones[idx], x, y, rev, ang) : fir ? 0.0 : 1.0) /* * ( std::exp(-4.0 * std::log(2.0) * std::pow((double)idx / stones.size(), 2.0) )) /**/;
-  const double ph = env -> get(idx, is, fir, x, y, rev, ang);
+  const double ph = env -> get(idx, add, x, y, rev, ang);
   return std::pow(hv + 1, BETA) * std::pow(ph + 1, ALPHA);
 }
 
 template <class F, class S>
-double Ritalgo<F, S>::Ant::v2(const int idx, const int next, const int fir, const int x, const int y, const int rev, const int ang) const noexcept
+double Ritalgo<F, S>::Ant::v2(const int idx, const int add, const int x, const int y, const int rev, const int ang) const noexcept
 {
-  const double hv = h(stones[next], x, y, rev, ang) * std::exp(-2.0 * (next - idx)) /* * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size()) */;
-  const double ph = env->get(next, 1, fir, x, y, rev, ang);
-  //return std::exp(hv * BETA) * std::exp(ph * ALPHA);
+  static const double a = -(BEAM-1) * (BEAM-1) / log(2);
+  const double hv = h(stones[idx + add], x, y, rev, ang) /**/ * std::exp(a * add * add) /**/ /* * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size()) */;
+  const double ph = env->get(idx + add, std::min(add, (BEAM - 1)), x, y, rev, ang);
   return std::pow(hv, BETA) * std::exp(ph * ALPHA);
 }
-
 
 template <class F, class S>
 void Ritalgo<F, S>::Ant::run() noexcept
@@ -321,8 +323,8 @@ void Ritalgo<F, S>::Ant::run() noexcept
       int x, y, rev, ang;
       std::tie(x, y, rev, ang) = t;
       if (field->appliable(stones[idx], x, y, rev, ang)) {
-        list.push_back(std::make_tuple(1, fir, x, y, rev, ang));
-        double vv2 = v2(idx, idx, fir, x, y, rev, ang);
+        list.push_back(std::make_tuple(2, fir, x, y, rev, ang));
+        double vv2 = v2(idx, 2 | fir, x, y, rev, ang);
         accum += vv2;
         avev2 += vv2;
         maxv2 = std::max(vv2, maxv2);
@@ -358,19 +360,20 @@ void Ritalgo<F, S>::Ant::run_over() noexcept
   // for diversity
   //int who = skipper(mt);
   unsigned int idx = 0;
+  unsigned int pre = 0;
   for (; idx < stones.size(); ++idx) {
     //if (idx == who)continue;
     std::vector<std::tuple<int, int, int, int, int, int>> list;
     std::vector<double> roulette;
     double accum = 0.0;
-    for (unsigned int next = idx; next < idx + 4 && next < stones.size(); ++next) {
-      // ATTENTION : variable "accum" maybe going to overflow.
+    for (unsigned int add = 0; add < (BEAM - 1) && idx + add < stones.size(); ++add) {
+      const unsigned int next = idx + add;
       for (const auto & t : ok_list[next]) {
         int x, y, rev, ang;
         std::tie(x, y, rev, ang) = t;
         if (field->appliable(stones[next], x, y, rev, ang)) {
-          list.push_back(std::make_tuple(next, fir, x, y, rev, ang));
-          accum += v2(idx, next, fir, x, y, rev, ang);
+          list.push_back(std::make_tuple(next, 0, x, y, rev, ang));
+          accum += v2(pre, add + idx - pre, x, y, rev, ang);
           roulette.push_back(accum);
         }
       }
@@ -386,10 +389,10 @@ void Ritalgo<F, S>::Ant::run_over() noexcept
     std::cerr << action_id << "/" << list.size() << "..." << accum << std::endl;
 #endif
     std::tie(tidx, std::ignore, x, y, rev, ang) = list[action_id];
-    //field -> apply( stones[idx], prev.first + x, prev.second + y, rev, ang );
     field->apply(stones[tidx], x, y, rev, ang);
     fir &= 0;
     idx = tidx;
+    pre = tidx;
   }
 }
 
@@ -401,13 +404,13 @@ void Ritalgo<F, S>::Ant::renew()
   const double l = field -> score() + 1.0;
   for ( auto e : field -> get_history() ) {
     for(; index < std::get<0>(e) -> identify(); ++index) {
-      env -> put(index, 0, fir, 0, 0, 0, 0, (PHEROMONE / l)
+      env -> put(index, fir, 0, 0, 0, 0, (PHEROMONE / l)
         /* * (1.0 - std::exp(-100.0*std::pow((double)index, 2.0))) /**/
         );
     }
     int x, y, rev, ang;
     std::tie(std::ignore, x, y, rev, ang) = e;
-    env -> put(index++, 1, fir, x, y, rev, ang, (PHEROMONE / l)
+    env -> put(index++, 2 | fir, x, y, rev, ang, (PHEROMONE / l)
       /* * (1.0 - std::exp(-100.0*std::pow((double)index, 2.0))) /**/
       );
   }
@@ -420,18 +423,17 @@ void Ritalgo<F, S>::Ant::renew(double anchor)
   int fir = 1;
   //int last = std::get<0>(*(field->get_history().rbegin()))->identify();
   int last = 255;
-  double a = last*last / std::log(25.0); // at x = 0 => reward was 1/25
+  int prev = 0;
+  const double a = last*last / std::log(25.0); // at x = 0 => reward was 1/25
   for (auto e : field->get_history()) {
-    for (; index < std::get<0>(e)->identify(); ++index) {
-      env->put(index, 0, fir, 0, 0, 0, 0, (std::pow(anchor, 3) - std::pow(score(), 3.0)) / std::pow(anchor, 3)
-        /**/ * 50.0 * std::exp((-1 / a)*std::pow(last - index, 2.0)) /**/
-        );
-    }
+    index = std::get<0>(e)->identify();
     int x, y, rev, ang;
     std::tie(std::ignore, x, y, rev, ang) = e;
-    env->put(index++, 1, fir, x, y, rev, ang, (std::pow(anchor, 3) - std::pow(score(), 3.0)) / std::pow(anchor, 3)
-      /**/ * 50.0 * std::exp((-1 / a)*std::pow(last - index, 2.0)) /**/
+   
+    env->put(index, std::min(index - prev, (BEAM - 1)), x, y, rev, ang, (std::pow(anchor, 3) - std::pow(score(), 3.0)) / std::pow(anchor, 3)
+      /** * 50.0 * std::exp((-1 / a)*std::pow(last - index, 2.0)) /**/
       );
+    prev = index;
   }
 }
 
