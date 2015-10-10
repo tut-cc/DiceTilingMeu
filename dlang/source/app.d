@@ -6,6 +6,8 @@ import std.range;
 import std.array;
 import std.file;
 import std.datetime;
+import std.json;
+import std.path;
 
 import procon26.field,
        procon26.algorithm.rainbow,
@@ -14,13 +16,17 @@ import procon26.field,
        procon26.util,
        procon26.http;
 
-enum string ip = "192.168.1.219:8080";
-enum string token = "11e2351a1459e3fc";
-enum int problemID = 1;
-enum string server = "172.16.1.2";
+//enum string ip = "192.168.1.219:8080";
+//enum string token = "11e2351a1459e3fc";
+//enum int problemID = 1;
+//enum string server = "172.16.1.2";
+
+JSONValue serverSettings;
 
 void main()
 {
+    serverSettings = readText(buildPath("..", "dsetting.json")).parseJSON();
+
     auto sw = StopWatch();
     sw.start(); 
     auto input = fallbackGet();
@@ -48,7 +54,7 @@ void main()
 
 void fallbackPost(GeneralField gf)
 {
-    try postToMyServer(gf, ip);
+    try postToMyServer(gf, serverSettings["ip"].str);
     catch(Exception){
         writeln("!!!!!!Fallback POST!!!!!!");
         std.file.write("ans_" ~ Clock.currTime.toISOString() ~ ".txt", gf.answer);
@@ -58,12 +64,12 @@ void fallbackPost(GeneralField gf)
 
 string fallbackGet()
 {
-    try return getFromMyServer(ip);
+    try return getFromMyServer(serverSettings["ip"].str);
     catch(Exception){
         writeln("!!!!!!Fallback GET!!!!!!");
         RequestSpec spec;
-        spec.host = server;
-        spec.token = token;
-        return getProblem(spec, problemID);
+        spec.host = serverSettings["server"].str;
+        spec.token = serverSettings["token"].str;
+        return getProblem(spec, cast(int)serverSettings["problem"].integer);
     }
 }

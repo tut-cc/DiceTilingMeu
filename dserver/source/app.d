@@ -7,6 +7,7 @@ import core.thread;
 import std.conv;
 import std.json;
 import std.file;
+import std.path;
 import core.sync.mutex;
 import procon26.http;
 
@@ -35,7 +36,7 @@ __gshared JSONValue serverSettings;
 
 shared static this()
 {
-    serverSettings = readText("setting.json").parseJSON();
+    serverSettings = readText(buildPath("..", "dsetting.json")).parseJSON();
 
     auto router = new URLRouter;
     router.post("/update", &update);
@@ -82,7 +83,7 @@ void problem(HTTPServerRequest req, HTTPServerResponse res)
         RequestSpec spec;
         spec.token = serverSettings["token"].str;
         spec.host = serverSettings["server"].str;
-        problem = getProblem(spec, 1);
+        problem = getProblem(spec, cast(int)serverSettings["problem"].integer);
     }
 
     res.writeBody(problem);
