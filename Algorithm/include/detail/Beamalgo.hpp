@@ -4,6 +4,7 @@
 #include "StateQueue.hpp"
 #include "RandomValue.hpp"
 #include "RandomQueue.hpp"
+#include "Core.hpp"
 #include <SimpleField.hpp>
 #include <iostream>
 #include <queue>
@@ -11,6 +12,24 @@
 #include <functional>
 #include <fstream>
 
+template <class F, class S>
+Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p, std::unique_ptr<Core> core)
+{
+	field = std::move(std::shared_ptr<ExtendedField>(new F(p->get_field_str())));
+
+	int s_idx = 0;
+	for (auto&& s : p->get_stones_str()) {
+		stones.push_back(std::shared_ptr<ExtendedStone>(new S(s, s_idx)));
+		s_idx++;
+	}
+	stones_num = (int)(stones.size());
+	HistoryTree::init_history_tree(stones_num);
+	RandomValue::init_random();
+
+	this->core = std::move(core);
+	is_production |= true;
+
+}
 template <class F, class S>
 Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
 {
@@ -67,6 +86,27 @@ void Beamalgo<F, S>::solve()
 	std::ofstream cv("cv.txt");
 	cv << result->get_bit_str() << std::endl;
 }
+
+template <class F, class S>
+void Beamalgo<F, S>::submit(std::unique_ptr<Field> field)
+{
+	std::stringstream ss;
+	ss << *field;
+	for (int i = std::get<0>(*(field->get_history().rbegin()))->identify() + 1; i < stones.size(); ++i)
+		ss << std::endl;
+
+	boost::posix_time::ptime time = boost::posix_time::microsec_clock::local_time();
+	std::string fn = "Rita" + boost::posix_time::to_iso_string(time) + ".txt";
+
+	std::ofstream ofs(fn);
+	ofs << ss.str();
+	ofs.close();
+
+	if (is_production) {
+		core->submit(field->score(), field->get_history().size(), fn);
+	}
+}
+
 
 template<class F, class S>
 std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {

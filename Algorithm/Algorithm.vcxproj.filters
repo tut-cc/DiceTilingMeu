@@ -60,7 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="include\detail\RandomValue.cpp">
