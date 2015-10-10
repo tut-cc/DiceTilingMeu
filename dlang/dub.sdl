@@ -1,0 +1,6 @@
+name "procon26"
+description "A minimal D application."
+copyright "Copyright © 2015, Kazuki Komatsu"
+authors "Kazuki Komatsu"
+targetType "autodetect"
+dependency "carbon" version="~>1.6.0"
