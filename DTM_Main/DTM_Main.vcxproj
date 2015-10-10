@@ -94,7 +94,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Field.lib;Stone.lib;Problem.lib;HistoryTree.lib</AdditionalDependencies>
+      <AdditionalDependencies>Field.lib;Stone.lib;Problem.lib;HistoryTree.lib;Algorithm.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -124,7 +124,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>Field.lib;Stone.lib;Problem.lib;HistoryTree.lib</AdditionalDependencies>
+      <AdditionalDependencies>Field.lib;Stone.lib;Problem.lib;HistoryTree.lib;Algorithm.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
