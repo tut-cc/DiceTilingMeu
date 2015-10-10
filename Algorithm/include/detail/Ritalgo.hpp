@@ -28,6 +28,20 @@ Ritalgo<F, S>::Ritalgo(std::shared_ptr<Problem> p)
     }
     ok_list.push_back(sub);
   }
+  remains.resize(stones.size() + 1);
+  remains[stones.size()] = 0;
+  for (int i = stones.size() - 1; 0 <= i; --i) {
+    int cnt = 0;
+    for (int x = 0; x < 8; ++x) {
+      for (int y = 0; y < 8; ++y) {
+        if (stones[i]->at(x, y, 0, 0)) {
+          ++cnt;
+        }
+      }
+    }
+    remains[i] = cnt + remains[i + 1];
+  }
+  remains.resize(stones.size());
 }
 
 template <class F, class S>
@@ -84,7 +98,7 @@ void Ritalgo<F, S>::solve()
   std::shared_ptr<Env> env(new Env());
   std::vector<std::shared_ptr<Ant>> ants;
   for (int i = 0; i < 100; ++i) {
-    std::shared_ptr<Ant> ptr(new Ant(field -> clone(), stones, ok_list, env));
+    std::shared_ptr<Ant> ptr(new Ant(field -> clone(), stones, ok_list, remains, env));
     ants.push_back(ptr);
   }
   int best_score = 1 << 28;
@@ -228,7 +242,7 @@ void Ritalgo<F, S>::Env::eva()
 
 
 template <class F, class S>
-Ritalgo<F, S>::Ant::Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, const std::vector<std::vector<std::tuple<int, int, int, int>>> & ok_list, std::shared_ptr<Env> env) : dist(0.0, 1.0), skipper(0, stones.size()-1), ok_list(ok_list)
+Ritalgo<F, S>::Ant::Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, const std::vector<std::vector<std::tuple<int, int, int, int>>> & ok_list, const std::vector<int> &remains, std::shared_ptr<Env> env) : dist(0.0, 1.0), skipper(0, stones.size()-1), ok_list(ok_list), remains(remains)
 {
   this -> field = std::move(field);
   std::copy(stones.begin(), stones.end(), std::back_inserter(this -> stones));
@@ -271,18 +285,18 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
 
             if (ny < 0 || 32 <= ny || nx < 0 || 32 <= nx) {
               ++wall;
-              //++cell[dy + 1][dx + 1];
-              //chck[dy + 1][dx + 1] |= true;
+              --cell[dy + 1][dx + 1];
+              chck[dy + 1][dx + 1] |= true;
               continue;
             }
 
             if ( dx < 0 || 8 <= dx || dy < 0 || 8 <= dy ) {
               if (field->at(nx, ny)) {
                 ++sum;
-                ++cell[dy + 1][dx + 1];
+                --cell[dy + 1][dx + 1];
               }
               else {
-                --cell[dy + 1][dx + 1];
+                ++cell[dy + 1][dx + 1];
               }
               chck[dy + 1][dx + 1] |= true;
               continue;
@@ -299,10 +313,10 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
             else {
               if (field->at(nx, ny)) {
                 ++sum;
-                ++cell[dy + 1][dx + 1];
+                --cell[dy + 1][dx + 1];
               }
               else {
-                --cell[dy + 1][dx + 1];
+                ++cell[dy + 1][dx + 1];
               }
               chck[dy + 1][dx + 1] |= true;
             }
@@ -333,7 +347,7 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
 ////    return arr.min() + 1.0;
 //  }();
 
-  return acm;
+  return 1.0/acm;
 }
 
 // 
@@ -345,13 +359,31 @@ double Ritalgo<F, S>::Ant::v(const int idx, const int add, const int x, const in
   return std::pow(hv + 1, BETA) * std::pow(ph + 1, ALPHA);
 }
 
+static double mypow(double v, int n) noexcept
+{
+  if (n == 1) {
+    return v;
+  }
+  double r = 1.0;
+  double t = mypow(v, n / 2);
+  r *= t * t;
+  if (n & 1) {
+    r *= v;
+  }
+  return r;
+}
+
 template <class F, class S>
 double Ritalgo<F, S>::Ant::v2(const int idx, const int add, const int x, const int y, const int rev, const int ang) const noexcept
 {
-  static const double a = -(BEAM-1) * (BEAM-1) / log(2);
-  const double hv = h(stones[idx + add], x, y, rev, ang) /**/ * std::exp(a * add * add) /**/ /* * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size()) */;
+  //const double a = -log(4.0) / ((BEAM - 1) * (BEAM - 1));
+  const double a = -1024.0 / ::mypow((double)remains[idx + add] / field->score(), 10);
+  //std::cerr << add << " : " << std::exp(add * a) << std::endl;
+  const double hv = h(stones[idx + add], x, y, rev, ang) /**/ * std::exp(add * a) /**/ /* * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size()) */;
+//  const double hv = h(stones[idx + add], x, y, rev, ang) /**/ * std::exp(a * add * add) /**/ /* * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size()) */;
   const double ph = env->get(idx + add, std::min(add, (BEAM - 1)), x, y, rev, ang);
-  return std::pow(hv, BETA) * std::exp(ph * ALPHA);
+  //return std::pow(hv, BETA) * std::exp(ph * ALPHA);
+  return ::mypow(hv, DBETA) * std::exp(ph * ALPHA);
 }
 
 template <class F, class S>
