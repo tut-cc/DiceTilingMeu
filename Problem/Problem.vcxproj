@@ -119,6 +119,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ProductionProblem.cpp" />
     <ClCompile Include="src\SampleProblem.cpp" />
     <ClCompile Include="src\SimpleProblem.cpp" />
   </ItemGroup>
@@ -126,6 +127,7 @@
     <ClInclude Include="include\problem.hpp" />
     <ClInclude Include="include\SampleProblem.hpp" />
     <ClInclude Include="include\SimpleProblem.hpp" />
+    <ClInclude Include="ProductionProblem.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
