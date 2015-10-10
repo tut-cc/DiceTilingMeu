@@ -338,26 +338,98 @@ double Ritalgo<F, S>::Ant::h(std::shared_ptr<Stone> s, int x, int y, int rev, in
   }
   acm /= cnt;
 
-//  double dist = [&]() {
-//    auto ct = s->center(rev, ang);
-//    std::valarray<double> arr = {ct.first + x, ct.second + y};
-//    arr -= 16;
-//    arr *= arr;
-//    return std::sqrt(arr.sum() + 0.1);
-////    return arr.min() + 1.0;
-//  }();
-
   return 1.0/acm;
 }
 
-// 
 template <class F, class S>
-double Ritalgo<F, S>::Ant::v(const int idx, const int add, const int x, const int y, const int rev, const int ang) const
+std::pair<double, double> Ritalgo<F, S>::Ant::h2(std::shared_ptr<Stone> s, int x, int y, int rev, int ang) const noexcept
 {
-  const double hv = (is ? h(stones[idx], x, y, rev, ang) : fir ? 0.0 : 1.0) /* * ( std::exp(-4.0 * std::log(2.0) * std::pow((double)idx / stones.size(), 2.0) )) /**/;
-  const double ph = env -> get(idx, add, x, y, rev, ang);
-  return std::pow(hv + 1, BETA) * std::pow(ph + 1, ALPHA);
+  int sum = 0;
+  int wall = 0;
+  int fill = 0;
+  bool done[8][8] = {};
+  int cell[10][10] = {};
+  bool chck[10][10] = {};
+  bool flag = true;
+  for (int i = 0; flag && i < 8; ++i) {
+    for (int j = 0; j < 8; ++j) {
+      if (s->at(j, i, rev, ang)) {
+        std::queue<std::pair<int, int>> queue;
+        queue.push({ j, i });
+        while (queue.size()) {
+          ++fill;
+          static constexpr int ofs[4][2] = {
+            { 0, 1 },
+            { 1, 0 },
+            { -1, 0 },
+            { 0, -1 }
+          };
+          auto e = queue.front();
+          queue.pop();
+          for (int k = 0; k < 4; ++k) {
+            int dx = e.first + ofs[k][0];
+            int dy = e.second + ofs[k][1];
+            int nx = x + dx;
+            int ny = y + dy;
+
+            if (ny < 0 || 32 <= ny || nx < 0 || 32 <= nx) {
+              ++wall;
+              --cell[dy + 1][dx + 1];
+              chck[dy + 1][dx + 1] |= true;
+              continue;
+            }
+
+            if (dx < 0 || 8 <= dx || dy < 0 || 8 <= dy) {
+              if (field->at(nx, ny)) {
+                ++sum;
+                --cell[dy + 1][dx + 1];
+              }
+              else {
+                ++cell[dy + 1][dx + 1];
+              }
+              chck[dy + 1][dx + 1] |= true;
+              continue;
+            }
+
+            if (s->at(dx, dy, rev, ang)) {
+              if (done[dy][dx]) {
+                continue;
+              }
+              queue.push({ dx, dy });
+              done[dy][dx] |= true;
+              continue;
+            }
+            else {
+              if (field->at(nx, ny)) {
+                ++sum;
+                --cell[dy + 1][dx + 1];
+              }
+              else {
+                ++cell[dy + 1][dx + 1];
+              }
+              chck[dy + 1][dx + 1] |= true;
+            }
+          }
+        }
+        flag &= false;
+        break;
+      }
+    }
+  }
+  double acm = 0.0;
+  int cnt = 0;
+  for (int i = 0; i < 10; ++i) {
+    for (int j = 0; j < 10; ++j) {
+      if (!chck[i][j]) continue;
+      acm += std::pow(4.0, cell[i][j]);
+      ++cnt;
+    }
+  }
+  acm /= cnt;
+
+  return{ 1.0 / acm, fill / acm };
 }
+
 
 static double mypow(double v, int n) noexcept
 {
@@ -374,7 +446,7 @@ static double mypow(double v, int n) noexcept
 }
 
 template <class F, class S>
-double Ritalgo<F, S>::Ant::v2(const int idx, const int add, const int x, const int y, const int rev, const int ang) const noexcept
+double Ritalgo<F, S>::Ant::v(const int idx, const int add, const int x, const int y, const int rev, const int ang) const noexcept
 {
   //const double a = -log(4.0) / ((BEAM - 1) * (BEAM - 1));
   const double a = -1024.0 / ::mypow((double)remains[idx + add] / field->score(), 10);
@@ -387,51 +459,17 @@ double Ritalgo<F, S>::Ant::v2(const int idx, const int add, const int x, const i
 }
 
 template <class F, class S>
-void Ritalgo<F, S>::Ant::run() noexcept
+std::pair<double, double> Ritalgo<F, S>::Ant::v2(const int idx, const int add, const int x, const int y, const int rev, const int ang) const noexcept
 {
-  int fir = 1;
-  // for diversity
-  for (unsigned int idx = 0; idx < stones.size(); ++idx) {
-    std::vector<std::tuple<int, int, int, int, int, int>> list;
-    std::vector<double> roulette;
-    double accum = 0.0;
-    double avev2 = 0.0;
-    int    cntv2 = 0;
-    double maxv2 = 0.0;
-    // ATTENTION : variable "accum" maybe going to overflow.
-    for (const auto & t : ok_list[idx]) {
-      int x, y, rev, ang;
-      std::tie(x, y, rev, ang) = t;
-      if (field->appliable(stones[idx], x, y, rev, ang)) {
-        list.push_back(std::make_tuple(2, fir, x, y, rev, ang));
-        double vv2 = v2(idx, 2 | fir, x, y, rev, ang);
-        accum += vv2;
-        avev2 += vv2;
-        maxv2 = std::max(vv2, maxv2);
-        ++cntv2;
-        //accum += v(idx, 1, fir, x, y, rev, ang);
-        roulette.push_back(accum);
-      }
-    }
-    avev2 /= cntv2;
-    list.push_back(std::make_tuple(0, fir, 0, 0, 0, 0));
-    accum += avev2;
-    roulette.push_back(accum);
-    auto action_id = std::distance(roulette.begin(),
-      std::lower_bound(roulette.begin(), roulette.end(), dist(mt) * accum)
-      );
-    int is, x, y, rev, ang;
-#ifdef _DEBUG
-    std::cerr << action_id << "/" << list.size() << "..." << accum << std::endl;
-#endif
-    std::tie(is, std::ignore, x, y, rev, ang) = list[action_id];
-    if (!is) continue;
-    //field -> apply( stones[idx], prev.first + x, prev.second + y, rev, ang );
-    field->apply(stones[idx], x, y, rev, ang);
-    fir &= 0;
-  }
+  //const double a = -log(4.0) / ((BEAM - 1) * (BEAM - 1));
+  const double a = -1024.0 / ::mypow((double)remains[idx + add] / field->score(), 10);
+  //std::cerr << add << " : " << std::exp(add * a) << std::endl;
+  const std::pair<double, double> hv = h2(stones[idx + add], x, y, rev, ang) /**/ * std::exp(add * a) /**/ /* * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size()) */;
+  //  const double hv = h(stones[idx + add], x, y, rev, ang) /**/ * std::exp(a * add * add) /**/ /* * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size()) */;
+  const double ph = env->get(idx + add, std::min(add, (BEAM - 1)), x, y, rev, ang);
+  //return std::pow(hv, BETA) * std::exp(ph * ALPHA);
+  return{ ::mypow(hv.first, DBETA) * std::exp(ph * ALPHA), ::mypow(hv.second, DBETA) * std::exp(ph * ALPHA) };
 }
-
 
 template <class F, class S>
 void Ritalgo<F, S>::Ant::run_over() noexcept
@@ -453,7 +491,7 @@ void Ritalgo<F, S>::Ant::run_over() noexcept
         std::tie(x, y, rev, ang) = t;
         if (field->appliable(stones[next], x, y, rev, ang)) {
           list.push_back(std::make_tuple(next, 0, x, y, rev, ang));
-          accum += v2(pre, add + idx - pre, x, y, rev, ang);
+          accum += v(pre, add + idx - pre, x, y, rev, ang);
           roulette.push_back(accum);
         }
       }
@@ -473,26 +511,6 @@ void Ritalgo<F, S>::Ant::run_over() noexcept
     fir &= 0;
     idx = tidx;
     pre = tidx;
-  }
-}
-
-template <class F, class S>
-void Ritalgo<F, S>::Ant::renew()
-{
-  int index = 0;
-  int fir = 1;
-  const double l = field -> score() + 1.0;
-  for ( auto e : field -> get_history() ) {
-    for(; index < std::get<0>(e) -> identify(); ++index) {
-      env -> put(index, fir, 0, 0, 0, 0, (PHEROMONE / l)
-        /* * (1.0 - std::exp(-100.0*std::pow((double)index, 2.0))) /**/
-        );
-    }
-    int x, y, rev, ang;
-    std::tie(std::ignore, x, y, rev, ang) = e;
-    env -> put(index++, 2 | fir, x, y, rev, ang, (PHEROMONE / l)
-      /* * (1.0 - std::exp(-100.0*std::pow((double)index, 2.0))) /**/
-      );
   }
 }
 
