@@ -1,4 +1,5 @@
 #include "ExtendedField.hpp"
+#include "RandomValue.hpp"
 #include <stdexcept>
 #include <iostream>
 #include <string>
@@ -206,7 +207,7 @@ int ExtendedField::eval_select_score() {
 		int count = 0;
 
 		count += space_bit_count();
-
+		count += RandomValue::get_value() * 5;
 		value = count;
 //		std::cout << value << std::endl;
 	}

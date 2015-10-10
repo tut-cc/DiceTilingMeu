@@ -61,6 +61,8 @@ void ClusteredBeam<F, S>::solve()
 		}
 	}
 
+	main_queue.push(field->clone_ex());
+
 	for (int i = 0; i < max_cluster_num; i++) {
 		//どの石を置くかのリスト
 		auto list = list1;
@@ -71,17 +73,17 @@ void ClusteredBeam<F, S>::solve()
 		}
 
 		StateQueue tmp_main_queue(BEAM_WIDTH);
-		RandomQueue tmp_sub_queue(BEAM_WIDTH);
 
 		//全ての状態に石を置くためのループ
 		for (int st_idx = 0; st_idx < main_queue.size(); st_idx++) {
 			auto state = main_queue[st_idx];
+			tmp_main_queue.push(state->clone_ex());
 			//クラスタ中の石の個数を変える為のループ
 			for (int st_num = 1; st_num <= cluster_size; st_num++) {
 				//nCrの石の選び方をすべて試すためのループ
 				for (auto st_ncr : list[st_num - 1]) {
 					//石の選び方に含まれる石をすべて置くためのループ
-					for (int c_idx = 0; c_idx < cluster_size; c_idx++) {
+					for (int c_idx = 0; c_idx < st_ncr.size(); c_idx++) {
 						int st_idx = CLUSTER_SIZE * i + st_ncr[c_idx];
 						auto place_list = place_lists.get_list(st_idx);
 						auto stone = stones[st_idx];
@@ -107,18 +109,18 @@ void ClusteredBeam<F, S>::solve()
 								tmp_main_queue.push(tmp);
 							}
 						}
-						//if (!pf) {
-						//	if (state->eval_final_score() == result->eval_final_score()) {
-						//		if (state->stone_count < result->stone_count) {
-						//			result = state;
-						//			std::cout << "result:" << result->eval_final_score() << std::endl;
-						//		}
-						//	}
-						//	else if (state->eval_final_score() > result->eval_final_score()) {
-						//		result = state;
-						//		std::cout << "result:" << result->eval_final_score() << std::endl;
-						//	}
-						//}
+						if (!pf) {
+							if (state->eval_final_score() == result->eval_final_score()) {
+								if (state->stone_count < result->stone_count) {
+									result = state;
+									std::cout << "result:" << result->eval_final_score() << std::endl;
+								}
+							}
+							else if (state->eval_final_score() > result->eval_final_score()) {
+								result = state;
+								std::cout << "result:" << result->eval_final_score() << std::endl;
+							}
+						}
 					}
 				}
 			}
