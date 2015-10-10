@@ -33,7 +33,25 @@ Ritalgo<F, S>::Ritalgo(std::shared_ptr<Problem> p)
 template <class F, class S>
 Ritalgo<F, S>::Ritalgo(std::shared_ptr<Problem> p, std::unique_ptr<Core> core)
 {
-  Ritalgo::Ritalgo(p);
+  field = std::move(std::unique_ptr<Field>(new F(p->get_field_str())));
+  for (auto&& s : p->get_stones_str()) {
+    stones.push_back(std::shared_ptr<Stone>(new S(s, stones.size())));
+  }
+  for (auto && s : stones) {
+    std::vector < std::tuple < int, int, int, int >> sub;
+    for (int x = -8; x <= 32; ++x) {
+      for (int y = -8; y <= 32; ++y) {
+        for (int r = 0; r < 2; ++r) {
+          for (int a = 0; a < 4; ++a) {
+            if (field->appliable(s, x, y, r, a)) {
+              sub.push_back(std::make_tuple(x, y, r, a));
+            }
+          }
+        }
+      }
+    }
+    ok_list.push_back(sub);
+  }
 
   this->core = std::move(core);
   is_production |= true;

@@ -42,7 +42,7 @@ std::string Core::get(bool flag)
   while (!ifs.eof()) {
     std::string line;
     std::getline(ifs, line);
-    dst << line;
+    dst << line << std::endl;
   }
 
   std::cerr << "GET done" << std::endl;

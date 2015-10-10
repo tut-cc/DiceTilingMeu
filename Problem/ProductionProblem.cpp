@@ -3,9 +3,9 @@
 #include <sstream>
 #include <iostream>
 
-ProductionProblem::ProductionProblem(const std::string & str)
+ProductionProblem::ProductionProblem(const std::string & raw)
 {
-  std::stringstream ss(str);
+  std::stringstream ss(raw);
 
   field = [&]() {
     std::vector<std::string> list;
@@ -19,6 +19,7 @@ ProductionProblem::ProductionProblem(const std::string & str)
   stones = [&]() {
     std::vector<std::vector<std::string>> stones;
     ss >> num;
+
     for (int i = 0; i < num; ++i) {
       std::vector<std::string> stone;
       for (int i = 0; i < 8; ++i) {
