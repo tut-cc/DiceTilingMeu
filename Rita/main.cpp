@@ -1,17 +1,10 @@
-#include "Beamalgo.hpp"
 #include "Ritalgo.hpp"
-#include "meu.hpp"
 #include "SimpleField.hpp"
 #include "SimpleStone.hpp"
 #include "SimpleProblem.hpp"
 #include "ProductionProblem.hpp"
-#include "ExtendedField.hpp"
-#include "ExtendedStone.hpp"
-#include "BoostBitField.hpp"
-#include "Client.hpp"
 #include "Core.hpp"
 #include <memory>
-#include <boost/asio.hpp>
 
 int main(const int argc, const char **argv)
 {

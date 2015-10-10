@@ -6,11 +6,8 @@
 #include "SimpleProblem.hpp"
 #include "ExtendedField.hpp"
 #include "ExtendedStone.hpp"
-#include "BoostBitField.hpp"
-#include "BoostBitStone.hpp"
 #include "Client.hpp"
 #include "Core.hpp"
->>>>>>> dev
 #include <memory>
 #include <boost/asio.hpp>
 
