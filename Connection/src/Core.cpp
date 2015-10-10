@@ -2,10 +2,7 @@
 #include <fstream>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-Core::Core(asio::io_service & io_service, const std::string & host)
-  : io_service_(io_service),
-  socket_(io_service),
-  host_(host)
+Core::Core(const std::string & host) : host_(host)
 {
 }
 
