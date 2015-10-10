@@ -1,0 +1,7 @@
+name "dserver"
+description "A simple vibe.d server application."
+copyright "Copyright © 2015, kazuki"
+authors "kazuki"
+dependency "vibe-d" version="~>0.7.23"
+dependency "procon26" path="../dlang"
+versions "VibeDefaultMain"
