@@ -4,6 +4,7 @@
 #include "SimpleField.hpp"
 #include "SimpleStone.hpp"
 #include "SimpleProblem.hpp"
+#include "ProductionProblem.hpp"
 #include "ExtendedField.hpp"
 #include "ExtendedStone.hpp"
 #include "BoostBitField.hpp"
