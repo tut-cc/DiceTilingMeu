@@ -73,13 +73,13 @@ void Beamalgo<F, S>::solve()
 		auto tmp = std::move(solve(i));
 		std::cout << "now score:" << result->get_final_score() << " " << result->stone_count << std::endl;
 		std::cout << "new score:" << tmp->get_final_score() << " " << tmp->stone_count << std::endl;
-		if (tmp->eval_final_score() > result->eval_final_score() || 
+
+		answer_output(tmp);
+
+		if (tmp->eval_final_score() > result->eval_final_score() ||
 			(tmp->eval_final_score() == result->eval_final_score() && tmp->stone_count < result->stone_count)) {
 			std::cout << "score updated:" << tmp->get_final_score() << " " << tmp->stone_count << std::endl;
 			result = std::move(tmp);
-			std::ofstream ofs("answer.txt");
-			ofs << HistoryTree::get_answer(result->parent_idx);
-			ofs.close();
 			submit();
 			std::cout << "answer complete" << std::endl;
 		}
@@ -231,4 +231,16 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 	}
 
 	return e_result;
+}
+
+template <class F, class S>
+void Beamalgo<F, S>::answer_output(std::shared_ptr<ExtendedField> &r) {
+	boost::posix_time::ptime time = boost::posix_time::microsec_clock::local_time();
+	std::string fn = "tmp_answer/" + boost::posix_time::to_iso_string(time) + ".txt";
+
+	std::ofstream ofs(fn);
+	ofs << HistoryTree::get_answer(r->parent_idx);
+	ofs.close();
+
+	std::cout << "saved:" << r->get_final_score() << " " << r->stone_count << "\n" << fn << std::endl;
 }

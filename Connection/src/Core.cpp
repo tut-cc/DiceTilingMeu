@@ -19,7 +19,7 @@ Core::Core(const std::string & host) : host_(host)
 std::string Core::get(bool flag)
 {
   boost::posix_time::ptime time = boost::posix_time::microsec_clock::local_time();
-  std::string fn = boost::posix_time::to_iso_string(time) + ".txt";
+  std::string fn = "tmp_prob/" + boost::posix_time::to_iso_string(time) + ".txt";
 
   std::stringstream ss;
   if (flag) {

@@ -17,10 +17,11 @@ class Beamalgo : public Algorithm {
 
 	int stones_num;
 	std::unique_ptr<Core> core;
-	bool is_production;
+	bool is_production = false;;
 
 	std::shared_ptr<ExtendedField> solve(int first_stone);
 	void submit();
+	void answer_output(std::shared_ptr<ExtendedField> &r);
 public:
 	int BEAM_WIDTH = 1000;
 
