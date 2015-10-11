@@ -13,8 +13,9 @@
 #include <fstream>
 
 template <class F, class S>
-Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p, std::unique_ptr<Core> core)
+Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p, std::unique_ptr<Core> core, int bw)
 {
+	BEAM_WIDTH = bw;
 	field = std::move(std::shared_ptr<ExtendedField>(new F(p->get_field_str())));
 
 	int s_idx = 0;
@@ -31,8 +32,9 @@ Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p, std::unique_ptr<Core> core)
 
 }
 template <class F, class S>
-Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p)
+Beamalgo<F, S>::Beamalgo(std::shared_ptr<Problem> p, int bw)
 {
+	BEAM_WIDTH = bw;
 	field = std::move(std::shared_ptr<ExtendedField>(new F(p->get_field_str())));
 
 	int s_idx = 0;
@@ -69,11 +71,11 @@ void Beamalgo<F, S>::solve()
 //	for (int i = 0; i < 1; i++) {
 		HistoryTree::clear();
 		auto tmp = std::move(solve(i));
-		std::cout << "now score:" << result->eval_final_score() << std::endl;
-		std::cout << "new score:" << tmp->eval_final_score() << std::endl;
+		std::cout << "now score:" << result->get_final_score() << " " << result->stone_count << std::endl;
+		std::cout << "new score:" << tmp->get_final_score() << " " << tmp->stone_count << std::endl;
 		if (tmp->eval_final_score() > result->eval_final_score() || 
 			(tmp->eval_final_score() == result->eval_final_score() && tmp->stone_count < result->stone_count)) {
-			std::cout << "new score:" << result->eval_final_score() << std::endl;
+			std::cout << "score updated:" << tmp->get_final_score() << " " << tmp->stone_count << std::endl;
 			result = std::move(tmp);
 			std::ofstream ofs("answer.txt");
 			ofs << HistoryTree::get_answer(result->parent_idx);
@@ -92,7 +94,7 @@ template <class F, class S>
 void Beamalgo<F, S>::submit()
 {
 	if (is_production) {
-		core->submit(ExtendedField::space_count - result->eval_final_score(), result->stone_count, "answer.txt");
+		core->submit(ExtendedField::space_count - result->get_final_score(), result->stone_count, "answer.txt");
 	}
 }
 
@@ -155,12 +157,12 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 				if (state->eval_final_score() == e_result->eval_final_score()) {
 					if (state->stone_count < e_result->stone_count) {
 						e_result = state;
-						std::cout << "result:" << e_result->eval_final_score() << std::endl;
+						std::cout << "result:" << e_result->get_final_score() << " " << e_result->stone_count << std::endl;
 					}
 				}
 				else if (state->eval_final_score() > e_result->eval_final_score()) {
 					e_result = state;
-					std::cout << "result:" << e_result->eval_final_score() << std::endl;
+					std::cout << "result:" << e_result->get_final_score() << " " << e_result->stone_count << std::endl;
 				}
 			}
 
@@ -200,12 +202,12 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 				if (state->eval_final_score() == e_result->eval_final_score()) {
 					if (state->stone_count < e_result->stone_count) {
 						e_result = state;
-						std::cout << "result:" << e_result->eval_final_score() << std::endl;
+						std::cout << "result:" << e_result->get_final_score() << " " << e_result->stone_count << std::endl;
 					}
 				}
 				else if (state->eval_final_score() > e_result->eval_final_score()) {
 					e_result = state;
-					std::cout << "result:" << e_result->eval_final_score() << std::endl;
+					std::cout << "result:" << e_result->get_final_score() << " " << e_result->stone_count << std::endl;
 				}
 			}
 		}
@@ -217,14 +219,14 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 		auto state = main_queue[i];
 		if (state->eval_final_score() > e_result->eval_final_score()) {
 			e_result = state;
-			std::cout << "result:" << e_result->eval_final_score() << std::endl;
+			std::cout << "result:" << e_result->get_final_score() << " " << e_result->stone_count << std::endl;
 		}
 	}
 	for (int i = 0; i < sub_queue.size(); i++) {
 		auto state = sub_queue[i];
 		if (state->eval_final_score() > e_result->eval_final_score()) {
 			e_result = state;
-			std::cout << "result:" <<e_result->eval_final_score() << std::endl;
+			std::cout << "result:" <<e_result->get_final_score() << " " << e_result->stone_count << std::endl;
 		}
 	}
 

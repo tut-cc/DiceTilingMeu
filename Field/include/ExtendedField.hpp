@@ -58,6 +58,8 @@ public:
 	int eval_final_score();
 	int eval_select_score();
 
+	int get_final_score();
+
 	friend std::ostream& operator << (std::ostream& os, const std::shared_ptr<ExtendedField>& p);
 
 	std::string get_bit_str();
@@ -67,4 +69,5 @@ public:
 	int get_bit(int x, int y);
 
 	int space_bit_count();
+
 };

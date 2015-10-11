@@ -202,6 +202,10 @@ std::shared_ptr<ExtendedField> ExtendedField::clone_ex() const {
 int ExtendedField::eval_final_score() {
 	return block_count;
 }
+int ExtendedField::get_final_score()
+{
+	return ExtendedField::space_count - block_count;
+}
 int ExtendedField::eval_select_score() {
 	if (value == -1) {
 		int count = 0;

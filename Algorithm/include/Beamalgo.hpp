@@ -16,15 +16,16 @@ class Beamalgo : public Algorithm {
 	std::vector<std::shared_ptr<ExtendedStone>> stones;
 
 	int stones_num;
-	const int BEAM_WIDTH = 1000;
 	std::unique_ptr<Core> core;
 	bool is_production;
 
 	std::shared_ptr<ExtendedField> solve(int first_stone);
 	void submit();
 public:
-	Beamalgo(std::shared_ptr<Problem> p);
-	Beamalgo(std::shared_ptr<Problem> p, std::unique_ptr<Core> core);
+	int BEAM_WIDTH = 1000;
+
+	Beamalgo(std::shared_ptr<Problem> p, int bw);
+	Beamalgo(std::shared_ptr<Problem> p, std::unique_ptr<Core> core, int bw);
 
 	virtual ~Beamalgo() = default;
 	virtual void solve();

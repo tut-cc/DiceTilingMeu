@@ -11,6 +11,7 @@ private:
 
 public:
 	SampleProblem();
+	SampleProblem(std::string p);
 	virtual ~SampleProblem() = default;
 	virtual std::vector<std::string> get_field_str() const;
 	virtual std::vector<std::vector<std::string>> get_stones_str() const;
