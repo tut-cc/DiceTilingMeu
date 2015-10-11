@@ -263,10 +263,6 @@ GeneralField simpleRainbowSearch(alias resultConsumer, alias genField, alias fie
 
     recalculateLimitStomeID(problem, sumOfZk, limitStoneID, 0);
 
-    //alias RBTree = RedBlackTree!(GeneralField, "a.numOfEmpty == b.numOfEmpty ? a.history.length < b.history.length : a.numOfEmpty < b.numOfEmpty");
-    //RBTree heap = new RBTree;
-    //RBTree badHeap = new RBTree;
-    //size_t heapMaxSize = inputs.length / 4;
     Mutex mtx = new Mutex;
     size_t incIdx = 1;
 
@@ -300,16 +296,6 @@ GeneralField simpleRainbowSearch(alias resultConsumer, alias genField, alias fie
             auto res = state.rainbowSearch();
 
             synchronized(mtx){
-                //if(res !is null){
-                //    heap.insert(res);
-                //    if(heap.length > heapMaxSize){
-                //        auto gf = heap.back();
-                //        heap.removeBack();
-                //        if(uniform(0, 3) == 0)
-                //            badHeap.insert(gf);
-                //    }
-                //}
-
                 if((minResult is null && res !is null) || (minResult !is null && res !is null && (minResult.numOfEmpty == res.numOfEmpty ? (minResult.history.length > res.history.length) : minResult.numOfEmpty > res.numOfEmpty))){
                     import std.datetime;
                     minResult = res;
@@ -321,11 +307,6 @@ GeneralField simpleRainbowSearch(alias resultConsumer, alias genField, alias fie
         }
 
         ++incIdx;
-        //writeln(heap.length);
-        //writeln(badHeap.length);
-        //Task[] tasks = heap[].map!(fieldToTask).chain(badHeap[].map!(fieldToTask)).array();
-        //tasks.sort!"a < b"();
-        //tasks = tasks.uniq.array();
     }
 
     return minResult;
