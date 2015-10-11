@@ -134,27 +134,33 @@ void postThread()
 {
     while(1)
     {
-        while(1){
-            synchronized(mtxUpdate){
-                if(ansReq !is null)
-                    break;
-            }
-            Thread.sleep(dur!"msecs"(200));
-        }
-
         try{
-            synchronized(mtxUpdate){
-                writeln("!!!!!!!!!!POST!!!!!!!!!!!", Clock.currTime);
-
-                RequestSpec spec;
-                spec.token = serverSettings["token"].str;
-                spec.host = serverSettings["server"].str;
-                postAnswer(spec, ansReq.answer).writeln();
-
-                ansReq = null;
+            while(1){
+                synchronized(mtxUpdate){
+                    if(ansReq !is null)
+                        break;
+                }
+                Thread.sleep(dur!"msecs"(200));
             }
+
+            try{
+                synchronized(mtxUpdate){
+                    writeln("!!!!!!!!!!POST!!!!!!!!!!!", Clock.currTime);
+
+                    RequestSpec spec;
+                    spec.token = serverSettings["token"].str;
+                    spec.host = serverSettings["server"].str;
+                    postAnswer(spec, ansReq.answer).writeln();
+
+                    ansReq = null;
+                }
+            }
+            catch(Exception ex){ writeln(ex); }
+            Thread.sleep(dur!"msecs"(1000));
         }
-        catch(Exception ex){ writeln(ex); }
-        Thread.sleep(dur!"msecs"(1000));
+        catch(Exception ex)
+        {
+            writeln(ex);
+        }
     }
 }

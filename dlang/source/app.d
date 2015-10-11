@@ -21,7 +21,7 @@ import procon26.field,
 //enum int problemID = 1;
 //enum string server = "172.16.1.2";
 
-JSONValue serverSettings;
+__gshared JSONValue serverSettings;
 
 void main()
 {
@@ -45,17 +45,35 @@ void main()
 
     writeln(res.numOfEmpty);
     writeln(sw.peek.msecs);
-    //postAnswer(res.answer).writeln();
-    //writeln(res.answer);
-    //std.file.write("ans42.txt", res.answer);
+  /+
+    auto sw = StopWatch();
+    sw.start(); 
+    auto input = readText("41.txt");
+
+    auto inputLines = input.splitLines.map!chomp().array();
+    auto problem = new Problem(inputLines);
+
+    GeneralField res;
+
+    if(problem.numOfEmpty < 300)
+        res = simpleRainbowSearchByStone!(gf => writeln(gf.))(problem);
+    else
+        res = simpleRainbowSearchByXY!fallbackPost(problem);
+
+    sw.stop();
+
+    writeln(res.numOfEmpty);
+    writeln(sw.peek.msecs);
+  +/
 }
 
 
 
 void fallbackPost(GeneralField gf)
 {
-    try postToMyServer(gf, serverSettings["ip"].str);
-    catch(Exception){
+    try postToMyServer(gf, serverSettings["ip"].str ~ ":8080");
+    catch(Exception ex){
+        writeln(ex);
         writeln("!!!!!!Fallback POST!!!!!!");
         std.file.write("ans_" ~ Clock.currTime.toISOString() ~ ".txt", gf.answer);
     }
@@ -64,8 +82,9 @@ void fallbackPost(GeneralField gf)
 
 string fallbackGet()
 {
-    try return getFromMyServer(serverSettings["ip"].str);
-    catch(Exception){
+    try return getFromMyServer(serverSettings["ip"].str ~ ":8080");
+    catch(Exception ex){
+        writeln(ex);
         writeln("!!!!!!Fallback GET!!!!!!");
         RequestSpec spec;
         spec.host = serverSettings["server"].str;
