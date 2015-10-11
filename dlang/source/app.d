@@ -36,7 +36,7 @@ void main()
 
   version(Procon26LocalTest)
   {
-    auto input = readText("41.txt");
+    auto input = readText("54.txt");
   }
   else
   {
@@ -67,6 +67,7 @@ void fallbackPost(GeneralField gf)
   version(Procon26LocalTest)
   {
     writefln("Answer(%s, %s)", gf.numOfEmpty, gf.history.length);
+    std.file.write("ans_" ~ Clock.currTime.toISOString() ~ ".txt", gf.answer);
   }
   else
   {

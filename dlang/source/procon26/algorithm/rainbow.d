@@ -108,6 +108,7 @@ struct RainbowSearchState
     {
         foreach_reverse(i, ref stage; stages)
         {
+            //writeln(i);
             //writefln("     %s: %s, %s", i, stage.slots[].map!"a is null ? 0 : 1".sum(), stage.slots[].map!"a is null ? 0 : a.length");
 
             // for GC, release unused state
@@ -147,7 +148,11 @@ auto nextFields(GeneralField field, Problem problem)
         int opApply(int delegate(ref LazyField) dg)
         {
             int res = 0;
-            foreach(id; _field.history[$-1].stone.id+1 .. min(_problem.stones.length, _field.history[$-1].stone.id+5)){
+            //foreach(id; _field.history[$-1].stone.id+1 .. min(_problem.stones.length, _field.history[$-1].stone.id+5)){
+            foreach(i; 1 .. 5) if(uniform(0, 3^^i) <= 3){
+                auto id =  _field.history[$-1].stone.id + i;
+                if(id >= _field.problem.stones.length) break;
+
                 auto problemStone = _problem.stones[id];
                 foreach(ss; problemStone.uniqueState){
                     auto stone = problemStone[ss];
@@ -186,47 +191,48 @@ auto nextFields(GeneralField field, Problem problem)
 
 size_t calcSlotSize(size_t idxOfStage, size_t numOfEmpty)
 {
-    if(numOfEmpty < 200){
-        if(idxOfStage < 50) return 2;
-        else return 3;
-    }
-    else if(numOfEmpty < 500){
-        if(idxOfStage < 20) return 32;
-        else if(idxOfStage < 50) return 20;
-        else if(idxOfStage < 100) return 20;
-        else if(idxOfStage < 200) return 20;
-        else return 20;
-    }
-    else{
-        if(idxOfStage < 50) return 32;
-        else if(idxOfStage < 100) return 16;
-        else if(idxOfStage < 200) return 10;
-        else if(idxOfStage < 400) return 5;
-        else return 3;
-    }
+    //if(numOfEmpty < 200){
+    //    if(idxOfStage < 50) return 2;
+    //    else return 3;
+    //}
+    //else if(numOfEmpty < 500){
+    //    if(idxOfStage < 20) return 32;
+    //    else if(idxOfStage < 50) return 20;
+    //    else if(idxOfStage < 100) return 20;
+    //    else if(idxOfStage < 200) return 20;
+    //    else return 20;
+    //}
+    //else{
+    //    if(idxOfStage < 50) return 32;
+    //    else if(idxOfStage < 100) return 20;
+    //    return 10;
+    //}
+    //if(numOfEmpty - idxOfStage < 100) return 5;
+    //else if(numOfEmpty - idxOfStage < 200) return 10;
+    //else return 20;
+    return 5;
 }
 
 
 size_t calcThrValue(size_t idxOfStage, size_t numOfEmpty)
 {
-    if(numOfEmpty < 200){
-        if(idxOfStage < 50) return 5;
-        else return 10;
-    }
-    else if(numOfEmpty < 500){
-        if(idxOfStage < 20) return 256;
-        else if(idxOfStage < 50) return 64;
-        else if(idxOfStage < 100) return 32;
-        else if(idxOfStage < 200) return 40;
-        else if(idxOfStage < 400) return 40;
-        else return 40;
-    }else{
-        if(idxOfStage < 50) return 256;
-        else if(idxOfStage < 100) return 32;
-        else if(idxOfStage < 200) return 10;
-        else if(idxOfStage < 400) return 5;
-        else return 3;
-    }
+    //if(numOfEmpty < 200){
+    //    if(idxOfStage < 50) return 5;
+    //    else return 10;
+    //}
+    //else if(numOfEmpty < 500){
+    //    if(idxOfStage < 20) return 256;
+    //    else if(idxOfStage < 50) return 64;
+    //    else if(idxOfStage < 100) return 40;
+    //    else if(idxOfStage < 200) return 40;
+    //    else if(idxOfStage < 400) return 40;
+    //    else return 40;
+    //}else{
+    //    if(idxOfStage < 50) return 256;
+    //    else if(idxOfStage < 100) return 20;
+    //    return 20;
+    //}
+    return 30;
 }
 
 
@@ -334,7 +340,7 @@ GeneralField simpleRainbowSearchByStone(alias resultConsumer)(Problem problem)
     }
 
     InputTask[] inputs;
-    foreach(i, stone; problem.stones)
+    foreach(i, stone; problem.stones[0 .. min(4, $)])
         foreach(ss; stone.uniqueState)
             inputs ~= InputTask(stone[ss]);
 
@@ -342,9 +348,17 @@ GeneralField simpleRainbowSearchByStone(alias resultConsumer)(Problem problem)
         resultConsumer,
         function(Problem p, InputTask t, ref RainbowSearchState s)
         {
-            foreach(byte x; -8 .. 32) foreach(byte y; -8 .. 32) if(!p.initField.isCollided(x, y, t.stone))
-            {
-                auto lf = LazyField(p, p.stones.length, p.initField, p.numOfEmpty, x, y, t.stone);
+            RedBlackTree!Point xys = new RedBlackTree!Point;
+            foreach(byte x, byte y; p.byAdjacentZk)
+                foreach(byte sx, byte sy; t.stone.byZk){
+                    byte xx = cast(byte)(x - sx);
+                    byte yy = cast(byte)(y - sy);
+                    if(!p.initField.isCollided(xx, yy, t.stone))
+                        xys.insert(Point(xx, yy));
+                }
+
+            foreach(xy; xys[]){
+                auto lf = LazyField(p, p.stones.length, p.initField, p.numOfEmpty, xy.x, xy.y, t.stone);
                 s.insert(lf);
             }
         },
@@ -380,10 +394,12 @@ GeneralField simpleRainbowSearchByXY(alias resultConsumer)(Problem problem)
 
     InputTask[] inputs;
 
-    auto pmr = problem.minRect;
-    foreach(byte x; cast(byte)(pmr.x - 8) .. cast(byte)(pmr.x + pmr.w))
-        foreach(byte y; cast(byte)(pmr.y - 8) .. cast(byte)(pmr.y + pmr.h))
-            inputs ~= InputTask(x, y);
+    //auto pmr = problem.minRect;
+    //foreach(byte x; cast(byte)(pmr.x - 8) .. cast(byte)(pmr.x + pmr.w))
+        //foreach(byte y; cast(byte)(pmr.y - 8) .. cast(byte)(pmr.y + pmr.h))
+            //inputs ~= InputTask(x, y);
+    foreach(byte x, byte y; problem.byAdjacentZk)
+        inputs ~= InputTask(x, y);
 
     inputs.randomShuffle();
 
@@ -391,11 +407,21 @@ GeneralField simpleRainbowSearchByXY(alias resultConsumer)(Problem problem)
         resultConsumer,
         function(Problem p, InputTask t, ref RainbowSearchState s)
         {
-            foreach(i, ref e; p.stones){
+            foreach(i, ref e; p.stones[0 .. min(4, $)]){
                 foreach(ss; e.uniqueState){
                     auto st = e[ss];
-                    if(!p.initField.isCollided(t.x, t.y, st)){
-                        auto lf = LazyField(p, p.stones.length, p.initField, p.numOfEmpty, t.x, t.y, st);
+
+                    RedBlackTree!Point xys = new RedBlackTree!Point;
+                    foreach(byte sx, byte sy; st.byZk){
+                        byte xx = cast(byte)(t.x - sx),
+                             yy = cast(byte)(t.y - sy);
+
+                        if(!p.initField.isCollided(xx, yy, st))
+                            xys.insert(Point(xx, yy));
+                    }
+
+                    foreach(xy; xys[]){
+                        auto lf = LazyField(p, p.stones.length, p.initField, p.numOfEmpty, xy.x, xy.y, st);
                         s.insert(lf);
                     }
                 }
