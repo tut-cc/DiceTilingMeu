@@ -23,7 +23,7 @@ StateQueue::StateQueue(int max_width) : max_width(max_width) {}
 inline void StateQueue::push(std::shared_ptr<ExtendedField> &f) {
 #pragma omp critical
 {
-	if (vec.size() == max_width) {
+	if (max_width > 0 && vec.size() >= max_width) {
 		remove_min();
 	}
 	vec.push_back(f);

@@ -114,7 +114,7 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 		std::cout << st_idx << std::endl;
 		std::shared_ptr<ExtendedStone> stone = stones[st_idx];
 
-		StateQueue tmp_main_queue(BEAM_WIDTH);
+		StateQueue tmp_main_queue((st_idx==first_stone?-1:1) * BEAM_WIDTH);
 		RandomQueue tmp_sub_queue(BEAM_WIDTH);
 
 		//‘S‚Ä‚Ìó‘Ô‚É‘Î‚µ‚ÄÎ‚ğ’u‚­
@@ -235,8 +235,12 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 
 template <class F, class S>
 void Beamalgo<F, S>::answer_output(std::shared_ptr<ExtendedField> &r) {
-	boost::posix_time::ptime time = boost::posix_time::microsec_clock::local_time();
-	std::string fn = "tmp_answer/" + boost::posix_time::to_iso_string(time) + ".txt";
+	//boost::posix_time::ptime time = boost::posix_time::microsec_clock::local_time();
+	//std::string fn = "tmp_answer/" + boost::posix_time::to_iso_string(time) + ".txt";
+
+	std::ostringstream ostr;
+	ostr << "tmp_answer/" << r->get_final_score() << "_" << r->stone_count << ".txt";
+	std::string fn = ostr.str();
 
 	std::ofstream ofs(fn);
 	ofs << HistoryTree::get_answer(r->parent_idx);
