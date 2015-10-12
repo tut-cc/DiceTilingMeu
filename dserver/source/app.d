@@ -111,7 +111,7 @@ void update(HTTPServerRequest req, HTTPServerResponse res)
                                      req.form["stones"].to!int,
                                      answer);
 
-    writefln("query: %s", req.form);
+    //writefln("query: %s", req.form);
     bool bUpdate = false;
     synchronized(mtxUpdate){
         if(*ans < bestAnswer){

@@ -36,7 +36,7 @@ void main()
 
   version(Procon26LocalTest)
   {
-    auto input = readText("35.txt");
+    auto input = readText("41.txt");
   }
   else
   {
@@ -49,7 +49,7 @@ void main()
 
     GeneralField res;
 
-    //if(problem.numOfEmpty < 300)
+    //if(problem.numOfEmpty < 1000)
         res = simpleRainbowSearchByStone!fallbackPost(problem);
     //else
         //res = simpleRainbowSearchByXY!fallbackPost(problem);

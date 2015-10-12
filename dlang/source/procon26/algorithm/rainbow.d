@@ -234,11 +234,12 @@ size_t calcSlotSize(size_t idxOfStage, size_t numOfEmpty)
     //    else return 20;
     //}
     //else{
-        if(idxOfStage < 50) return 3;
-        else if(idxOfStage < 100) return 4;
-        else if(idxOfStage < 200) return 5;
-        else if(idxOfStage < 400) return 6;
-        else return 7;
+        //if(idxOfStage < 50) return 3;
+        //else if(idxOfStage < 100) return 4;
+        //else if(idxOfStage < 200) return 5;
+        //else if(idxOfStage < 400) return 6;
+        //else return 7;
+        return (idxOfStage+1) * 4 / numOfEmpty + 2;
     //}
 }
 
@@ -257,11 +258,14 @@ size_t calcThrValue(size_t idxOfStage, size_t numOfEmpty)
     //    else if(idxOfStage < 400) return 40;
     //    else return 40;
     //}else{
+        /*
         if(idxOfStage < 50) return 6;
         else if(idxOfStage < 100) return 8;
         else if(idxOfStage < 200) return 10;
         else if(idxOfStage < 400) return 12;
         else return 14;
+        */
+        return (idxOfStage+1) * 10 / numOfEmpty + 5;
     //}
 }
 
