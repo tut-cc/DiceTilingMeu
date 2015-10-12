@@ -212,7 +212,7 @@ int ExtendedField::eval_select_score() {
 
 		count += space_bit_count();
 		if (stone_count == 1) {
-			count = (int)(count * (RandomValue::get_value() + 1)) / 2;
+			count = count * (RandomValue::get_value() * 0.2 - 0.1 + 1);
 		}
 		count += RandomValue::get_value() * 4;
 		value = count;

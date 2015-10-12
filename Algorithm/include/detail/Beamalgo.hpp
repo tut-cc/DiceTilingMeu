@@ -94,10 +94,13 @@ template <class F, class S>
 void Beamalgo<F, S>::submit()
 {
 	if (is_production) {
-		core->submit(ExtendedField::space_count - result->get_final_score(), result->stone_count, "answer.txt");
+		std::cout << "sent:" << result->get_final_score() << " " << result->stone_count << std::endl;
+		std::ostringstream ostr;
+		ostr << "tmp_answer/" << result->get_final_score() << "_" << result->stone_count << ".txt";
+		std::string fn = ostr.str();
+		core->submit(result->get_final_score(), result->stone_count, fn);
 	}
 }
-
 
 template<class F, class S>
 std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
@@ -114,14 +117,14 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 		std::cout << st_idx << std::endl;
 		std::shared_ptr<ExtendedStone> stone = stones[st_idx];
 
-		StateQueue tmp_main_queue((st_idx==first_stone?-1:1) * BEAM_WIDTH);
+		StateQueue tmp_main_queue((st_idx == first_stone ? -1 : 1) * BEAM_WIDTH);
 		RandomQueue tmp_sub_queue(BEAM_WIDTH);
 
 		//全ての状態に対して石を置く
 #pragma omp parallel for shared(stone, tmp_sub_queue, sub_queue, tmp_main_queue, main_queue, e_result, place_lists)
 		for (int i = 0; i < main_queue.size(); i++) {
 			auto state = main_queue[i];
-			if(i != 0)tmp_sub_queue.push(state->clone_ex());
+			if (i != 0)tmp_sub_queue.push(state->clone_ex());
 
 			//if (i == 0) {
 			//	std::cout << "tmp_score…" << state->eval_final_score() << std::endl;
@@ -226,12 +229,174 @@ std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
 		auto state = sub_queue[i];
 		if (state->eval_final_score() > e_result->eval_final_score()) {
 			e_result = state;
-			std::cout << "result:" <<e_result->get_final_score() << " " << e_result->stone_count << std::endl;
+			std::cout << "result:" << e_result->get_final_score() << " " << e_result->stone_count << std::endl;
 		}
 	}
 
 	return e_result;
 }
+
+
+//template<class F, class S>
+//std::shared_ptr<ExtendedField> Beamalgo<F, S>::solve(int first_stone) {
+//	StateQueue main_queue(BEAM_WIDTH);
+//	RandomQueue sub_queue(BEAM_WIDTH);
+//
+//	std::shared_ptr<ExtendedField> e_result = std::move(field->clone_ex());
+//
+//	PlaceLists place_lists(field, stones);
+//
+//	sub_queue.push(field->clone_ex());
+//	//全ての石を置く
+//	for (int st_idx = first_stone; st_idx < stones_num; st_idx++) {
+//		std::cout << st_idx << std::endl;
+//		std::shared_ptr<ExtendedStone> stone = stones[st_idx];
+//
+//		StateQueue tmp_main_queue((st_idx==first_stone?-1:1) * BEAM_WIDTH);
+//		RandomQueue tmp_sub_queue(BEAM_WIDTH);
+//
+//
+//		//if (st_idx == first_stone) {
+//		//	auto place_list = place_lists.get_list(st_idx);
+//		//	auto state = sub_queue[0];
+//		//	int rand_idx = (int)(place_list.size() * RandomValue::get_value());
+//		//	auto t = place_list[rand_idx];
+//		//	int r = std::get<0>(t);
+//		//	int a = std::get<1>(t);
+//		//	int x = std::get<2>(t);
+//		//	int y = std::get<3>(t);
+//
+//		//	if (state->appliable_bit(stone, x, y, r, a)) {
+//		//		auto tmp = state->clone_ex();
+//		//		tmp->apply_bit(stone, x, y, r, a);
+//		//		//std::cout << tmp->get_bit_str() << std::endl;
+//
+//		//		tmp_main_queue.push(tmp);
+//		//	}
+//		//	else {
+//		//		std::cout << "error!" << std::endl;
+//		//	}
+//
+//		//	main_queue = tmp_main_queue;
+//		//	continue;
+//		//}
+//
+//
+//		//全ての状態に対して石を置く
+//#pragma omp parallel for shared(stone, tmp_sub_queue, sub_queue, tmp_main_queue, main_queue, e_result, place_lists)
+//		for (int i = 0; i < main_queue.size(); i++) {
+//			auto state = main_queue[i];
+//			if(i != 0)tmp_sub_queue.push(state->clone_ex());
+//
+//			//if (i == 0) {
+//			//	std::cout << "tmp_score…" << state->eval_final_score() << std::endl;
+//			//	std::cout << "tmp_score…\n" << state->get_bit_str() << std::endl;
+//			//}
+//
+//			auto place_list = place_lists.get_list(st_idx);
+//
+//			bool pf = false;
+//			/*
+//			sharedなオブジェクト
+//			state, stone, place_list, tmp_queue
+//			*/
+//			int s = (int)(place_list.size());
+//			for (int j = 0; j < s; j++) {
+//				//			for (auto t : place_list) {
+//				auto t = place_list[j];
+//				int r = std::get<0>(t);
+//				int a = std::get<1>(t);
+//				int x = std::get<2>(t);
+//				int y = std::get<3>(t);
+//
+//				if (state->appliable_bit(stone, x, y, r, a)) {
+//					pf = true;
+//					auto tmp = state->clone_ex();
+//					tmp->apply_bit(stone, x, y, r, a);
+//					//std::cout << tmp->get_bit_str() << std::endl;
+//
+//					tmp_main_queue.push(tmp);
+//				}
+//			}
+//			if (!pf) {
+//				if (state->eval_final_score() == e_result->eval_final_score()) {
+//					if (state->stone_count < e_result->stone_count) {
+//						e_result = state;
+//						std::cout << "result:" << e_result->get_final_score() << " " << e_result->stone_count << std::endl;
+//					}
+//				}
+//				else if (state->eval_final_score() > e_result->eval_final_score()) {
+//					e_result = state;
+//					std::cout << "result:" << e_result->get_final_score() << " " << e_result->stone_count << std::endl;
+//				}
+//			}
+//
+//		}
+//		//全ての状態に対して石を置く
+//#pragma omp parallel for shared(stone, tmp_sub_queue, sub_queue, tmp_main_queue, main_queue, e_result, place_lists)
+//		for (int i = 0; i < sub_queue.size(); i++) {
+//			auto state = sub_queue[i];
+//			tmp_sub_queue.push(state->clone_ex());
+//
+//			auto place_list = place_lists.get_list(st_idx);
+//
+//			bool pf = false;
+//			/*
+//			sharedなオブジェクト
+//			state, stone, place_list, tmp_queue
+//			*/
+//			int s = (int)(place_list.size());
+//			for (int j = 0; j < s; j++) {
+//				//			for (auto t : place_list) {
+//				auto t = place_list[j];
+//				int r = std::get<0>(t);
+//				int a = std::get<1>(t);
+//				int x = std::get<2>(t);
+//				int y = std::get<3>(t);
+//
+//				if (state->appliable_bit(stone, x, y, r, a)) {
+//					pf = true;
+//					auto tmp = state->clone_ex();
+//					tmp->apply_bit(stone, x, y, r, a);
+//					//std::cout << tmp->get_bit_str() << std::endl;
+//
+//					tmp_main_queue.push(tmp);
+//				}
+//			}
+//			if (!pf) {
+//				if (state->eval_final_score() == e_result->eval_final_score()) {
+//					if (state->stone_count < e_result->stone_count) {
+//						e_result = state;
+//						std::cout << "result:" << e_result->get_final_score() << " " << e_result->stone_count << std::endl;
+//					}
+//				}
+//				else if (state->eval_final_score() > e_result->eval_final_score()) {
+//					e_result = state;
+//					std::cout << "result:" << e_result->get_final_score() << " " << e_result->stone_count << std::endl;
+//				}
+//			}
+//		}
+//
+//		main_queue = tmp_main_queue;
+//		sub_queue = tmp_sub_queue;
+//	}
+//	for (int i = 0; i < main_queue.size(); i++) {
+//		auto state = main_queue[i];
+//		if (state->eval_final_score() > e_result->eval_final_score()) {
+//			e_result = state;
+//			std::cout << "result:" << e_result->get_final_score() << " " << e_result->stone_count << std::endl;
+//		}
+//	}
+//	for (int i = 0; i < sub_queue.size(); i++) {
+//		auto state = sub_queue[i];
+//		if (state->eval_final_score() > e_result->eval_final_score()) {
+//			e_result = state;
+//			std::cout << "result:" <<e_result->get_final_score() << " " << e_result->stone_count << std::endl;
+//		}
+//	}
+//
+//	return e_result;
+//}
 
 template <class F, class S>
 void Beamalgo<F, S>::answer_output(std::shared_ptr<ExtendedField> &r) {
