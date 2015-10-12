@@ -6,6 +6,8 @@ import std.range;
 import std.array;
 import std.file;
 import std.datetime;
+import std.json;
+import std.path;
 
 import procon26.field,
        procon26.algorithm.rainbow,
@@ -14,56 +16,83 @@ import procon26.field,
        procon26.util,
        procon26.http;
 
-enum string ip = "192.168.1.219:8080";
-enum string token = "0123456789abcdef";
-enum int problemID = 1;
-enum string server = "testform26.procon-online.net";
+//version = Procon26LocalTest;
+
+version(Procon26LocalTest) {} else
+{
+  __gshared JSONValue serverSettings;
+}
+
 
 void main()
 {
+  version(Procon26LocalTest) {} else
+  {
+    serverSettings = readText(buildPath("..", "dsetting.json")).parseJSON();
+  }
+
     auto sw = StopWatch();
     sw.start(); 
+
+  version(Procon26LocalTest)
+  {
+    auto input = readText("41.txt");
+  }
+  else
+  {
     auto input = fallbackGet();
+  }
+
 
     auto inputLines = input.splitLines.map!chomp().array();
     auto problem = new Problem(inputLines);
 
     GeneralField res;
 
-    if(problem.numOfEmpty < 300)
+    //if(problem.numOfEmpty < 1000)
         res = simpleRainbowSearchByStone!fallbackPost(problem);
-    else
-        res = simpleRainbowSearchByXY!fallbackPost(problem);
+    //else
+        //res = simpleRainbowSearchByXY!fallbackPost(problem);
 
     sw.stop();
 
     writeln(res.numOfEmpty);
     writeln(sw.peek.msecs);
-    //postAnswer(res.answer).writeln();
-    //writeln(res.answer);
-    //std.file.write("ans42.txt", res.answer);
 }
 
 
 
 void fallbackPost(GeneralField gf)
 {
-    try postToMyServer(gf, ip);
-    catch(Exception){
+  version(Procon26LocalTest)
+  {
+    writefln("Answer(%s, %s)", gf.numOfEmpty, gf.history.length);
+    std.file.write("ans_" ~ Clock.currTime.toISOString() ~ ".txt", gf.answer);
+  }
+  else
+  {
+    try postToMyServer(gf, serverSettings["ip"].str ~ ":8080");
+    catch(Exception ex){
+        writeln(ex);
         writeln("!!!!!!Fallback POST!!!!!!");
         std.file.write("ans_" ~ Clock.currTime.toISOString() ~ ".txt", gf.answer);
     }
+  }
 }
 
 
-string fallbackGet()
+version(Procon26LocalTest) {} else
 {
-    try return getFromMyServer(ip);
-    catch(Exception){
-        writeln("!!!!!!Fallback GET!!!!!!");
-        RequestSpec spec;
-        spec.host = server;
-        spec.token = token;
-        return getProblem(spec, problemID);
-    }
+  string fallbackGet()
+  {
+      try return getFromMyServer(serverSettings["ip"].str ~ ":8080");
+      catch(Exception ex){
+          writeln(ex);
+          writeln("!!!!!!Fallback GET!!!!!!");
+          RequestSpec spec;
+          spec.host = serverSettings["server"].str;
+          spec.token = serverSettings["token"].str;
+          return getProblem(spec, cast(int)serverSettings["problem"].integer);
+      }
+  }
 }

@@ -46,6 +46,7 @@ final class Problem
             lines = lines[8 .. $];
         }
 
+        _adjacents = new TinyField;
         StructLargeField!(byte, 32) adjs;
         foreach(byte xx, byte yy; _initField.byZk){
             foreach(d; [[1, 0], [-1, 0], [0, -1], [0, 1]]) {
@@ -53,12 +54,20 @@ final class Problem
                      yyy = cast(byte)(yy + d[1]);
 
                 if(isInField!32(xxx, yyy) && !_initField[xxx, yyy]){
+                    _adjacents[xxx, yyy] = true;
                     auto v = adjs[xxx, yyy];
                     size_t inc = incValue(v);
 
                     adjs[xxx, yyy] += inc;
                 }
             }
+        }
+
+        foreach(byte i; 0 .. 32){
+            if(!_initField[0, i]) _adjacents[0, i] = true;
+            if(!_initField[i, 0]) _adjacents[0, i] = true;
+            if(!_initField[31, i]) _adjacents[31, i] = true;
+            if(!_initField[i, 31]) _adjacents[i, 31] = true;
         }
 
         foreach(byte x;  0 .. 32) foreach(byte y; 0 .. 32) {
@@ -113,9 +122,16 @@ final class Problem
     }
 
 
+    auto byAdjacentZk() const pure nothrow @safe @nogc @property
+    {
+        return _adjacents.byZk();
+    }
+
+
   private:
     TinyField _initField;
     Stone[] _stones;
+    TinyField _adjacents;
     Rectangle _minRect;
     size_t _numOfEmpty;
     StructLargeField!(size_t, 32) _difficulty;

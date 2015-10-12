@@ -1,5 +1,8 @@
 module procon26.http;
 
+version(Procon26LocalTest) {}
+else:
+
 import std.net.curl;
 import std.format;
 import std.uri;

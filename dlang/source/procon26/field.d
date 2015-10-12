@@ -11,6 +11,7 @@ debug import std.stdio;
 import procon26.problem;
 import procon26.stone;
 import procon26.util;
+import std.random;
 
 
 //byte upConvert(byte x)
@@ -432,6 +433,8 @@ struct LazyField
             yy += y;
             if(isInField!32(xx, yy) && !parent._field[xx, yy]) _numOfAdjacents += incValue(parent._adjMem[xx, yy]);
         }
+
+        //_numOfAdjacents += uniform!"[]"(-1, 1);
     }
 
 
@@ -474,6 +477,7 @@ struct LazyField
 
     size_t numOfEmpty() const pure nothrow @safe @nogc { return _numOfEmpty; }
     size_t numOfAdjacents() const pure nothrow @safe @nogc { return _numOfAdjacents; }
+    //size_t numOfAdjacents() const { return _numOfAdjacents + uniform(-3, 3); }
     size_t numOfRemainStones() const pure nothrow @safe @nogc { return _numOfRemainStones; }
 
     size_t lastStoneID() const pure nothrow @safe @nogc { return _commit.stone.id; }
