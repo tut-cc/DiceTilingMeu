@@ -51,6 +51,8 @@ struct RainbowSearchState
             if(f.numOfRemainStones < leastRS)
                 return false;
 
+            if(slots.length == 0) leastRS = f.numOfRemainStones;
+
             if((f.numOfRemainStones - leastRS) >= slots.length){
                 slots.length = (f.numOfRemainStones - leastRS) + 1;
                 thrEachSlots.length = (f.numOfRemainStones - leastRS) + 1;
