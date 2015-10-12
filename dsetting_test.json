@@ -1,6 +1,6 @@
 {
-    "ip": "192.168.1.219",
+    "ip": "169.254.162.134",
     "server": "testform26.procon-online.net",
     "token": "0123456789abcdef",
-    "problem": "1"
+    "problem": 1
 }

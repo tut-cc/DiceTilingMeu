@@ -4,3 +4,12 @@ copyright "Copyright © 2015, Kazuki Komatsu"
 authors "Kazuki Komatsu"
 targetType "autodetect"
 dependency "carbon" version="~>1.6.0"
+
+configuration "procon" {
+    targetType "executable"
+}
+
+configuration "localtest" {
+    targetType "executable"
+    versions "Procon26LocalTest"
+}

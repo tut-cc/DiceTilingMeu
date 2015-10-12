@@ -7,6 +7,7 @@ import core.thread;
 import std.conv;
 import std.json;
 import std.file;
+import std.path;
 import core.sync.mutex;
 import procon26.http;
 
@@ -35,7 +36,7 @@ __gshared JSONValue serverSettings;
 
 shared static this()
 {
-    serverSettings = readText("setting.json").parseJSON();
+    serverSettings = readText(buildPath("..", "dsetting.json")).parseJSON();
 
     auto router = new URLRouter;
     router.post("/update", &update);
@@ -82,7 +83,7 @@ void problem(HTTPServerRequest req, HTTPServerResponse res)
         RequestSpec spec;
         spec.token = serverSettings["token"].str;
         spec.host = serverSettings["server"].str;
-        problem = getProblem(spec, 1);
+        problem = getProblem(spec, cast(int)serverSettings["problem"].integer);
     }
 
     res.writeBody(problem);
@@ -110,15 +111,15 @@ void update(HTTPServerRequest req, HTTPServerResponse res)
                                      req.form["stones"].to!int,
                                      answer);
 
+    //writefln("query: %s", req.form);
     bool bUpdate = false;
-
-    if(*ans < bestAnswer){
-        bestAnswer = *ans;
-        bUpdate = true;
-        synchronized(mtxUpdate){
+    synchronized(mtxUpdate){
+        if(*ans < bestAnswer){
+            bestAnswer = *ans;
+            bUpdate = true;
             ansReq = ans;
+            ans = null;
         }
-        ans = null;
     }
 
 
@@ -133,27 +134,33 @@ void postThread()
 {
     while(1)
     {
-        while(1){
-            synchronized(mtxUpdate){
-                if(ansReq !is null)
-                    break;
-            }
-            Thread.sleep(dur!"msecs"(200));
-        }
-
         try{
-            synchronized(mtxUpdate){
-                writeln("!!!!!!!!!!POST!!!!!!!!!!!", Clock.currTime);
-
-                RequestSpec spec;
-                spec.token = serverSettings["token"].str;
-                spec.host = serverSettings["server"].str;
-                postAnswer(spec, ansReq.answer).writeln();
-
-                ansReq = null;
+            while(1){
+                synchronized(mtxUpdate){
+                    if(ansReq !is null)
+                        break;
+                }
+                Thread.sleep(dur!"msecs"(200));
             }
+
+            try{
+                synchronized(mtxUpdate){
+                    writeln("!!!!!!!!!!POST!!!!!!!!!!!", Clock.currTime);
+
+                    RequestSpec spec;
+                    spec.token = serverSettings["token"].str;
+                    spec.host = serverSettings["server"].str;
+                    postAnswer(spec, ansReq.answer).writeln();
+
+                    ansReq = null;
+                }
+            }
+            catch(Exception ex){ writeln(ex); }
+            Thread.sleep(dur!"msecs"(1000));
         }
-        catch(Exception ex){ writeln(ex); }
-        Thread.sleep(dur!"msecs"(1000));
+        catch(Exception ex)
+        {
+            writeln(ex);
+        }
     }
 }
