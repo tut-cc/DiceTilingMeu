@@ -301,7 +301,7 @@ GeneralField simpleRainbowSearch(alias resultConsumer, alias genField, alias fie
     size_t incIdx = 1;
 
     Task[] taskList = inputs;
-    while(incIdx < 20)
+    while(incIdx < 1000)
     {
         writefln("!!!!!!! Start Stage%s !!!!!!!", incIdx);
 
