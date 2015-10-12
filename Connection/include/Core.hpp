@@ -7,19 +7,15 @@ namespace asio = boost::asio;
 using asio::ip::tcp;
 
 class Core {
-  asio::io_service& io_service_;
-  tcp::socket socket_;
   std::string host_;
-  std::string token_;
-  int num_;
 
 public:
-  Core(asio::io_service&, const std::string&, const std::string&, int);
+  Core(const std::string&);
   Core() = delete;
   Core(const Core &) = delete;
   Core(Core &&) = delete;
   ~Core() = default;
 
-  std::string get();
-  void submit(const std::string &);
+  virtual std::string get(bool flag=false) final;
+  void submit(int, int, const std::string &);
 };
