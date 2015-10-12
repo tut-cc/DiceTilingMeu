@@ -14,6 +14,8 @@ import std.parallelism;
 import std.random;
 import std.range;
 
+import std.random;
+
 
 version(unittest) import std.stdio;
 import std.stdio;
@@ -29,8 +31,11 @@ struct RainbowSearchState
     {
         size_t thr;
         size_t thrSlot;
+        size_t maxNumOfAdj = 0;
         size_t minNumOfAdj = size_t.max;
+        size_t[] thrEachSlots;
         RBTree[] slots; // indexed by numOfRemainStones
+        //LazyField[][] bads;
         size_t leastRS = 0;
         size_t limitStoneID = size_t.max;
 
@@ -48,29 +53,47 @@ struct RainbowSearchState
 
             if((f.numOfRemainStones - leastRS) >= slots.length){
                 slots.length = (f.numOfRemainStones - leastRS) + 1;
+                thrEachSlots.length = (f.numOfRemainStones - leastRS) + 1;
+                //bads.length = (f.numOfRemainStones - leastRS) + 1;
 
                 if(slots.length > thrSlot){
                     leastRS += (slots.length - thrSlot);
                     slots = slots[$-thrSlot .. $];
+                    thrEachSlots = thrEachSlots[$-thrSlot .. $];
+                    //bads = bads[$-thrSlot .. $];
                 }
             }
 
             RBTree slot = slots[f.numOfRemainStones - leastRS];
+            size_t thrForThisSlot = thrEachSlots[f.numOfRemainStones - leastRS];
+            //LazyField[]* bad = &(bads[f.numOfRemainStones - leastRS]);
             if(slot is null){
                 slot = new RBTree;
                 slots[f.numOfRemainStones - leastRS] = slot;
+                thrForThisSlot = thr;
+                thrEachSlots[f.numOfRemainStones - leastRS] = thr;
             }
 
             immutable nAdj = f.numOfAdjacents;
 
-            if(slot.length < thr){
+            
+            if(slot.length < thrForThisSlot){
+                maxNumOfAdj = max(maxNumOfAdj, nAdj);
                 minNumOfAdj = min(minNumOfAdj, nAdj);
                 slot.insert(f);
                 return true;
-            }else if(nAdj < minNumOfAdj){
+            }else if(nAdj == maxNumOfAdj && uniform01() < (thr*1.0 / slot.length)^^2/20){
                 slot.insert(f);
-                slot.removeBack();
-                minNumOfAdj = slot.back().numOfAdjacents;
+                ++thrEachSlots[f.numOfRemainStones - leastRS];
+                return true;
+            }else if(nAdj < maxNumOfAdj){
+                minNumOfAdj = min(minNumOfAdj, nAdj);
+                slot.insert(f);
+
+                while(slot.length > thrForThisSlot)
+                    slot.removeBack();
+
+                maxNumOfAdj = slot.back().numOfAdjacents;
                 return true;
             }
 
@@ -87,6 +110,10 @@ struct RainbowSearchState
                     res = dg(e);
                     if(res) return res;
                 }
+                //foreach(ref e; bads[k]){
+                //    res = dg(e);
+                //    if(res) return res;
+                //}
             }
 
             return res;
@@ -108,8 +135,10 @@ struct RainbowSearchState
     {
         foreach_reverse(i, ref stage; stages)
         {
-            //writeln(i);
-            //writefln("     %s: %s, %s", i, stage.slots[].map!"a is null ? 0 : 1".sum(), stage.slots[].map!"a is null ? 0 : a.length");
+            if(i % 100 == 0)
+                writeln(i);
+            //if(stage.slots.length != 0)
+                //writefln("     %s: %s, %s, %s, %s", i, stage.slots[].map!"a is null ? 0 : 1".sum(), stage.minNumOfAdj, stage.leastRS, stage.slots[].map!"a is null ? 0 : a.length");
 
             // for GC, release unused state
             if(stage.slots[].map!"a is null ? 0 : a.length".sum()){
@@ -149,7 +178,7 @@ auto nextFields(GeneralField field, Problem problem)
         {
             int res = 0;
             //foreach(id; _field.history[$-1].stone.id+1 .. min(_problem.stones.length, _field.history[$-1].stone.id+5)){
-            foreach(i; 1 .. 5) if(uniform(0, 3^^i) <= 3){
+            foreach(i; 1 .. 4) if(uniform(0, 3^^i) <= 3){
                 auto id =  _field.history[$-1].stone.id + i;
                 if(id >= _field.problem.stones.length) break;
 
@@ -203,14 +232,12 @@ size_t calcSlotSize(size_t idxOfStage, size_t numOfEmpty)
     //    else return 20;
     //}
     //else{
-    //    if(idxOfStage < 50) return 32;
-    //    else if(idxOfStage < 100) return 20;
-    //    return 10;
+        if(idxOfStage < 50) return 3;
+        else if(idxOfStage < 100) return 4;
+        else if(idxOfStage < 200) return 5;
+        else if(idxOfStage < 400) return 6;
+        else return 7;
     //}
-    //if(numOfEmpty - idxOfStage < 100) return 5;
-    //else if(numOfEmpty - idxOfStage < 200) return 10;
-    //else return 20;
-    return 5;
 }
 
 
@@ -223,16 +250,17 @@ size_t calcThrValue(size_t idxOfStage, size_t numOfEmpty)
     //else if(numOfEmpty < 500){
     //    if(idxOfStage < 20) return 256;
     //    else if(idxOfStage < 50) return 64;
-    //    else if(idxOfStage < 100) return 40;
+    //    else if(idxOfStage < 100) return 32;
     //    else if(idxOfStage < 200) return 40;
     //    else if(idxOfStage < 400) return 40;
     //    else return 40;
     //}else{
-    //    if(idxOfStage < 50) return 256;
-    //    else if(idxOfStage < 100) return 20;
-    //    return 20;
+        if(idxOfStage < 50) return 6;
+        else if(idxOfStage < 100) return 8;
+        else if(idxOfStage < 200) return 10;
+        else if(idxOfStage < 400) return 12;
+        else return 14;
     //}
-    return 30;
 }
 
 
@@ -250,11 +278,9 @@ void recalculateLimitStomeID(Problem problem, in size_t[] sumOfZk, size_t[] limi
 }
 
 
-
 GeneralField simpleRainbowSearch(alias resultConsumer, alias genField, alias fieldToTask, Task)(Problem problem, Task[] inputs)
 {
     GeneralField minResult = null;
-
 
     size_t[] sumOfZk = new size_t[problem.stones.length];
     foreach_reverse(i, st; problem.stones){
@@ -289,13 +315,13 @@ GeneralField simpleRainbowSearch(alias resultConsumer, alias genField, alias fie
 
             foreach(i, ref e; state.stages){
                 e.thr = size_t.max;
-                e.thrSlot = calcSlotSize(i, problem.numOfEmpty) * incIdx^^2;
+                e.thrSlot = calcSlotSize(i, problem.numOfEmpty) * incIdx;
             }
 
             genField(problem, task, state);
 
             foreach(i, ref e; state.stages){
-                e.thr = calcThrValue(i, problem.numOfEmpty) * incIdx^^2;
+                e.thr = calcThrValue(i, problem.numOfEmpty) * incIdx;
                 e.limitStoneID = limitStoneID[i];
             }
 
@@ -340,7 +366,7 @@ GeneralField simpleRainbowSearchByStone(alias resultConsumer)(Problem problem)
     }
 
     InputTask[] inputs;
-    foreach(i, stone; problem.stones[0 .. min(4, $)])
+    foreach(i, stone; problem.stones[0 .. min(3, $)])
         foreach(ss; stone.uniqueState)
             inputs ~= InputTask(stone[ss]);
 

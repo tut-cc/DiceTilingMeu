@@ -111,15 +111,15 @@ void update(HTTPServerRequest req, HTTPServerResponse res)
                                      req.form["stones"].to!int,
                                      answer);
 
+    writefln("query: %s", req.form);
     bool bUpdate = false;
-
-    if(*ans < bestAnswer){
-        bestAnswer = *ans;
-        bUpdate = true;
-        synchronized(mtxUpdate){
+    synchronized(mtxUpdate){
+        if(*ans < bestAnswer){
+            bestAnswer = *ans;
+            bUpdate = true;
             ansReq = ans;
+            ans = null;
         }
-        ans = null;
     }
 
 
