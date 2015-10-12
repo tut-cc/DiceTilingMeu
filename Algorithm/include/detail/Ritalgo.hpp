@@ -622,7 +622,7 @@ double Ritalgo<F, S>::Ant::v(const int idx, const int add, const int x, const in
 {
   //const double a = -log(4.0) / ((BEAM - 1) * (BEAM - 1));
   //const double a = -1024.0 / ::mypow((double)remains[idx + add] / field->score(), 10);
-  const double a = (double)remains[idx + add] / field->score() < 1.2 ? (add == 0 ? 1 : log(4.0)/add) : (-log(4.0) / (BEAM - 1));
+  const double a = (-log(4.0) / (BEAM - 1));
   //std::cerr << add << " : " << std::exp(add * a) << std::endl;
   const double hv = h(stones[idx + add], x, y, rev, ang) /**/ * std::exp(add * a) /**/ /* * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size()) */;
 //  const double hv = h(stones[idx + add], x, y, rev, ang) /**/ * std::exp(a * add * add) /**/ /* * std::exp(2.0 * std::sqrt(std::log(2.0)) * idx / stones.size()) */;
@@ -655,28 +655,48 @@ void Ritalgo<F, S>::Ant::run_over() noexcept
   unsigned int pre = 0;
   for (; idx < stones.size(); ++idx) {
     //if (idx == who)continue;
-    if (dist(mt) < 0.05) {
-      continue;
-    }
     std::vector<std::tuple<int, int, int, int, int, int>> list;
     std::vector<double> roulette;
     //std::vector<double> roulette2;
     double accum = 0.0;
+
+    if (remains[idx] > field->score() && dist(mt) < 0.05) {
+      continue;
+    }
     //double accum2 = 0.0;
-    for (unsigned int add = 0; add < (BEAM - 1) && idx + add < stones.size(); ++add) {
-      const unsigned int next = idx + add;
-      for (const auto & t : ok_list[next]) {
+    if ((double)remains[idx] / field->score() < 1.2) {
+      // DO NOT SKIP
+      for (const auto & t : ok_list[idx]) {
         int x, y, rev, ang;
         std::tie(x, y, rev, ang) = t;
-        if (field->appliable(stones[next], x, y, rev, ang)) {
-          list.push_back(std::make_tuple(next, 0, x, y, rev, ang));
+        if (field->appliable(stones[idx], x, y, rev, ang)) {
+          list.push_back(std::make_tuple(idx, 0, x, y, rev, ang));
           //const std::pair<double, double> res = v2(pre, add + idx - pre, x, y, rev, ang);
           //accum += res.first;
           //roulette.push_back(accum);
           //accum2 += res.second;
           //roulette2.push_back(accum2);
-          accum += v(pre, add + idx - pre, x, y, rev, ang);
+          accum += v(idx, 0, x, y, rev, ang);
           roulette.push_back(accum);
+        }
+      }
+    }
+    else {
+      for (unsigned int add = 0; add < (BEAM - 1) && idx + add < stones.size(); ++add) {
+        const unsigned int next = idx + add;
+        for (const auto & t : ok_list[next]) {
+          int x, y, rev, ang;
+          std::tie(x, y, rev, ang) = t;
+          if (field->appliable(stones[next], x, y, rev, ang)) {
+            list.push_back(std::make_tuple(next, 0, x, y, rev, ang));
+            //const std::pair<double, double> res = v2(pre, add + idx - pre, x, y, rev, ang);
+            //accum += res.first;
+            //roulette.push_back(accum);
+            //accum2 += res.second;
+            //roulette2.push_back(accum2);
+            accum += v(pre, add + idx - pre, x, y, rev, ang);
+            roulette.push_back(accum);
+          }
         }
       }
     }
