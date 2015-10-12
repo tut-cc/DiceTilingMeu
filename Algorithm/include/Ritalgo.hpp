@@ -17,6 +17,7 @@ class Ritalgo : public Algorithm {
     std::unique_ptr<Field> field;
     std::vector<std::shared_ptr<Stone>> stones;
     std::vector <std::vector < std::tuple < int, int, int, int >>> ok_list;
+    std::vector<int> remains;
     std::unique_ptr<Core> core;
     bool is_production;
     void submit(std::unique_ptr<Field>);
@@ -66,30 +67,29 @@ class Ritalgo : public Algorithm {
     };
     class Ant {
       private:
-        // TODO: PHEROMONE to constexpr value to function made from average score
-        static constexpr double PHEROMONE = 1024.0;
-        //static constexpr double ALPHA = 3.0;
-        //static constexpr double BETA = 5.0;
         static constexpr double ALPHA = 10.0;
-        static constexpr double BETA = 5.0;
-        static constexpr int    BEAM = Env::BEAM;
+        static constexpr double BETA = 20.0;
+        static constexpr int DALPHA = 10;
+        static constexpr int DBETA = 20;
+        static constexpr int BEAM = Env::BEAM;
 
         std::unique_ptr<Field> field;
         std::vector<std::shared_ptr<Stone>> stones;
         const std::vector<std::vector<std::tuple<int, int, int, int>>> &ok_list;
+        const std::vector<int> &remains;
         std::shared_ptr<Env> env;
         std::mt19937 mt;
         std::uniform_real_distribution<double> dist;
         std::uniform_int_distribution<int> skipper;
-        double h(const std::shared_ptr<Stone> s, const int x, const int y, const int rev, const int ang) const noexcept;
-        double v(const int idx, const int add, const int x, const int y, const int rev, const int ang) const;
-        double v2(const int idx, const int add, const int x, const int y, const int rev, const int ang) const noexcept;
+        std::normal_distribution<> normal;
+        double h(const std::shared_ptr<Stone> s, const int x, const int y, const int rev, const int ang) noexcept;
+        std::pair<double, double> h2(const std::shared_ptr<Stone> s, const int x, const int y, const int rev, const int ang) const noexcept;
+        double v(const int idx, const int add, const int x, const int y, const int rev, const int ang) noexcept;
+        std::pair<double, double> v2(const int idx, const int add, const int x, const int y, const int rev, const int ang) const noexcept;
       public:
-        Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, const std::vector<std::vector<std::tuple<int, int, int, int>>> & ok_list, std::shared_ptr<Env> env);
+        Ant(std::unique_ptr<Field> field, const std::vector<std::shared_ptr<Stone>> & stones, const std::vector<std::vector<std::tuple<int, int, int, int>>> & ok_list, const std::vector<int> &remains, std::shared_ptr<Env> env);
         ~Ant() = default;
-        void run() noexcept;
         void run_over() noexcept;
-        void renew();
         void renew(double anchor);
         void reset(std::unique_ptr<Field> field);
         int score() const;
