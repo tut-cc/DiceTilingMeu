@@ -44,56 +44,9 @@ std::string Core::get(bool flag)
     std::getline(ifs, line);
     dst << line << std::endl;
   }
-<<<<<<< HEAD
-  return prob.str();
-}
-
-void Core::submit(const std::string& answer)
-{
-  auto constexpr BOUNDARY = "--cce6735153bf14e47e999e68bb183e70a1fa7fc89722fc1efdf03a917340";
-  auto constexpr ENDL     = "\r\n";
-=======
->>>>>>> 1183e493edd48b87909315f07f677e696073fd56
-
-  std::cerr << "GET done" << std::endl;
-
-<<<<<<< HEAD
-  rs << "POST " << "/answer" << " HTTP/1.1" << ENDL;
-  rs << "Host: " << host_ << ENDL;
-  rs << "Content-Type: multipart/form-data; boundary=" << BOUNDARY << ENDL;
-  rs << ENDL;
-  rs << "--" << BOUNDARY << ENDL;
-  rs << R"(Content-Disposition: form-data; name="token")" << ENDL;
-  rs << ENDL;
-  rs << token_ << ENDL;
-  rs << "--" << BOUNDARY << ENDL;
-  rs << R"(Content-Disposition: form-data; name="answer"; filename="answer.txt")" << ENDL;
-  rs << "Content-Type: text/plain" << ENDL;
-  rs << ENDL;
-  rs << answer << ENDL;
-  rs << ENDL;
-  rs << "--" << BOUNDARY << "--" << ENDL << ENDL;
-
-  const std::string result = boost::asio::buffer_cast<const char*>(request.data());
-  std::cerr << result << std::endl;
-
-  boost::asio::write(socket_, request);
-=======
   return dst.str();
 }
->>>>>>> 1183e493edd48b87909315f07f677e696073fd56
 
-/*
-        ,,,lllllllllllllllll,,,,    ,lllllllll      ,lllllllll    ,lllllllllllllllllllllll,,          lllllllll
-       ,llllllllllll''''''llllll''lllllllll      ,lllllllll    ,lllllllll'''''''lllllllllll,      lllllllll
-     ,lllllllll''              llllllllll      ,lllllllll    ,lllllllll'         llllllllll     ,lllllllll
-     llllllll'               ,lllllllll'      lllllllll'    ,lllllllll,,,,,,,,,,,lllllllll'   ,lllllllll'
-    lllllll                lllllllll'      llllllllll    ,llllllllllllllllllllllll'''       lllllllll'
-  'llllllllll,            ,llllllllll     ,lllllllll'    ,lllllllll'   llllllllll,        lllllllll
-  lllllllllll,,,,,,,,,lllllllllllll,,,,,,llllllll'     llllllllll    'llllllllll,      ,llllllllll,,,,,,,,,,,,,,,,,
-   ''lllllllllllllllllll''llllllllllllllllll''''      llllllllll      'lllllllll,     lllllllllllllllllllllllllll'
-          ''''''''               ''''''''
- */
 void Core::submit(int score, int stones, const std::string& filename = "answer.latest.txt")
 {
   std::stringstream ss;
